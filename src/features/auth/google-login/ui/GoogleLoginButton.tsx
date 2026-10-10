@@ -1,4 +1,7 @@
+"use client";
+
 import { env } from "@/shared/config/env";
+import { useDictionary } from "@/shared/i18n";
 import { cn } from "@/shared/lib/cn";
 import { buttonBase, buttonStyles } from "@/shared/ui";
 
@@ -27,10 +30,11 @@ function GoogleMark() {
 
 /** Starts the Google redirect flow. A full navigation, since the backend owns the OAuth exchange. */
 export function GoogleLoginButton() {
+  const { auth } = useDictionary();
   return (
     <a href={`${env.apiUrl}/auth/google`} className={cn(buttonBase, buttonStyles.secondary)}>
       <GoogleMark />
-      Continue with Google
+      {auth.login.google}
     </a>
   );
 }

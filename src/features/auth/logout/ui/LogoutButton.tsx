@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { useSession } from "@/entities/session";
 import { apiClient } from "@/shared/api";
+import { useDictionary } from "@/shared/i18n";
 import { Button } from "@/shared/ui";
 
 export function LogoutButton() {
   const session = useSession();
+  const { auth } = useDictionary();
   const [isLoading, setIsLoading] = useState(false);
 
   async function handleClick() {
@@ -21,7 +23,7 @@ export function LogoutButton() {
 
   return (
     <Button variant="secondary" isLoading={isLoading} onClick={handleClick}>
-      Sign out
+      {auth.logout}
     </Button>
   );
 }

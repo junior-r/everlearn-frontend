@@ -49,6 +49,10 @@ function messageFrom(body: ErrorBody, fallback: string): string {
   return fallback;
 }
 
+function serialize(body: unknown): string | undefined {
+  return body === undefined ? undefined : JSON.stringify(body);
+}
+
 async function toApiError(response: Response): Promise<ApiError> {
   const body = (await response.json().catch(() => ({}))) as ErrorBody;
   const code = typeof body.code === "string" ? body.code : `HTTP_${response.status}`;
@@ -75,7 +79,9 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
 
   async function send(path: string, request: RequestOptions): Promise<Response> {
     const headers: Record<string, string> = { Accept: "application/json", ...request.headers };
-    if (request.body !== undefined) {
+    // For FormData the browser must set the multipart boundary itself
+    const isForm = request.body instanceof FormData;
+    if (request.body !== undefined && !isForm) {
       headers["Content-Type"] = "application/json";
     }
     if (accessToken && !request.skipAuth) {
@@ -85,7 +91,7 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
       return await doFetch(`${options.baseUrl}${path}`, {
         method: request.method ?? "GET",
         headers,
-        body: request.body === undefined ? undefined : JSON.stringify(request.body),
+        body: isForm ? (request.body as FormData) : serialize(request.body),
         // Required for the browser to send the httpOnly refresh cookie
         credentials: "include",
         signal: request.signal,

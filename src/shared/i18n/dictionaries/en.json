@@ -1,0 +1,90 @@
+{
+  "metadata": {
+    "title": "Everlearn",
+    "description": "Everlearn learning platform"
+  },
+  "common": {
+    "brand": "Everlearn",
+    "loading": "Loading…",
+    "or": "or"
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in",
+      "subtitle": "Use your institution account to continue.",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign in",
+      "google": "Continue with Google"
+    },
+    "callback": {
+      "signingIn": "Signing you in…"
+    },
+    "logout": "Sign out"
+  },
+  "home": {
+    "welcome": "Welcome, {name}",
+    "signedInAs": "Signed in as {email}"
+  },
+  "onboarding": {
+    "title": "Verify your identity",
+    "subtitle": "We need a photo of your identity document to complete your profile.",
+    "steps": {
+      "capture": "Document",
+      "confirm": "Details",
+      "done": "Review"
+    },
+    "documentType": {
+      "label": "Document type",
+      "NATIONAL_ID": "National ID",
+      "PASSPORT": "Passport",
+      "OTHER": "Other"
+    },
+    "camera": {
+      "start": "Turn on camera",
+      "starting": "Turning on camera…",
+      "instructions": "Place your document inside the frame and avoid glare.",
+      "capture": "Take photo",
+      "retake": "Retake photo",
+      "use": "Use this photo",
+      "upload": "Upload an image",
+      "previewAlt": "Preview of your document photo",
+      "denied": "We could not access the camera. Allow access in your browser or upload an image.",
+      "unavailable": "We could not find a camera on this device. You can upload an image."
+    },
+    "processing": "Reading your document…",
+    "confirm": {
+      "title": "Confirm your details",
+      "subtitle": "We read these details from your document. Check them and correct anything that is wrong.",
+      "firstName": "First names",
+      "lastName": "Last names",
+      "documentNumber": "Document number",
+      "birthDate": "Date of birth",
+      "submit": "Submit for review",
+      "retake": "Retake the photo"
+    },
+    "submitted": {
+      "title": "Application submitted",
+      "body": "Your institution will review your details. We will let you know when your account is active."
+    }
+  },
+  "errors": {
+    "fallback": "Something went wrong. Please try again.",
+    "NETWORK_ERROR": "We could not reach the server. Check your connection and try again.",
+    "RATE_LIMITED": "Too many attempts. Wait a moment and try again.",
+    "INVALID_CREDENTIALS": "The email or password is incorrect.",
+    "ACCOUNT_SUSPENDED": "This account has been suspended. Contact your institution.",
+    "GOOGLE_OAUTH_UNAVAILABLE": "Google sign-in is not available right now.",
+    "GOOGLE_EMAIL_NOT_VERIFIED": "Your Google account email is not verified.",
+    "GOOGLE_AUTHENTICATION_FAILED": "Google sign-in did not complete. Please try again.",
+    "INVALID_OAUTH_STATE": "Google sign-in did not complete. Please try again.",
+    "UNSUPPORTED_DOCUMENT_IMAGE": "The photo must be a JPEG, PNG or WebP image.",
+    "DOCUMENT_IMAGE_TOO_LARGE": "The photo is too large. The maximum is 5 MB.",
+    "HTTP_413": "The photo is too large. The maximum is 5 MB.",
+    "OCR_PROCESSING_FAILED": "We could not read your document. Take another photo in good light.",
+    "INVALID_BIRTH_DATE": "The date of birth is not valid.",
+    "APPLICATION_ALREADY_SUBMITTED": "Your application was already submitted.",
+    "NOTHING_TO_CONFIRM": "Take a photo of your document first.",
+    "HTTP_400": "Check the details and try again."
+  }
+}

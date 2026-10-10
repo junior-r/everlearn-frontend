@@ -1,16 +1,18 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useSession } from "@/entities/session";
+import { useDictionary, useLocalizedRouter } from "@/shared/i18n";
+import { PageStatus } from "@/shared/ui";
 
 /**
  * Landing page after the Google redirect. The backend has already set the
  * refresh cookie, so the session provider restores the session on load.
  */
 export function AuthCallbackPage() {
-  const router = useRouter();
+  const router = useLocalizedRouter();
   const { status } = useSession();
+  const { auth } = useDictionary();
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -21,11 +23,5 @@ export function AuthCallbackPage() {
     }
   }, [status, router]);
 
-  return (
-    <main className="flex min-h-dvh items-center justify-center">
-      <p role="status" className="text-sm text-muted">
-        Signing you in…
-      </p>
-    </main>
-  );
+  return <PageStatus>{auth.callback.signingIn}</PageStatus>;
 }

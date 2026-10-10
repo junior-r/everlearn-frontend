@@ -9,11 +9,24 @@ export default defineConfig({
   use: {
     baseURL: "http://localhost:3000",
     trace: "retain-on-failure",
+    locale: "es-ES",
+    permissions: ["camera"],
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: [
+    {
+      name: "chromium",
+      use: {
+        ...devices["Desktop Chrome"],
+        launchOptions: {
+          // A synthetic webcam feed, with the permission prompt auto-accepted
+          args: ["--use-fake-device-for-media-stream", "--use-fake-ui-for-media-stream"],
+        },
+      },
+    },
+  ],
   webServer: {
     command: "pnpm dev",
-    url: "http://localhost:3000/login",
+    url: "http://localhost:3000/es/login",
     reuseExistingServer: true,
     timeout: 120_000,
   },

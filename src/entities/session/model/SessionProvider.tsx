@@ -21,6 +21,8 @@ type SessionState =
 type SessionContextValue = SessionState & {
   establish(response: AuthResponse): void;
   clear(): void;
+  /** Re-reads the user from the server after something changed their profile. */
+  reload(): Promise<void>;
 };
 
 const SessionContext = createContext<SessionContextValue | null>(null);
@@ -43,6 +45,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const clear = useCallback(() => {
     apiClient.setAccessToken(null);
     setState(ANONYMOUS);
+  }, []);
+
+  const reload = useCallback(async () => {
+    const user = await apiClient.request<SessionUser>("/auth/me");
+    setState({ status: "authenticated", user });
   }, []);
 
   useEffect(() => {
@@ -72,7 +79,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     [],
   );
 
-  const value = useMemo(() => ({ ...state, establish, clear }), [state, establish, clear]);
+  const value = useMemo(
+    () => ({ ...state, establish, clear, reload }),
+    [state, establish, clear, reload],
+  );
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }
 

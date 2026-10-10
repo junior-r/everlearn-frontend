@@ -1,0 +1,90 @@
+{
+  "metadata": {
+    "title": "Everlearn",
+    "description": "Plataforma educativa Everlearn"
+  },
+  "common": {
+    "brand": "Everlearn",
+    "loading": "Cargando…",
+    "or": "o"
+  },
+  "auth": {
+    "login": {
+      "title": "Iniciar sesión",
+      "subtitle": "Usa tu cuenta institucional para continuar.",
+      "email": "Correo electrónico",
+      "password": "Contraseña",
+      "submit": "Iniciar sesión",
+      "google": "Continuar con Google"
+    },
+    "callback": {
+      "signingIn": "Iniciando sesión…"
+    },
+    "logout": "Cerrar sesión"
+  },
+  "home": {
+    "welcome": "Te damos la bienvenida, {name}",
+    "signedInAs": "Sesión iniciada como {email}"
+  },
+  "onboarding": {
+    "title": "Verifica tu identidad",
+    "subtitle": "Necesitamos una foto de tu documento de identidad para completar tu perfil.",
+    "steps": {
+      "capture": "Documento",
+      "confirm": "Datos",
+      "done": "Revisión"
+    },
+    "documentType": {
+      "label": "Tipo de documento",
+      "NATIONAL_ID": "Documento de identidad",
+      "PASSPORT": "Pasaporte",
+      "OTHER": "Otro"
+    },
+    "camera": {
+      "start": "Activar cámara",
+      "starting": "Activando cámara…",
+      "instructions": "Coloca tu documento dentro del marco y evita los reflejos.",
+      "capture": "Tomar foto",
+      "retake": "Repetir foto",
+      "use": "Usar esta foto",
+      "upload": "Subir una imagen",
+      "previewAlt": "Vista previa de la foto de tu documento",
+      "denied": "No pudimos acceder a la cámara. Permite el acceso en tu navegador o sube una imagen.",
+      "unavailable": "No encontramos una cámara en este dispositivo. Puedes subir una imagen."
+    },
+    "processing": "Analizando tu documento…",
+    "confirm": {
+      "title": "Confirma tus datos",
+      "subtitle": "Leímos estos datos de tu documento. Revísalos y corrige lo que haga falta.",
+      "firstName": "Nombres",
+      "lastName": "Apellidos",
+      "documentNumber": "Número de documento",
+      "birthDate": "Fecha de nacimiento",
+      "submit": "Enviar para revisión",
+      "retake": "Volver a tomar la foto"
+    },
+    "submitted": {
+      "title": "Solicitud enviada",
+      "body": "Tu institución revisará tus datos. Te avisaremos cuando tu cuenta esté activa."
+    }
+  },
+  "errors": {
+    "fallback": "Algo salió mal. Inténtalo de nuevo.",
+    "NETWORK_ERROR": "No pudimos conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.",
+    "RATE_LIMITED": "Demasiados intentos. Espera un momento e inténtalo de nuevo.",
+    "INVALID_CREDENTIALS": "El correo o la contraseña no son correctos.",
+    "ACCOUNT_SUSPENDED": "Esta cuenta está suspendida. Contacta a tu institución.",
+    "GOOGLE_OAUTH_UNAVAILABLE": "El inicio de sesión con Google no está disponible en este momento.",
+    "GOOGLE_EMAIL_NOT_VERIFIED": "El correo de tu cuenta de Google no está verificado.",
+    "GOOGLE_AUTHENTICATION_FAILED": "No se completó el inicio de sesión con Google. Inténtalo de nuevo.",
+    "INVALID_OAUTH_STATE": "No se completó el inicio de sesión con Google. Inténtalo de nuevo.",
+    "UNSUPPORTED_DOCUMENT_IMAGE": "La foto debe ser una imagen JPEG, PNG o WebP.",
+    "DOCUMENT_IMAGE_TOO_LARGE": "La foto es demasiado grande. El máximo es 5 MB.",
+    "HTTP_413": "La foto es demasiado grande. El máximo es 5 MB.",
+    "OCR_PROCESSING_FAILED": "No pudimos leer tu documento. Toma otra foto con buena luz.",
+    "INVALID_BIRTH_DATE": "La fecha de nacimiento no es válida.",
+    "APPLICATION_ALREADY_SUBMITTED": "Tu solicitud ya fue enviada.",
+    "NOTHING_TO_CONFIRM": "Primero toma una foto de tu documento.",
+    "HTTP_400": "Revisa los datos e inténtalo de nuevo."
+  }
+}

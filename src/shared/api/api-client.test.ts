@@ -52,6 +52,17 @@ describe("createApiClient", () => {
     expect(calls[1].init.body).toBe('{"a":1}');
   });
 
+  it("sends FormData untouched and lets the browser set the multipart content type", async () => {
+    const { client, calls } = setup(() => json(200, {}));
+    const form = new FormData();
+    form.append("file", new Blob(["x"]), "id.jpg");
+
+    await client.request("/onboarding/document", { method: "POST", body: form });
+
+    expect(calls[0].init.body).toBe(form);
+    expect((calls[0].init.headers as Record<string, string>)["Content-Type"]).toBeUndefined();
+  });
+
   it("refreshes once on a 401 and retries with the new token", async () => {
     const { client, calls } = setup((call) => {
       if (call.url.endsWith("/auth/refresh")) {

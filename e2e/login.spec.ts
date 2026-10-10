@@ -1,79 +1,75 @@
-import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
+import { expect, test } from "@playwright/test";
+import { API_URL, formError, registerUser, signIn } from "./support";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
-const PASSWORD = "correct-password";
+test("signs in and survives a reload", async ({ page, playwright }) => {
+  const email = await registerUser(playwright);
 
-// Scoped to <main> because Next.js adds its own role="alert" route announcer to the body
-const formError = (page: Page) => page.getByRole("main").getByRole("alert");
+  await signIn(page, email);
 
-async function registerUser(request: APIRequestContext): Promise<string> {
-  const email = `e2e-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@example.com`;
-  const response = await request.post(`${API_URL}/auth/register`, {
-    data: { email, password: PASSWORD, firstName: "Ada", lastName: "Lovelace" },
-  });
-  expect(response.status()).toBe(201);
-  return email;
-}
-
-test("signs in, survives a reload and signs out", async ({ page, playwright }) => {
-  // A separate context, so registering does not leave a session cookie in the browser
-  const api = await playwright.request.newContext();
-  const email = await registerUser(api);
-  await api.dispose();
-
-  await page.goto("/login");
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill(PASSWORD);
-  await page.getByRole("button", { name: "Sign in" }).click();
-
-  await expect(page).toHaveURL("/");
-  await expect(page.getByRole("heading", { name: "Welcome, Ada" })).toBeVisible();
-  await expect(page.getByText(`Signed in as ${email}`)).toBeVisible();
+  // A new account has not been verified yet, so it lands on onboarding
+  await expect(page).toHaveURL("/es/onboarding");
+  await expect(page.getByRole("heading", { name: "Verifica tu identidad" })).toBeVisible();
 
   // The access token is memory-only, so this proves the refresh cookie restores the session
   await page.reload();
-  await expect(page.getByRole("heading", { name: "Welcome, Ada" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Verifica tu identidad" })).toBeVisible();
+});
 
-  await page.getByRole("button", { name: "Sign out" }).click();
-  await expect(page).toHaveURL("/login");
+test("logging out revokes the session on the server, not just in the browser", async ({
+  page,
+  context,
+  playwright,
+}) => {
+  const email = await registerUser(playwright);
+  await signIn(page, email);
+  await expect(page).toHaveURL("/es/onboarding");
+  const stolenCookies = await context.cookies(API_URL + "/auth/refresh");
+  expect(stolenCookies.map((cookie) => cookie.name)).toContain("everlearn_refresh");
 
-  await page.goto("/");
-  await expect(page).toHaveURL("/login");
+  // Same request the sign-out button makes; page.request shares the browser's cookies
+  const logout = await page.request.post(`${API_URL}/auth/logout`);
+  expect(logout.status()).toBe(204);
+
+  // Replay the cookie an attacker could have copied before the logout
+  const attacker = await playwright.request.newContext();
+  const replay = await attacker.post(`${API_URL}/auth/refresh`, {
+    headers: { Cookie: stolenCookies.map((cookie) => `${cookie.name}=${cookie.value}`).join("; ") },
+  });
+  expect(replay.status()).toBe(401);
+  await attacker.dispose();
+
+  await page.goto("/es");
+  await expect(page).toHaveURL("/es/login");
 });
 
 test("shows an error for a wrong password and stays on the login page", async ({
   page,
   playwright,
 }) => {
-  const api = await playwright.request.newContext();
-  const email = await registerUser(api);
-  await api.dispose();
+  const email = await registerUser(playwright);
 
-  await page.goto("/login");
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill("wrong-password");
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await signIn(page, email, "wrong-password");
 
-  await expect(formError(page)).toHaveText("The email or password is incorrect.");
-  await expect(page).toHaveURL("/login");
+  await expect(formError(page)).toHaveText("El correo o la contraseña no son correctos.");
+  await expect(page).toHaveURL("/es/login");
 });
 
 test("sends anonymous visitors to the login page", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/es");
 
-  await expect(page).toHaveURL("/login");
-  await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
+  await expect(page).toHaveURL("/es/login");
+  await expect(page.getByRole("heading", { name: "Iniciar sesión" })).toBeVisible();
 });
 
 test("offers Google sign-in through the backend and explains a failed attempt", async ({
   page,
 }) => {
-  await page.goto("/login?error=GOOGLE_AUTHENTICATION_FAILED");
+  await page.goto("/es/login?error=GOOGLE_AUTHENTICATION_FAILED");
 
   await expect(formError(page)).toHaveText(
-    "Google sign-in did not complete. Please try again.",
+    "No se completó el inicio de sesión con Google. Inténtalo de nuevo.",
   );
-  await expect(page.getByRole("link", { name: "Continue with Google" })).toHaveAttribute(
+  await expect(page.getByRole("link", { name: "Continuar con Google" })).toHaveAttribute(
     "href",
     `${API_URL}/auth/google`,
   );
