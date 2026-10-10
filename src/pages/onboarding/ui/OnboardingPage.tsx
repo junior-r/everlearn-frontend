@@ -12,7 +12,7 @@ import { LogoutButton } from "@/features/auth/logout";
 import { DocumentCamera, uploadDocument } from "@/features/onboarding/capture-document";
 import { ConfirmIdentityForm } from "@/features/onboarding/confirm-identity";
 import { ApiError } from "@/shared/api";
-import { errorMessage, useDictionary, useLocalizedRouter } from "@/shared/i18n";
+import { errorMessage, format, useDictionary, useLocalizedRouter } from "@/shared/i18n";
 import { cn } from "@/shared/lib/cn";
 import { CenteredCard, ErrorNotice, PageStatus, SelectField } from "@/shared/ui";
 
@@ -118,6 +118,11 @@ export function OnboardingPage() {
             <h1 className="text-2xl font-semibold tracking-tight">{onboarding.title}</h1>
             <p className="mt-1.5 text-sm text-muted">{onboarding.subtitle}</p>
           </div>
+          {application?.status === "REJECTED" && application.rejectionReason && (
+            <ErrorNotice
+              message={format(onboarding.rejected, { reason: application.rejectionReason })}
+            />
+          )}
           <ErrorNotice message={errorMessage(errors, errorCode)} />
           {isProcessing ? (
             <p role="status" className="flex items-center gap-3 py-10 text-sm text-muted">

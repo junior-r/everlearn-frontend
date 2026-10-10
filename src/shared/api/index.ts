@@ -9,3 +9,15 @@ export const apiClient = createApiClient({
   baseUrl: env.apiUrl,
   refreshPath: "/auth/refresh",
 });
+
+/** Headers naming the institution an admin request acts on; the backend authorizes against it. */
+export function forInstitution(institutionId: string): Record<string, string> {
+  return { "x-institution-id": institutionId };
+}
+
+/** The backend error code of a failed request, or "UNKNOWN" for anything else. */
+export function errorCode(error: unknown): string {
+  return error instanceof Error && "code" in error && typeof error.code === "string"
+    ? error.code
+    : "UNKNOWN";
+}

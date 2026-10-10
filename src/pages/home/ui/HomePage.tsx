@@ -1,28 +1,30 @@
 "use client";
 
 import { useEffect } from "react";
-import { useSession } from "@/entities/session";
+import { canAccessAdmin, useSession } from "@/entities/session";
 import { LogoutButton } from "@/features/auth/logout";
 import { format, useDictionary, useLocalizedRouter } from "@/shared/i18n";
 import { CenteredCard, PageStatus } from "@/shared/ui";
 
-/** Placeholder landing screen until the dashboards exist. Applicants are sent to onboarding instead. */
+/** Placeholder landing screen for Teachers and Students. Pending members go to onboarding and admins to the dashboard. */
 export function HomePage() {
   const router = useLocalizedRouter();
   const session = useSession();
   const { common, home } = useDictionary();
   const needsOnboarding = session.user?.status === "PENDING_ONBOARDING";
+  const isAdmin = session.user !== null && !needsOnboarding && canAccessAdmin(session.user);
 
   useEffect(() => {
     if (session.status === "anonymous") {
       router.replace("/login");
-    }
-    if (needsOnboarding) {
+    } else if (needsOnboarding) {
       router.replace("/onboarding");
+    } else if (isAdmin) {
+      router.replace("/admin");
     }
-  }, [session.status, needsOnboarding, router]);
+  }, [session.status, needsOnboarding, isAdmin, router]);
 
-  if (session.status !== "authenticated" || needsOnboarding) {
+  if (session.status !== "authenticated" || needsOnboarding || isAdmin) {
     return <PageStatus>{common.loading}</PageStatus>;
   }
 

@@ -63,6 +63,33 @@ describe("createApiClient", () => {
     expect((calls[0].init.headers as Record<string, string>)["Content-Type"]).toBeUndefined();
   });
 
+  it("downloads files as blobs with the same auth and refresh behaviour", async () => {
+    const { client, calls } = setup((call) => {
+      if (call.url.endsWith("/auth/refresh")) {
+        return json(200, { accessToken: "token-2" });
+      }
+      return authHeader(call) === "Bearer token-2"
+        ? new Response("photo-bytes", { status: 200, headers: { "Content-Type": "image/jpeg" } })
+        : json(401, {});
+    });
+    client.setAccessToken("expired");
+
+    const blob = await client.requestBlob("/photo", { headers: { "x-institution-id": "inst-1" } });
+
+    expect(await blob.text()).toBe("photo-bytes");
+    expect(blob.type).toBe("image/jpeg");
+    expect((calls[2].init.headers as Record<string, string>)["x-institution-id"]).toBe("inst-1");
+  });
+
+  it("reports a failed download as an ApiError with the backend code", async () => {
+    const { client } = setup(() => json(404, { code: "APPLICATION_NOT_FOUND", message: "nope" }));
+
+    await expect(client.requestBlob("/photo", { skipAuth: true })).rejects.toMatchObject({
+      status: 404,
+      code: "APPLICATION_NOT_FOUND",
+    });
+  });
+
   it("refreshes once on a 401 and retries with the new token", async () => {
     const { client, calls } = setup((call) => {
       if (call.url.endsWith("/auth/refresh")) {

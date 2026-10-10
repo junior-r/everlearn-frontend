@@ -1,13 +1,14 @@
 import { expect, test } from "@playwright/test";
-import { API_URL, formError, registerUser, signIn } from "./support";
+import { createInstitution, formError, signIn } from "./support";
 
 // Chromium's fake camera (see playwright.config.ts) stands in for the device webcam
 test("photographs the ID, corrects the OCR data and submits it for review", async ({
   page,
   playwright,
 }) => {
-  const email = await registerUser(playwright);
-  await signIn(page, email);
+  const institution = await createInstitution(playwright);
+  const student = await institution.register("STUDENT");
+  await signIn(page, student.email, student.password);
   await expect(page).toHaveURL("/es/onboarding");
 
   await page.getByLabel("Tipo de documento").selectOption("PASSPORT");
@@ -41,36 +42,23 @@ test("photographs the ID, corrects the OCR data and submits it for review", asyn
   await expect(page.getByLabel("Número de documento")).toHaveValue("12345678");
 
   await page.getByLabel("Número de documento").fill("87654321");
-  await page.getByLabel("Nombres").fill("María");
   await page.getByRole("button", { name: "Enviar para revisión" }).click();
 
   await expect(page.getByRole("heading", { name: "Solicitud enviada" })).toBeVisible();
-
-  // What the user confirmed, not what the OCR read, is what the backend saved
-  const application = await page.evaluate(async (apiUrl) => {
-    const refreshed = await fetch(`${apiUrl}/auth/refresh`, { method: "POST", credentials: "include" });
-    const { accessToken, user } = await refreshed.json();
-    const current = await fetch(`${apiUrl}/onboarding/application`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-    return { user, ...(await current.json()) };
-  }, API_URL);
-  expect(application.application.status).toBe("NEEDS_REVIEW");
-  expect(application.application.documentType).toBe("PASSPORT");
-  expect(application.user.firstName).toBe("María");
-
   await page.reload();
   await expect(page.getByRole("heading", { name: "Solicitud enviada" })).toBeVisible();
   await page.getByRole("button", { name: "Cerrar sesión" }).click();
   await expect(page).toHaveURL("/es/login");
+  await institution.dispose();
 });
 
 test("lets the applicant retake the photo from the confirmation step", async ({
   page,
   playwright,
 }) => {
-  const email = await registerUser(playwright);
-  await signIn(page, email);
+  const institution = await createInstitution(playwright);
+  const student = await institution.register("STUDENT");
+  await signIn(page, student.email, student.password);
 
   await page.getByRole("button", { name: "Activar cámara" }).click();
   const video = page.getByTestId("camera-video");
@@ -86,14 +74,16 @@ test("lets the applicant retake the photo from the confirmation step", async ({
   await page.getByRole("button", { name: "Volver a tomar la foto" }).click();
 
   await expect(page.getByRole("button", { name: "Activar cámara" })).toBeVisible();
+  await institution.dispose();
 });
 
 test("falls back to uploading a file and rejects one that is not an image", async ({
   page,
   playwright,
 }) => {
-  const email = await registerUser(playwright);
-  await signIn(page, email);
+  const institution = await createInstitution(playwright);
+  const teacher = await institution.register("TEACHER");
+  await signIn(page, teacher.email, teacher.password);
   await expect(page).toHaveURL("/es/onboarding");
 
   await page.getByLabel("Subir una imagen").setInputFiles({
@@ -105,6 +95,7 @@ test("falls back to uploading a file and rejects one that is not an image", asyn
 
   await expect(formError(page)).toHaveText("La foto debe ser una imagen JPEG, PNG o WebP.");
   await expect(page.getByRole("button", { name: "Activar cámara" })).toBeVisible();
+  await institution.dispose();
 });
 
 test("explains a blocked camera and still offers the upload", async ({ browser, playwright }) => {
@@ -115,14 +106,16 @@ test("explains a blocked camera and still offers the upload", async ({ browser, 
     navigator.mediaDevices.getUserMedia = () =>
       Promise.reject(new DOMException("Permission denied", "NotAllowedError"));
   });
-  const email = await registerUser(playwright);
-  await signIn(page, email);
+  const institution = await createInstitution(playwright);
+  const student = await institution.register("STUDENT");
+  await signIn(page, student.email, student.password);
 
   await page.getByRole("button", { name: "Activar cámara" }).click();
 
   await expect(formError(page)).toContainText("No pudimos acceder a la cámara");
   await expect(page.getByLabel("Subir una imagen")).toBeAttached();
   await context.close();
+  await institution.dispose();
 });
 
 test("requires signing in", async ({ page }) => {

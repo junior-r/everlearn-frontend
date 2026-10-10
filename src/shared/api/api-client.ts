@@ -28,6 +28,8 @@ export type TokenListener = (token: string | null) => void;
 
 export interface ApiClient {
   request<T>(path: string, options?: RequestOptions): Promise<T>;
+  /** Like `request`, for endpoints that return a file instead of JSON. */
+  requestBlob(path: string, options?: RequestOptions): Promise<Blob>;
   getAccessToken(): string | null;
   setAccessToken(token: string | null): void;
   /** Calls the listener whenever the access token changes; returns an unsubscribe function. */
@@ -134,16 +136,30 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     return refreshInFlight;
   }
 
-  async function request<T>(path: string, request: RequestOptions = {}): Promise<T> {
+  /** Sends the request and, if the access token had expired, refreshes it once and sends it again. */
+  async function sendWithRefresh(path: string, request: RequestOptions): Promise<Response> {
     const response = await send(path, request);
     if (response.status === 401 && !request.skipAuth && (await refreshOnce())) {
-      return parse<T>(await send(path, request));
+      return send(path, request);
     }
-    return parse<T>(response);
+    return response;
+  }
+
+  async function request<T>(path: string, request: RequestOptions = {}): Promise<T> {
+    return parse<T>(await sendWithRefresh(path, request));
+  }
+
+  async function requestBlob(path: string, request: RequestOptions = {}): Promise<Blob> {
+    const response = await sendWithRefresh(path, request);
+    if (!response.ok) {
+      throw await toApiError(response);
+    }
+    return response.blob();
   }
 
   return {
     request,
+    requestBlob,
     getAccessToken: () => accessToken,
     setAccessToken,
     subscribe(listener) {

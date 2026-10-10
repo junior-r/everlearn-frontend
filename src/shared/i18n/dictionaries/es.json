@@ -63,13 +63,124 @@
       "submit": "Enviar para revisión",
       "retake": "Volver a tomar la foto"
     },
+    "rejected": "Tu solicitud anterior fue rechazada: {reason} Toma una nueva foto para intentarlo otra vez.",
     "submitted": {
       "title": "Solicitud enviada",
       "body": "Tu institución revisará tus datos. Te avisaremos cuando tu cuenta esté activa."
     }
   },
+  "roles": {
+    "ADMIN": "Administrador de institución",
+    "COORDINATOR": "Coordinador",
+    "TEACHER": "Docente",
+    "STUDENT": "Estudiante",
+    "GUARDIAN": "Representante"
+  },
+  "userStatus": {
+    "PENDING_ONBOARDING": "Pendiente de verificación",
+    "ACTIVE": "Activo",
+    "SUSPENDED": "Suspendido"
+  },
+  "admin": {
+    "title": "Administración",
+    "nav": {
+      "label": "Secciones de administración",
+      "institutions": "Instituciones",
+      "subjects": "Materias",
+      "members": "Miembros",
+      "reviews": "Revisiones pendientes"
+    },
+    "institutionSwitcher": {
+      "label": "Institución",
+      "none": "Aún no hay instituciones. Crea una para empezar.",
+      "required": "Selecciona una institución para continuar."
+    },
+    "common": {
+      "active": "Activa",
+      "inactive": "Inactiva",
+      "actions": "Acciones",
+      "delete": "Eliminar",
+      "create": "Crear"
+    },
+    "institutions": {
+      "title": "Instituciones",
+      "subtitle": "Solo los administradores de la plataforma pueden crear instituciones.",
+      "empty": "Todavía no hay instituciones.",
+      "name": "Nombre",
+      "slug": "Identificador",
+      "slugHint": "Minúsculas, números y guiones. Ejemplo: colegio-central",
+      "timezone": "Zona horaria",
+      "status": "Estado",
+      "newTitle": "Nueva institución",
+      "activate": "Activar",
+      "deactivate": "Desactivar"
+    },
+    "subjects": {
+      "title": "Materias",
+      "subtitle": "Materias que ofrece la institución seleccionada.",
+      "empty": "Esta institución aún no tiene materias.",
+      "code": "Código",
+      "name": "Nombre",
+      "description": "Descripción",
+      "newTitle": "Nueva materia"
+    },
+    "members": {
+      "title": "Miembros",
+      "subtitle": "Registra a los docentes y estudiantes de tu institución. Ellos no pueden registrarse por su cuenta.",
+      "empty": "Esta institución aún no tiene miembros.",
+      "name": "Nombre",
+      "firstName": "Nombres",
+      "lastName": "Apellidos",
+      "email": "Correo electrónico",
+      "role": "Rol",
+      "status": "Estado",
+      "newTitle": "Registrar miembro",
+      "register": "Registrar",
+      "registeredTitle": "Miembro registrado",
+      "registeredBody": "Entrega estas credenciales a {name}. La contraseña temporal no se volverá a mostrar.",
+      "temporaryPassword": "Contraseña temporal",
+      "dismiss": "Ya las copié"
+    },
+    "reviews": {
+      "title": "Revisiones pendientes",
+      "subtitle": "Compara el documento con la persona que registraste antes de activar su cuenta.",
+      "empty": "No hay solicitudes pendientes de revisión.",
+      "photoAlt": "Foto del documento de {name}",
+      "photoUnavailable": "No se pudo cargar la foto del documento.",
+      "field": "Dato",
+      "registered": "Registrado por la institución",
+      "extracted": "Leído del documento",
+      "confirmed": "Confirmado por la persona",
+      "name": "Nombre",
+      "documentNumber": "Número de documento",
+      "birthDate": "Fecha de nacimiento",
+      "documentType": "Tipo de documento",
+      "notAvailable": "—",
+      "approve": "Aprobar",
+      "reject": "Rechazar",
+      "reason": "Motivo del rechazo",
+      "reasonHint": "La persona verá este motivo para poder corregirlo.",
+      "confirmReject": "Confirmar rechazo",
+      "cancel": "Cancelar"
+    }
+  },
   "errors": {
     "fallback": "Algo salió mal. Inténtalo de nuevo.",
+    "ACCOUNT_NOT_REGISTERED": "No existe una cuenta con este correo. Tu institución debe registrarte primero.",
+    "EMAIL_ALREADY_REGISTERED": "Ya existe una cuenta con este correo.",
+    "MEMBER_ROLE_NOT_ALLOWED": "No tienes permiso para registrar miembros con este rol.",
+    "INSTITUTION_NOT_FOUND": "No se encontró la institución.",
+    "INSTITUTION_SLUG_TAKEN": "Otra institución ya usa este identificador.",
+    "INSTITUTION_NOT_EMPTY": "No se puede eliminar una institución con miembros. Desactívala.",
+    "INVALID_TIMEZONE": "La zona horaria no es válida. Ejemplo: America/Caracas",
+    "SUBJECT_CODE_TAKEN": "Otra materia ya usa este código.",
+    "SUBJECT_IN_USE": "La materia pertenece a un pensum y no se puede eliminar.",
+    "SUBJECT_NOT_FOUND": "No se encontró la materia.",
+    "APPLICATION_NOT_FOUND": "No se encontró la solicitud.",
+    "APPLICATION_NOT_AWAITING_REVIEW": "Esta solicitud ya fue revisada.",
+    "REJECTION_REASON_REQUIRED": "Indica el motivo del rechazo.",
+    "ONBOARDING_NOT_AVAILABLE": "Esta cuenta no tiene un registro pendiente por verificar.",
+    "HTTP_403": "No tienes permiso para hacer esto.",
     "NETWORK_ERROR": "No pudimos conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.",
     "RATE_LIMITED": "Demasiados intentos. Espera un momento e inténtalo de nuevo.",
     "INVALID_CREDENTIALS": "El correo o la contraseña no son correctos.",

@@ -1,35 +1,50 @@
 import type { ButtonHTMLAttributes } from "react";
 import { cn } from "@/shared/lib/cn";
 
-type Variant = "primary" | "secondary";
+type Variant = "primary" | "secondary" | "danger";
+type Size = "md" | "sm";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant;
+  /** `md` fills its container (forms); `sm` hugs its label (tables and toolbars). */
+  size?: Size;
   isLoading?: boolean;
 }
 
 export const buttonStyles: Record<Variant, string> = {
   primary: "bg-brand text-on-brand hover:bg-brand-strong",
   secondary: "border border-line bg-surface text-foreground hover:bg-surface-muted",
+  danger: "border border-danger/40 bg-surface text-danger hover:bg-danger-surface",
 };
 
-export const buttonBase =
-  "inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg px-4 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-60";
+const sizes: Record<Size, string> = {
+  md: "h-11 w-full px-4",
+  sm: "h-9 px-3",
+};
+
+const base =
+  "inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-60";
+
+/** For links and labels that should look like a full-width button. */
+export const buttonBase = `${base} ${sizes.md}`;
 
 export function Button({
   variant = "primary",
+  size = "md",
   isLoading = false,
   disabled,
   className,
   children,
+  type = "button",
   ...props
 }: ButtonProps) {
   return (
     <button
       {...props}
+      type={type}
       disabled={disabled || isLoading}
       aria-busy={isLoading}
-      className={cn(buttonBase, buttonStyles[variant], className)}
+      className={cn(base, sizes[size], buttonStyles[variant], className)}
     >
       {isLoading && (
         <span
