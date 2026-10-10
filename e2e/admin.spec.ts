@@ -1,8 +1,10 @@
 import { expect, test } from "@playwright/test";
 import {
+  chooseOwnPassword,
   completeOnboarding,
   createInstitution,
   formError,
+  PASSWORD,
   PLATFORM_ADMIN,
   signIn,
 } from "./support";
@@ -43,6 +45,8 @@ test("the full pipeline: an admin registers a Student, the Student onboards, the
   const studentContext = await browser.newContext({ locale: "es-ES", permissions: ["camera"] });
   const studentPage = await studentContext.newPage();
   await signIn(studentPage, studentEmail, temporaryPassword);
+  // The temporary password only lets them choose their own; then onboarding opens
+  await chooseOwnPassword(studentPage, temporaryPassword);
   await completeOnboarding(studentPage, "Grace Brewster");
 
   // 3. The admin reviews: the photo sits beside the registered, OCR and confirmed data
@@ -63,7 +67,7 @@ test("the full pipeline: an admin registers a Student, the Student onboards, the
 
   // 4. The Student is now active and lands on the home page under the name from their ID
   await studentPage.getByRole("button", { name: "Cerrar sesión" }).click();
-  await signIn(studentPage, studentEmail, temporaryPassword);
+  await signIn(studentPage, studentEmail, PASSWORD);
   await expect(studentPage).toHaveURL("/es");
   await expect(
     studentPage.getByRole("heading", { name: "Te damos la bienvenida, Grace Brewster" }),

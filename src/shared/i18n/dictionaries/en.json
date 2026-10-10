@@ -20,11 +20,26 @@
     "callback": {
       "signingIn": "Signing you in…"
     },
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "changePassword": {
+      "title": "Change password",
+      "forcedTitle": "Create your password",
+      "forcedSubtitle": "Your institution gave you a temporary password. Replace it with your own to continue.",
+      "current": "Current password",
+      "currentTemporary": "Temporary password",
+      "new": "New password",
+      "confirm": "Repeat the new password",
+      "hint": "At least 8 characters.",
+      "submit": "Save password",
+      "changed": "Your password was updated."
+    }
   },
   "home": {
     "welcome": "Welcome, {name}",
-    "signedInAs": "Signed in as {email}"
+    "signedInAs": "Signed in as {email}",
+    "institution": "Institution: {name}",
+    "settings": "Profile settings",
+    "changeInstitution": "Switch institution"
   },
   "onboarding": {
     "title": "Verify your identity",
@@ -88,12 +103,16 @@
       "institutions": "Institutions",
       "subjects": "Subjects",
       "members": "Members",
-      "reviews": "Pending reviews"
+      "reviews": "Pending reviews",
+      "pensums": "Pensums",
+      "groups": "Groups",
+      "settings": "Profile settings"
     },
     "institutionSwitcher": {
       "label": "Institution",
       "none": "There are no institutions yet. Create one to get started.",
-      "required": "Select an institution to continue."
+      "required": "Select an institution to continue.",
+      "change": "Switch institution"
     },
     "common": {
       "active": "Active",
@@ -139,7 +158,9 @@
       "registeredTitle": "Member registered",
       "registeredBody": "Give these credentials to {name}. The temporary password will not be shown again.",
       "temporaryPassword": "Temporary password",
-      "dismiss": "I have copied them"
+      "dismiss": "I have copied them",
+      "existingTitle": "Member added",
+      "existingBody": "{name} already had an account. They were added to this institution and keep using their current credentials."
     },
     "reviews": {
       "title": "Pending reviews",
@@ -162,11 +183,86 @@
       "reasonHint": "The person will see this reason so they can fix it.",
       "confirmReject": "Confirm rejection",
       "cancel": "Cancel"
+    },
+    "pensums": {
+      "title": "Pensums",
+      "subtitle": "The institution's curricula and the subjects each one includes.",
+      "empty": "This institution has no pensums yet.",
+      "code": "Code",
+      "name": "Name",
+      "version": "Version",
+      "subjectCount": "Subjects",
+      "newTitle": "New pensum",
+      "manage": "Manage",
+      "subjectsTitle": "Subjects of {name}",
+      "noSubjects": "This pensum has no subjects yet.",
+      "subject": "Subject",
+      "level": "Level",
+      "weeklyHours": "Weekly hours",
+      "addTitle": "Add a subject",
+      "add": "Add",
+      "remove": "Remove",
+      "noAvailableSubjects": "Create subjects first so you can add them to a pensum."
+    },
+    "groups": {
+      "title": "Groups",
+      "subtitle": "Class sections: one pensum and level during one academic period.",
+      "periodsTitle": "Academic periods",
+      "noPeriods": "There are no academic periods yet.",
+      "periodName": "Period name",
+      "startDate": "Start",
+      "endDate": "End",
+      "newPeriod": "New period",
+      "empty": "This institution has no groups yet.",
+      "name": "Name",
+      "level": "Level",
+      "capacity": "Capacity",
+      "pensum": "Pensum",
+      "period": "Period",
+      "students": "Students",
+      "newTitle": "New group",
+      "manage": "Manage",
+      "needsSetup": "Create at least one pensum and one academic period before creating groups.",
+      "coursesTitle": "Subjects and teachers of {name}",
+      "noCourses": "The pensum has no subjects at this level.",
+      "subject": "Subject",
+      "weeklyHours": "Weekly hours",
+      "teacher": "Teacher",
+      "teacherFor": "Teacher of {subject}",
+      "unassigned": "Unassigned",
+      "studentsTitle": "Students of {name}",
+      "noStudents": "No students are enrolled yet.",
+      "student": "Student",
+      "enroll": "Enroll",
+      "enrollTitle": "Enroll a student",
+      "remove": "Remove",
+      "noCapacity": "No limit"
+    }
+  },
+  "institutionSelector": {
+    "title": "Choose an institution",
+    "subtitle": "You belong to several institutions. Choose which one to work in for this session.",
+    "enter": "Enter"
+  },
+  "settings": {
+    "title": "Profile settings",
+    "subtitle": "Your account and the ways you sign in.",
+    "back": "Back",
+    "profile": "Profile",
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "google": {
+      "title": "Google account",
+      "linked": "Your Google account is linked. You can sign in with Google.",
+      "notLinked": "Link your Google account to sign in without a password.",
+      "link": "Link Google account",
+      "requiresActive": "You can link Google once your institution activates your account.",
+      "success": "Your Google account is now linked."
     }
   },
   "errors": {
     "fallback": "Something went wrong. Please try again.",
-    "ACCOUNT_NOT_REGISTERED": "No account exists for this email. Your institution must register you first.",
     "EMAIL_ALREADY_REGISTERED": "An account with this email already exists.",
     "MEMBER_ROLE_NOT_ALLOWED": "You are not allowed to register members with this role.",
     "INSTITUTION_NOT_FOUND": "The institution was not found.",
@@ -196,6 +292,26 @@
     "INVALID_BIRTH_DATE": "The date of birth is not valid.",
     "APPLICATION_ALREADY_SUBMITTED": "Your application was already submitted.",
     "NOTHING_TO_CONFIRM": "Take a photo of your document first.",
-    "HTTP_400": "Check the details and try again."
+    "HTTP_400": "Check the details and try again.",
+    "PASSWORD_CHANGE_REQUIRED": "You must change your temporary password to continue.",
+    "INVALID_CURRENT_PASSWORD": "The current password is incorrect.",
+    "PASSWORD_UNCHANGED": "The new password must be different from the current one.",
+    "PASSWORDS_DO_NOT_MATCH": "The passwords do not match.",
+    "GOOGLE_ACCOUNT_NOT_LINKED": "This Google account is not linked. Sign in with your password and link it from your profile.",
+    "GOOGLE_ACCOUNT_ALREADY_LINKED": "That Google account is already linked to a user.",
+    "ACCOUNT_NOT_ACTIVE": "Your account must be active to do this.",
+    "MEMBER_ALREADY_REGISTERED": "This person already has that role in the institution.",
+    "PENSUM_VERSION_TAKEN": "A pensum with that code and version already exists.",
+    "PENSUM_IN_USE": "The pensum is used by groups and cannot be changed this way.",
+    "PENSUM_NOT_FOUND": "The pensum was not found.",
+    "PERIOD_NAME_TAKEN": "Another period already has that name.",
+    "INVALID_PERIOD_DATES": "The period must end after it starts.",
+    "GROUP_NAME_TAKEN": "Another group in this period already has that name.",
+    "GROUP_IN_USE": "The group has students or records and cannot be deleted.",
+    "GROUP_FULL": "The group has reached its capacity.",
+    "STUDENT_ALREADY_ENROLLED": "The student is already enrolled in this group.",
+    "STUDENT_NOT_FOUND": "There is no active student with that id.",
+    "TEACHER_NOT_FOUND": "There is no active teacher with that id.",
+    "SUBJECT_NOT_IN_GROUP": "The subject does not belong to this group's level."
   }
 }

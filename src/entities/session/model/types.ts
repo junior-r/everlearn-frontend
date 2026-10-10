@@ -16,6 +16,9 @@ export interface SessionUser {
   avatarUrl: string | null;
   status: UserStatus;
   isPlatformAdmin: boolean;
+  /** True while the account still has the temporary password an admin issued. */
+  mustChangePassword: boolean;
+  googleLinked: boolean;
   memberships: Membership[];
 }
 

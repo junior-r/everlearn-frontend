@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { createInstitution, formError, signIn } from "./support";
+import { API_URL, createInstitution, formError, signIn } from "./support";
 
 // Chromium's fake camera (see playwright.config.ts) stands in for the device webcam
 test("photographs the ID, corrects the OCR data and submits it for review", async ({
@@ -122,4 +122,34 @@ test("requires signing in", async ({ page }) => {
   await page.goto("/es/onboarding");
 
   await expect(page).toHaveURL("/es/login");
+});
+
+test("the server refuses an ID photo over 5 MB and keeps serving", async ({ playwright }) => {
+  const institution = await createInstitution(playwright);
+  const student = await institution.register("STUDENT");
+  const api = await playwright.request.newContext();
+  const login = await api.post(`${API_URL}/auth/login`, {
+    data: { email: student.email, password: student.password },
+  });
+  const { accessToken } = (await login.json()) as { accessToken: string };
+  const oversized = Buffer.alloc(5 * 1024 * 1024 + 1);
+  // Starts like a real JPEG, so only its size can be the reason it is refused
+  oversized.set([0xff, 0xd8, 0xff, 0xe0]);
+
+  const authorization = { Authorization: `Bearer ${accessToken}` };
+
+  const response = await api.post(`${API_URL}/onboarding/document`, {
+    headers: authorization,
+    multipart: {
+      documentType: "NATIONAL_ID",
+      file: { name: "id.jpg", mimeType: "image/jpeg", buffer: oversized },
+    },
+  });
+
+  expect(response.status()).toBe(413);
+  const current = await api.get(`${API_URL}/onboarding/application`, { headers: authorization });
+  expect(current.status()).toBe(200);
+  expect(((await current.json()) as { application: unknown }).application).toBeNull();
+  await api.dispose();
+  await institution.dispose();
 });

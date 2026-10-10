@@ -10,7 +10,8 @@ import { Button, ErrorNotice, SelectField, TextField } from "@/shared/ui";
 
 interface RegisteredMember {
   member: Member;
-  temporaryPassword: string;
+  /** Null when the person already had an account and keeps their own credentials. */
+  temporaryPassword: string | null;
 }
 
 interface RegisterMemberFormProps {
@@ -67,9 +68,13 @@ export function RegisterMemberForm({
     return (
       <div role="status" className="flex flex-col gap-4 rounded-lg border border-brand/40 p-4">
         <div>
-          <h3 className="font-semibold">{text.registeredTitle}</h3>
+          <h3 className="font-semibold">
+            {temporaryPassword ? text.registeredTitle : text.existingTitle}
+          </h3>
           <p className="mt-1 text-sm text-muted">
-            {format(text.registeredBody, { name: `${member.firstName} ${member.lastName}` })}
+            {format(temporaryPassword ? text.registeredBody : text.existingBody, {
+              name: `${member.firstName} ${member.lastName}`,
+            })}
           </p>
         </div>
         <dl className="grid gap-2 text-sm">
@@ -77,12 +82,14 @@ export function RegisterMemberForm({
             <dt className="text-muted">{text.email}</dt>
             <dd className="font-mono">{member.email}</dd>
           </div>
-          <div>
-            <dt className="text-muted">{text.temporaryPassword}</dt>
-            <dd className="font-mono" data-testid="temporary-password">
-              {temporaryPassword}
-            </dd>
-          </div>
+          {temporaryPassword && (
+            <div>
+              <dt className="text-muted">{text.temporaryPassword}</dt>
+              <dd className="font-mono" data-testid="temporary-password">
+                {temporaryPassword}
+              </dd>
+            </div>
+          )}
         </dl>
         <Button variant="secondary" onClick={() => setRegistered(null)}>
           {text.dismiss}

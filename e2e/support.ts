@@ -6,6 +6,8 @@ export const PLATFORM_ADMIN = {
   email: process.env.PLATFORM_ADMIN_EMAIL ?? "admin@everlearn.local",
   password: process.env.PLATFORM_ADMIN_PASSWORD ?? "dev-platform-admin-password",
 };
+/** The password test accounts end up with once their temporary one has been replaced. */
+export const PASSWORD = "e2e-own-password";
 
 type Playwright = PlaywrightWorkerArgs["playwright"];
 type MemberRole = "ADMIN" | "TEACHER" | "STUDENT";
@@ -15,14 +17,17 @@ export interface Account {
   password: string;
   firstName: string;
   lastName: string;
+  membershipId: string;
 }
 
 // Scoped to <main> because Next.js adds its own role="alert" route announcer to the body
 export const formError = (page: Page) => page.getByRole("main").getByRole("alert");
 
-let platformTokenPromise: Promise<string> | null = null;
-
 const unique = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
+// The smallest byte sequence the backend accepts as a JPEG
+const TINY_JPEG = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46]);
+
+let platformTokenPromise: Promise<string> | null = null;
 
 async function accessToken(api: APIRequestContext, email: string, password: string): Promise<string> {
   const response = await api.post(`${API_URL}/auth/login`, { data: { email, password } });
@@ -30,21 +35,20 @@ async function accessToken(api: APIRequestContext, email: string, password: stri
   return ((await response.json()) as { accessToken: string }).accessToken;
 }
 
-async function registerMember(
-  api: APIRequestContext,
-  token: string,
-  institutionId: string,
-  role: MemberRole,
-  names: { firstName: string; lastName: string },
-): Promise<Account> {
-  const email = `e2e-${role.toLowerCase()}-${unique()}@example.com`;
-  const response = await api.post(`${API_URL}/members`, {
-    headers: { Authorization: `Bearer ${token}`, "x-institution-id": institutionId },
-    data: { email, role, ...names },
+const bearer = (token: string, institutionId?: string) => ({
+  Authorization: `Bearer ${token}`,
+  ...(institutionId ? { "x-institution-id": institutionId } : {}),
+});
+
+/** Replaces a temporary password through the API and returns the unrestricted token. */
+async function replacePassword(api: APIRequestContext, email: string, temporary: string) {
+  const restricted = await accessToken(api, email, temporary);
+  const response = await api.post(`${API_URL}/auth/change-password`, {
+    headers: bearer(restricted),
+    data: { currentPassword: temporary, newPassword: PASSWORD },
   });
-  expect(response.status(), `register ${role}`).toBe(201);
-  const { temporaryPassword } = (await response.json()) as { temporaryPassword: string };
-  return { email, password: temporaryPassword, ...names };
+  expect(response.status(), `change password of ${email}`).toBe(200);
+  return ((await response.json()) as { accessToken: string }).accessToken;
 }
 
 /**
@@ -59,34 +63,125 @@ export async function createInstitution(playwright: Playwright) {
   const platformToken = await platformTokenPromise;
   const name = `Colegio E2E ${unique()}`;
   const created = await api.post(`${API_URL}/institutions`, {
-    headers: { Authorization: `Bearer ${platformToken}` },
+    headers: bearer(platformToken),
     data: { name, slug: `e2e-${unique()}`, timezone: "America/Caracas" },
   });
   expect(created.status(), "create institution").toBe(201);
   const institutionId = ((await created.json()) as { id: string }).id;
-  const admin = await registerMember(api, platformToken, institutionId, "ADMIN", {
-    firstName: "Directora",
-    lastName: "Prueba",
-  });
-  const adminToken = await accessToken(api, admin.email, admin.password);
+
+  async function post(token: string, path: string, data: object) {
+    return api.post(`${API_URL}${path}`, { headers: bearer(token, institutionId), data });
+  }
+
+  async function addMember(token: string, role: MemberRole, email: string, names: Names) {
+    const response = await post(token, "/members", { email, role, ...names });
+    expect(response.status(), `register ${role} ${email}`).toBe(201);
+    return (await response.json()) as {
+      member: { membershipId: string };
+      temporaryPassword: string | null;
+    };
+  }
+
+  const adminNames = { firstName: "Directora", lastName: "Prueba" };
+  const adminEmail = `e2e-admin-${unique()}@example.com`;
+  const appointed = await addMember(platformToken, "ADMIN", adminEmail, adminNames);
+  const adminToken = await replacePassword(api, adminEmail, appointed.temporaryPassword ?? "");
+  const admin: Account = {
+    email: adminEmail,
+    password: PASSWORD,
+    membershipId: appointed.member.membershipId,
+    ...adminNames,
+  };
 
   return {
     institutionId,
     name,
     admin,
-    /** Registers a pending Teacher or Student the way the admin dashboard would. */
-    async register(role: "TEACHER" | "STUDENT", names = { firstName: "Ada", lastName: "Lovelace" }) {
-      return registerMember(api, adminToken, institutionId, role, names);
+    /**
+     * Registers a Teacher or Student who has already chosen their own
+     * password, so they are pending onboarding and can sign in normally.
+     */
+    async register(role: "TEACHER" | "STUDENT", names: Names = DEFAULT_NAMES): Promise<Account> {
+      const email = `e2e-${role.toLowerCase()}-${unique()}@example.com`;
+      const registered = await addMember(adminToken, role, email, names);
+      await replacePassword(api, email, registered.temporaryPassword ?? "");
+      return { email, password: PASSWORD, membershipId: registered.member.membershipId, ...names };
+    },
+    /** Like `register`, but leaves the temporary password in place, as the admin would hand it over. */
+    async registerWithTemporaryPassword(role: "TEACHER" | "STUDENT", names: Names = DEFAULT_NAMES) {
+      const email = `e2e-${role.toLowerCase()}-${unique()}@example.com`;
+      const registered = await addMember(adminToken, role, email, names);
+      return {
+        email,
+        password: registered.temporaryPassword ?? "",
+        membershipId: registered.member.membershipId,
+        ...names,
+      };
+    },
+    /** Registers a member and takes them through onboarding and approval, leaving them active. */
+    async registerActive(role: "TEACHER" | "STUDENT", names: Names = DEFAULT_NAMES): Promise<Account> {
+      const email = `e2e-${role.toLowerCase()}-${unique()}@example.com`;
+      const registered = await addMember(adminToken, role, email, names);
+      const token = await replacePassword(api, email, registered.temporaryPassword ?? "");
+      const uploaded = await api.post(`${API_URL}/onboarding/document`, {
+        headers: bearer(token),
+        multipart: {
+          documentType: "NATIONAL_ID",
+          file: { name: "id.jpg", mimeType: "image/jpeg", buffer: TINY_JPEG },
+        },
+      });
+      expect(uploaded.status(), "upload ID").toBe(200);
+      const confirmed = await api.post(`${API_URL}/onboarding/confirm`, {
+        headers: bearer(token),
+        data: {
+          ...names,
+          documentType: "NATIONAL_ID",
+          documentNumber: "12345678",
+          birthDate: "2000-01-01",
+        },
+      });
+      expect(confirmed.status(), "confirm ID data").toBe(200);
+      const { application } = (await confirmed.json()) as { application: { id: string } };
+      const reviewed = await post(adminToken, `/onboarding/application/${application.id}/review`, {
+        decision: "APPROVE",
+      });
+      expect(reviewed.status(), "approve application").toBe(200);
+      return { email, password: PASSWORD, membershipId: registered.member.membershipId, ...names };
+    },
+    /** Gives someone who already has an account a role in this institution too. */
+    async addExisting(email: string, role: "TEACHER" | "STUDENT") {
+      const added = await addMember(adminToken, role, email, DEFAULT_NAMES);
+      expect(added.temporaryPassword, "existing accounts get no temporary password").toBeNull();
+    },
+    /** Calls an admin endpoint of this institution as its Institution Admin. */
+    async api<T>(path: string, data: object): Promise<T> {
+      const response = await post(adminToken, path, data);
+      expect(response.ok(), `POST ${path}: ${response.status()}`).toBe(true);
+      return (await response.json()) as T;
     },
     dispose: () => api.dispose(),
   };
 }
+
+type Names = { firstName: string; lastName: string };
+const DEFAULT_NAMES: Names = { firstName: "Ada", lastName: "Lovelace" };
 
 export async function signIn(page: Page, email: string, password: string): Promise<void> {
   await page.goto("/es/login");
   await page.getByLabel("Correo electrónico").fill(email);
   await page.getByLabel("Contraseña").fill(password);
   await page.getByRole("button", { name: "Iniciar sesión" }).click();
+}
+
+/** Fills the forced password change screen a new member lands on. */
+export async function chooseOwnPassword(page: Page, temporaryPassword: string): Promise<void> {
+  await expect(page).toHaveURL("/es/change-password");
+  // Scoped to the form: Next.js keeps the previous page (the login form) in the DOM, hidden
+  const form = page.getByRole("form", { name: "Cambiar contraseña" });
+  await form.getByLabel("Contraseña temporal").fill(temporaryPassword);
+  await form.getByLabel("Nueva contraseña", { exact: true }).fill(PASSWORD);
+  await form.getByLabel("Repite la nueva contraseña").fill(PASSWORD);
+  await form.getByRole("button", { name: "Guardar contraseña" }).click();
 }
 
 /** Takes a pending member from the camera step to "submitted for review". */

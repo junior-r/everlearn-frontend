@@ -6,8 +6,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   reporter: "list",
-  // The dev server compiles each route on first visit, which can take several seconds under parallel load
-  expect: { timeout: 15_000 },
+  expect: { timeout: 10_000 },
   use: {
     baseURL: "http://localhost:3000",
     trace: "retain-on-failure",
@@ -27,9 +26,10 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "pnpm dev",
+    // A production build: the dev server compiles routes on demand and proved unreliable under parallel tests
+    command: "pnpm build && pnpm start",
     url: "http://localhost:3000/es/login",
     reuseExistingServer: true,
-    timeout: 120_000,
+    timeout: 240_000,
   },
 });

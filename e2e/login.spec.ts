@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { API_URL, createInstitution, formError, signIn } from "./support";
 
-test("a registered Student signs in with the temporary password and survives a reload", async ({
+test("a registered Student signs in and survives a reload", async ({
   page,
   playwright,
 }) => {
@@ -76,13 +76,13 @@ test("sends anonymous visitors to the login page", async ({ page }) => {
   await expect(page).toHaveURL("/es/login");
 });
 
-test("offers Google sign-in through the backend and explains why an unregistered account was refused", async ({
+test("offers Google sign-in through the backend and explains why an unlinked account was refused", async ({
   page,
 }) => {
-  await page.goto("/es/login?error=ACCOUNT_NOT_REGISTERED");
+  await page.goto("/es/login?error=GOOGLE_ACCOUNT_NOT_LINKED");
 
   await expect(formError(page)).toHaveText(
-    "No existe una cuenta con este correo. Tu institución debe registrarte primero.",
+    "Esta cuenta de Google no está vinculada. Inicia sesión con tu contraseña y vincúlala desde tu perfil.",
   );
   await expect(page.getByRole("link", { name: "Continuar con Google" })).toHaveAttribute(
     "href",

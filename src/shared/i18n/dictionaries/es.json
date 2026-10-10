@@ -20,11 +20,26 @@
     "callback": {
       "signingIn": "Iniciando sesión…"
     },
-    "logout": "Cerrar sesión"
+    "logout": "Cerrar sesión",
+    "changePassword": {
+      "title": "Cambiar contraseña",
+      "forcedTitle": "Crea tu contraseña",
+      "forcedSubtitle": "Tu institución te dio una contraseña temporal. Reemplázala por una propia para continuar.",
+      "current": "Contraseña actual",
+      "currentTemporary": "Contraseña temporal",
+      "new": "Nueva contraseña",
+      "confirm": "Repite la nueva contraseña",
+      "hint": "Mínimo 8 caracteres.",
+      "submit": "Guardar contraseña",
+      "changed": "Tu contraseña fue actualizada."
+    }
   },
   "home": {
     "welcome": "Te damos la bienvenida, {name}",
-    "signedInAs": "Sesión iniciada como {email}"
+    "signedInAs": "Sesión iniciada como {email}",
+    "institution": "Institución: {name}",
+    "settings": "Configuración de perfil",
+    "changeInstitution": "Cambiar de institución"
   },
   "onboarding": {
     "title": "Verifica tu identidad",
@@ -88,12 +103,16 @@
       "institutions": "Instituciones",
       "subjects": "Materias",
       "members": "Miembros",
-      "reviews": "Revisiones pendientes"
+      "reviews": "Revisiones pendientes",
+      "pensums": "Pensums",
+      "groups": "Grupos",
+      "settings": "Configuración de perfil"
     },
     "institutionSwitcher": {
       "label": "Institución",
       "none": "Aún no hay instituciones. Crea una para empezar.",
-      "required": "Selecciona una institución para continuar."
+      "required": "Selecciona una institución para continuar.",
+      "change": "Cambiar de institución"
     },
     "common": {
       "active": "Activa",
@@ -139,7 +158,9 @@
       "registeredTitle": "Miembro registrado",
       "registeredBody": "Entrega estas credenciales a {name}. La contraseña temporal no se volverá a mostrar.",
       "temporaryPassword": "Contraseña temporal",
-      "dismiss": "Ya las copié"
+      "dismiss": "Ya las copié",
+      "existingTitle": "Miembro añadido",
+      "existingBody": "{name} ya tenía una cuenta. Se añadió a esta institución y seguirá usando sus credenciales actuales."
     },
     "reviews": {
       "title": "Revisiones pendientes",
@@ -162,11 +183,86 @@
       "reasonHint": "La persona verá este motivo para poder corregirlo.",
       "confirmReject": "Confirmar rechazo",
       "cancel": "Cancelar"
+    },
+    "pensums": {
+      "title": "Pensums",
+      "subtitle": "Planes de estudio de la institución y las materias que incluye cada uno.",
+      "empty": "Esta institución aún no tiene pensums.",
+      "code": "Código",
+      "name": "Nombre",
+      "version": "Versión",
+      "subjectCount": "Materias",
+      "newTitle": "Nuevo pensum",
+      "manage": "Gestionar",
+      "subjectsTitle": "Materias de {name}",
+      "noSubjects": "Este pensum aún no tiene materias.",
+      "subject": "Materia",
+      "level": "Nivel",
+      "weeklyHours": "Horas semanales",
+      "addTitle": "Añadir materia",
+      "add": "Añadir",
+      "remove": "Quitar",
+      "noAvailableSubjects": "Crea materias primero para poder añadirlas a un pensum."
+    },
+    "groups": {
+      "title": "Grupos",
+      "subtitle": "Secciones de clase: un pensum y un nivel durante un período académico.",
+      "periodsTitle": "Períodos académicos",
+      "noPeriods": "Aún no hay períodos académicos.",
+      "periodName": "Nombre del período",
+      "startDate": "Inicio",
+      "endDate": "Fin",
+      "newPeriod": "Nuevo período",
+      "empty": "Esta institución aún no tiene grupos.",
+      "name": "Nombre",
+      "level": "Nivel",
+      "capacity": "Cupo",
+      "pensum": "Pensum",
+      "period": "Período",
+      "students": "Estudiantes",
+      "newTitle": "Nuevo grupo",
+      "manage": "Gestionar",
+      "needsSetup": "Crea al menos un pensum y un período académico para poder crear grupos.",
+      "coursesTitle": "Materias y docentes de {name}",
+      "noCourses": "El pensum no tiene materias en este nivel.",
+      "subject": "Materia",
+      "weeklyHours": "Horas semanales",
+      "teacher": "Docente",
+      "teacherFor": "Docente de {subject}",
+      "unassigned": "Sin asignar",
+      "studentsTitle": "Estudiantes de {name}",
+      "noStudents": "Aún no hay estudiantes inscritos.",
+      "student": "Estudiante",
+      "enroll": "Inscribir",
+      "enrollTitle": "Inscribir estudiante",
+      "remove": "Retirar",
+      "noCapacity": "Sin límite"
+    }
+  },
+  "institutionSelector": {
+    "title": "Elige una institución",
+    "subtitle": "Perteneces a varias instituciones. Elige con cuál quieres trabajar en esta sesión.",
+    "enter": "Entrar"
+  },
+  "settings": {
+    "title": "Configuración de perfil",
+    "subtitle": "Tu cuenta y tus formas de iniciar sesión.",
+    "back": "Volver",
+    "profile": "Perfil",
+    "name": "Nombre",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "google": {
+      "title": "Cuenta de Google",
+      "linked": "Tu cuenta de Google está vinculada. Puedes iniciar sesión con Google.",
+      "notLinked": "Vincula tu cuenta de Google para iniciar sesión sin contraseña.",
+      "link": "Vincular cuenta de Google",
+      "requiresActive": "Podrás vincular Google cuando tu institución active tu cuenta.",
+      "success": "Tu cuenta de Google quedó vinculada."
     }
   },
   "errors": {
     "fallback": "Algo salió mal. Inténtalo de nuevo.",
-    "ACCOUNT_NOT_REGISTERED": "No existe una cuenta con este correo. Tu institución debe registrarte primero.",
     "EMAIL_ALREADY_REGISTERED": "Ya existe una cuenta con este correo.",
     "MEMBER_ROLE_NOT_ALLOWED": "No tienes permiso para registrar miembros con este rol.",
     "INSTITUTION_NOT_FOUND": "No se encontró la institución.",
@@ -196,6 +292,26 @@
     "INVALID_BIRTH_DATE": "La fecha de nacimiento no es válida.",
     "APPLICATION_ALREADY_SUBMITTED": "Tu solicitud ya fue enviada.",
     "NOTHING_TO_CONFIRM": "Primero toma una foto de tu documento.",
-    "HTTP_400": "Revisa los datos e inténtalo de nuevo."
+    "HTTP_400": "Revisa los datos e inténtalo de nuevo.",
+    "PASSWORD_CHANGE_REQUIRED": "Debes cambiar tu contraseña temporal para continuar.",
+    "INVALID_CURRENT_PASSWORD": "La contraseña actual no es correcta.",
+    "PASSWORD_UNCHANGED": "La nueva contraseña debe ser diferente de la actual.",
+    "PASSWORDS_DO_NOT_MATCH": "Las contraseñas no coinciden.",
+    "GOOGLE_ACCOUNT_NOT_LINKED": "Esta cuenta de Google no está vinculada. Inicia sesión con tu contraseña y vincúlala desde tu perfil.",
+    "GOOGLE_ACCOUNT_ALREADY_LINKED": "Esa cuenta de Google ya está vinculada a un usuario.",
+    "ACCOUNT_NOT_ACTIVE": "Tu cuenta debe estar activa para hacer esto.",
+    "MEMBER_ALREADY_REGISTERED": "Esta persona ya tiene ese rol en la institución.",
+    "PENSUM_VERSION_TAKEN": "Ya existe un pensum con ese código y versión.",
+    "PENSUM_IN_USE": "El pensum está en uso por grupos y no se puede cambiar así.",
+    "PENSUM_NOT_FOUND": "No se encontró el pensum.",
+    "PERIOD_NAME_TAKEN": "Otro período ya tiene ese nombre.",
+    "INVALID_PERIOD_DATES": "El período debe terminar después de su inicio.",
+    "GROUP_NAME_TAKEN": "Otro grupo de este período ya tiene ese nombre.",
+    "GROUP_IN_USE": "El grupo tiene estudiantes o registros y no se puede eliminar.",
+    "GROUP_FULL": "El grupo alcanzó su cupo.",
+    "STUDENT_ALREADY_ENROLLED": "El estudiante ya está inscrito en este grupo.",
+    "STUDENT_NOT_FOUND": "No hay un estudiante activo con ese identificador.",
+    "TEACHER_NOT_FOUND": "No hay un docente activo con ese identificador.",
+    "SUBJECT_NOT_IN_GROUP": "La materia no pertenece al nivel de este grupo."
   }
 }

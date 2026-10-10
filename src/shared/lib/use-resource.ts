@@ -22,8 +22,9 @@ interface Settled<T> {
 /**
  * Loads data when the component mounts and whenever `load` changes, and
  * exposes `reload` for after a mutation. Pass a memoized `load` (useCallback),
- * or null to skip loading until its inputs are known. The previous data stays
- * visible while a reload is in flight.
+ * or null to skip loading until its inputs are known. Data stays visible
+ * during a `reload`, but never across a change of `load`, so one user's or
+ * institution's data is not shown for another.
  */
 export function useResource<T>(load: (() => Promise<T>) | null): Resource<T> {
   const [settled, setSettled] = useState<Settled<T> | null>(null);
@@ -42,7 +43,7 @@ export function useResource<T>(load: (() => Promise<T>) | null): Resource<T> {
           setSettled((previous) => ({
             load,
             version,
-            data: previous?.data ?? null,
+            data: previous?.load === load ? previous.data : null,
             error: errorCode(caught),
           })),
       );
@@ -52,10 +53,11 @@ export function useResource<T>(load: (() => Promise<T>) | null): Resource<T> {
   }, [load, version]);
 
   const reload = useCallback(() => setVersion((current) => current + 1), []);
-  const isLoading = load !== null && (settled?.load !== load || settled.version !== version);
+  const current = settled !== null && settled.load === load ? settled : null;
+  const isLoading = load !== null && current?.version !== version;
   return {
-    data: settled?.data ?? null,
-    error: isLoading ? null : (settled?.error ?? null),
+    data: current?.data ?? null,
+    error: isLoading ? null : (current?.error ?? null),
     isLoading,
     reload,
   };

@@ -1,1 +1,1 @@
-export { AdminPage, AdminShell, WithActiveInstitution } from "./ui/AdminShell";
+export { AdminPage, AdminShell, Section, WithActiveInstitution } from "./ui/AdminShell";

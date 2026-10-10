@@ -7,7 +7,7 @@ import {
   type DocumentType,
   type OnboardingApplication,
 } from "@/entities/onboarding-application";
-import { useSession } from "@/entities/session";
+import { hasOwnPassword, useSession } from "@/entities/session";
 import { LogoutButton } from "@/features/auth/logout";
 import { DocumentCamera, uploadDocument } from "@/features/onboarding/capture-document";
 import { ConfirmIdentityForm } from "@/features/onboarding/confirm-identity";
@@ -58,7 +58,8 @@ export function OnboardingPage() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [documentType, setDocumentType] = useState<DocumentType>("NATIONAL_ID");
   const [errorCode, setErrorCode] = useState<string | null>(null);
-  const isAuthenticated = session.status === "authenticated";
+  // The onboarding API is closed until a temporary password has been replaced
+  const isAuthenticated = session.status === "authenticated" && hasOwnPassword(session.user);
 
   useEffect(() => {
     if (session.status === "anonymous") {
@@ -169,9 +170,13 @@ export function OnboardingPage() {
             <h1 className="text-2xl font-semibold tracking-tight">{onboarding.submitted.title}</h1>
             <p className="mt-1.5 text-sm text-muted">{onboarding.submitted.body}</p>
           </div>
-          <LogoutButton />
         </section>
       )}
+
+      {/* Available at every step, so nobody is stuck signed in on a shared device */}
+      <div className="mt-8">
+        <LogoutButton />
+      </div>
     </CenteredCard>
   );
 }

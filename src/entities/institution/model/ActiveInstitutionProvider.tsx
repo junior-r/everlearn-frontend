@@ -1,42 +1,72 @@
 "use client";
 
-import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useSyncExternalStore,
+  type ReactNode,
+} from "react";
+import { hasOwnPassword, rolesIn, useSession, type Role } from "@/entities/session/@x/institution";
+import { createCookieStore } from "@/shared/lib/cookie-store";
 import { useResource } from "@/shared/lib/use-resource";
 import { fetchInstitutions } from "../api/fetch-institutions";
 import type { Institution } from "./types";
 
 interface ActiveInstitutionValue {
-  /** The institutions this admin may act on. */
+  /** The institutions the signed-in user may enter (all of them for a Platform Admin). */
   institutions: Institution[];
-  /** The one admin pages currently act on; null until loaded or when there are none. */
+  /** The institution this session is acting in; null until chosen or when there are none. */
   active: Institution | null;
+  /** The user's roles in the active institution. */
+  roles: Role[];
+  /** True when the user belongs to several institutions and has not chosen one yet. */
+  needsSelection: boolean;
   isLoading: boolean;
   error: string | null;
   select(institutionId: string): void;
+  clear(): void;
   reload(): void;
 }
 
 const ActiveInstitutionContext = createContext<ActiveInstitutionValue | null>(null);
 
-interface ActiveInstitutionProviderProps {
-  /** Limits the choice to these ids (an Institution Admin's own); null means all (Platform Admin). */
-  allowedIds: string[] | null;
-  children: ReactNode;
-}
+// A convenience only: it remembers the choice between visits. The backend checks every request's institution itself.
+const selection = createCookieStore("everlearn_institution");
+const noServerSelection = () => null;
 
-/** Holds which institution the admin dashboard is acting on. The backend re-checks it on every request. */
-export function ActiveInstitutionProvider({ allowedIds, children }: ActiveInstitutionProviderProps) {
-  const { data, error, isLoading, reload } = useResource(fetchInstitutions);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+/**
+ * Holds the institution context for the session. A user with one institution
+ * enters it automatically; with several they must choose (see `needsSelection`).
+ */
+export function ActiveInstitutionProvider({ children }: { children: ReactNode }) {
+  const { user } = useSession();
+  const userId = user && hasOwnPassword(user) ? user.id : null;
+  // A new function per user, so one user's institutions are never shown to the next
+  const load = useMemo(() => (userId ? () => fetchInstitutions() : null), [userId]);
+  const { data, error, isLoading, reload } = useResource(load);
+  const selectedId = useSyncExternalStore(selection.subscribe, selection.get, noServerSelection);
+  const clear = useCallback(() => selection.set(null), []);
 
-  const value = useMemo(() => {
-    const institutions = (data ?? []).filter(
-      (institution) => allowedIds === null || allowedIds.includes(institution.id),
-    );
-    const active =
-      institutions.find((institution) => institution.id === selectedId) ?? institutions[0] ?? null;
-    return { institutions, active, isLoading, error, select: setSelectedId, reload };
-  }, [data, allowedIds, selectedId, isLoading, error, reload]);
+  const value = useMemo<ActiveInstitutionValue>(() => {
+    const institutions = data ?? [];
+    const chosen = institutions.find((institution) => institution.id === selectedId);
+    // Platform Admins act on any institution, so they start on the first and switch from the dashboard
+    const implied = institutions.length === 1 || user?.isPlatformAdmin ? institutions[0] : undefined;
+    const active = chosen ?? implied ?? null;
+    return {
+      institutions,
+      active,
+      roles: user ? rolesIn(user, active?.id ?? null) : [],
+      needsSelection: data !== null && active === null && institutions.length > 1,
+      isLoading,
+      error,
+      select: selection.set,
+      clear,
+      reload,
+    };
+  }, [data, selectedId, user, isLoading, error, clear, reload]);
 
   return (
     <ActiveInstitutionContext.Provider value={value}>{children}</ActiveInstitutionContext.Provider>
