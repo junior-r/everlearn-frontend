@@ -1,0 +1,27 @@
+"use client";
+
+import { useState } from "react";
+import { useSession } from "@/entities/session";
+import { apiClient } from "@/shared/api";
+import { Button } from "@/shared/ui";
+
+export function LogoutButton() {
+  const session = useSession();
+  const [isLoading, setIsLoading] = useState(false);
+
+  async function handleClick() {
+    setIsLoading(true);
+    try {
+      await apiClient.request<void>("/auth/logout", { method: "POST", skipAuth: true });
+    } finally {
+      // Sign out locally even if the request failed, so the user is never stuck signed in
+      session.clear();
+    }
+  }
+
+  return (
+    <Button variant="secondary" isLoading={isLoading} onClick={handleClick}>
+      Sign out
+    </Button>
+  );
+}
