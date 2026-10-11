@@ -1,5 +1,6 @@
 "use client";
 
+import { BooksIcon, CheckCircleIcon, HourglassMediumIcon } from "@phosphor-icons/react/dist/ssr";
 import { useCallback, useId } from "react";
 import {
   evaluationTypeTone,
@@ -12,7 +13,8 @@ import { errorMessage, format, useDictionary, useLocale } from "@/shared/i18n";
 import { cn } from "@/shared/lib/cn";
 import { toneFor, toneSolid } from "@/shared/lib/tone";
 import { useResource } from "@/shared/lib/use-resource";
-import { Badge, ErrorNotice } from "@/shared/ui";
+import { Badge, BarChart, ErrorNotice, StatCard, StatGrid } from "@/shared/ui";
+import { summarize } from "../lib/summary";
 
 function CourseCard({ course }: { course: CourseProgress }) {
   const { evaluations } = useDictionary();
@@ -120,6 +122,47 @@ function CourseCard({ course }: { course: CourseProgress }) {
   );
 }
 
+/** The Student's studies at a glance: how much is graded, and the average the backend computed for each course. */
+function Summary({ courses }: { courses: CourseProgress[] }) {
+  const text = useDictionary().dashboard.student;
+  const locale = useLocale();
+  const count = (value: number) => new Intl.NumberFormat(locale).format(value);
+  const summary = summarize(courses);
+  return (
+    <>
+      <StatGrid label={text.summary}>
+        <StatCard label={text.courses} value={count(summary.courses)} icon={BooksIcon} tone="sky" />
+        <StatCard
+          label={text.graded}
+          value={count(summary.graded)}
+          hint={format(text.gradedHint, { total: count(summary.evaluations) })}
+          icon={CheckCircleIcon}
+          tone="mint"
+        />
+        <StatCard
+          label={text.pending}
+          value={count(summary.pending)}
+          hint={text.pendingHint}
+          icon={HourglassMediumIcon}
+          tone="sun"
+        />
+      </StatGrid>
+      <BarChart
+        title={text.averagesTitle}
+        hint={text.averagesHint}
+        emptyText={text.averagesEmpty}
+        max={100}
+        bars={courses.map((course) => ({
+          label: course.subject.name,
+          value: course.average ?? 0,
+          display: course.average === null ? text.noAverage : `${formatNumber(course.average, locale)}%`,
+          tone: toneFor(course.subject.code),
+        }))}
+      />
+    </>
+  );
+}
+
 /** A Student's courses: the published evaluations of each, the grades received and the current average. */
 export function AcademicProgress({ institutionId }: { institutionId: string }) {
   const { common, errors, evaluations } = useDictionary();
@@ -127,7 +170,7 @@ export function AcademicProgress({ institutionId }: { institutionId: string }) {
   const courses = useResource(load);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <ErrorNotice message={errorMessage(errors, courses.error)} />
       {courses.data === null && !courses.error && <p className="text-sm text-muted">{common.loading}</p>}
       {courses.data?.length === 0 && (
@@ -135,6 +178,7 @@ export function AcademicProgress({ institutionId }: { institutionId: string }) {
           {evaluations.progress.empty}
         </p>
       )}
+      {courses.data && courses.data.length > 0 && <Summary courses={courses.data} />}
       <ul className="flex flex-col gap-4">
         {courses.data?.map((course) => (
           <CourseCard key={`${course.groupId}:${course.subject.id}`} course={course} />

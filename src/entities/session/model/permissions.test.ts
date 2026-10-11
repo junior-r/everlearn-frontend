@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   adminSections,
   canAccessAdmin,
+  hasAdminDashboard,
   hasOwnPassword,
   registrableRoles,
   rolesIn,
@@ -98,5 +99,19 @@ describe("hasOwnPassword", () => {
   it("is false while the account still has a temporary password", () => {
     expect(hasOwnPassword(user())).toBe(true);
     expect(hasOwnPassword(user({ mustChangePassword: true }))).toBe(false);
+  });
+});
+
+describe("hasAdminDashboard", () => {
+  it("is for Platform Admins, at platform level or inside an institution, and for Institution Admins", () => {
+    expect(hasAdminDashboard(platformAdmin, null)).toBe(true);
+    expect(hasAdminDashboard(platformAdmin, "any")).toBe(true);
+    expect(hasAdminDashboard(mixed, "a")).toBe(true);
+  });
+
+  it("is not for Staff, nor for an admin acting where they hold another role", () => {
+    expect(hasAdminDashboard(memberOf("a", "STAFF"), "a")).toBe(false);
+    expect(hasAdminDashboard(mixed, "b")).toBe(false);
+    expect(hasAdminDashboard(mixed, null)).toBe(false);
   });
 });

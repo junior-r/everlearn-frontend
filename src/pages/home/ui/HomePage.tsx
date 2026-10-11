@@ -5,6 +5,7 @@ import {
   BuildingsIcon,
   CalendarDotsIcon,
   ChartBarIcon,
+  ChartPieSliceIcon,
   GearSixIcon,
 } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
@@ -51,7 +52,8 @@ export function HomePage() {
   }
 
   const isStudent = institution.roles.includes("STUDENT");
-  const takesClasses = isStudent || institution.roles.includes("TEACHER");
+  const isTeacher = institution.roles.includes("TEACHER");
+  const takesClasses = isStudent || isTeacher;
   const linkClass =
     "group flex items-center gap-3 rounded-2xl border border-line bg-surface px-4 py-3.5 text-sm font-medium transition duration-150 hover:border-brand/60 hover:bg-brand-soft active:scale-[0.99] focus-visible:outline-2 focus-visible:outline-brand";
   const arrow = (
@@ -86,6 +88,13 @@ export function HomePage() {
       )}
       {institution.active && takesClasses && <MyClasses institutionId={institution.active.id} />}
       <nav aria-label={home.account} className="mt-4 flex flex-col gap-2">
+        {isTeacher && (
+          <Link href={localizedPath(locale, "/teacher")} className={linkClass}>
+            <ChartPieSliceIcon aria-hidden className="size-5 text-muted" />
+            {home.teacherDashboard}
+            {arrow}
+          </Link>
+        )}
         {isStudent && (
           <Link href={localizedPath(locale, "/progress")} className={linkClass}>
             <ChartBarIcon aria-hidden className="size-5 text-muted" />

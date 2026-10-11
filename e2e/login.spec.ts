@@ -37,7 +37,7 @@ test("logging out revokes the session on the server, not just in the browser", a
 }) => {
   const institution = await createInstitution(playwright);
   await signIn(page, institution.admin.email, institution.admin.password);
-  await expect(page).toHaveURL("/es/admin/members");
+  await expect(page).toHaveURL("/es/admin");
   const stolenCookies = await context.cookies(API_URL + "/auth/refresh");
   expect(stolenCookies.map((cookie) => cookie.name)).toContain("everlearn_refresh");
 

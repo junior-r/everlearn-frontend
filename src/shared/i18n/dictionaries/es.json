@@ -43,6 +43,7 @@
     "settings": "Configuración de perfil",
     "changeInstitution": "Cambiar de institución",
     "account": "Tu cuenta",
+    "teacherDashboard": "Panel docente",
     "progress": "Mis notas",
     "calendar": "Calendario de evaluaciones"
   },
@@ -244,6 +245,88 @@
     "stop": "Detener respuesta",
     "disclaimer": "Las respuestas se generan automáticamente y pueden contener errores."
   },
+  "dashboard": {
+    "platform": {
+      "title": "Resumen de la plataforma",
+      "subtitle": "Todas las instituciones en cifras. Entra a una institución para ver las suyas.",
+      "summary": "Cifras de la plataforma",
+      "activeInstitutions": "Instituciones activas",
+      "inactiveHint": "{count} inactivas",
+      "totalUsers": "Usuarios",
+      "activeUsers": "Usuarios activos",
+      "pendingReviews": "Revisiones pendientes",
+      "pendingHint": "Documentos por revisar en todas las instituciones",
+      "largestTitle": "Miembros por institución",
+      "largestHint": "Las instituciones activas con más miembros activos.",
+      "largestEmpty": "Todavía no hay instituciones con miembros.",
+      "statusTitle": "Usuarios por estado",
+      "statusHint": "Cuentas de toda la plataforma.",
+      "statusEmpty": "Todavía no hay usuarios.",
+      "status": {
+        "active": "Activos",
+        "pendingOnboarding": "En incorporación",
+        "suspended": "Suspendidos"
+      }
+    },
+    "institution": {
+      "title": "Resumen de la institución",
+      "subtitle": "{name} en cifras.",
+      "summary": "Cifras de la institución",
+      "activeStudents": "Estudiantes activos",
+      "teachers": "Docentes",
+      "activeGroups": "Grupos activos",
+      "activeGroupsHint": "Del período académico en curso",
+      "attendanceRate": "Asistencia general",
+      "noAttendance": "Sin registros todavía",
+      "attendanceHint": "Llegar tarde cuenta como asistir",
+      "attendanceTitle": "Asistencia registrada",
+      "attendanceChartHint": "Registros de asistencia de todas las clases. Las ausencias justificadas no cuentan para el porcentaje.",
+      "attendanceEmpty": "Todavía no se ha registrado asistencia.",
+      "marks": {
+        "present": "Presente",
+        "late": "Tarde",
+        "absent": "Ausente",
+        "excused": "Justificada"
+      },
+      "pendingOne": "1 documento de identidad espera revisión.",
+      "pendingMany": "{count} documentos de identidad esperan revisión."
+    },
+    "teacher": {
+      "title": "Panel docente",
+      "subtitle": "Tus materias en cifras: lo que falta por publicar, quién está en riesgo y cómo van los promedios.",
+      "summary": "Cifras de tus materias",
+      "activeCourses": "Materias activas",
+      "draftEvaluations": "Evaluaciones por publicar",
+      "draftHint": "Borradores que tus estudiantes aún no ven",
+      "atRisk": "Estudiantes en riesgo",
+      "atRiskHint": "Menos de 70% de asistencia en tus clases",
+      "distributionTitle": "Distribución de promedios",
+      "distributionHint": "Promedios de tus estudiantes por rango ({count} en total).",
+      "distributionEmpty": "Todavía no hay notas registradas en tus materias.",
+      "band": "{from}–{to}%",
+      "atRiskTitle": "Estudiantes en riesgo por inasistencia",
+      "atRiskEmpty": "Ningún estudiante está por debajo del 70% de asistencia en tus clases.",
+      "columns": {
+        "student": "Estudiante",
+        "group": "Grupo",
+        "attendance": "Asistencia",
+        "classes": "Clases"
+      },
+      "classes": "{attended} de {counted}"
+    },
+    "student": {
+      "summary": "Cifras de tus materias",
+      "courses": "Materias",
+      "graded": "Evaluaciones calificadas",
+      "gradedHint": "de {total} publicadas",
+      "pending": "Por calificar",
+      "pendingHint": "Publicadas y aún sin nota",
+      "averagesTitle": "Promedio por materia",
+      "averagesHint": "Tu promedio actual en cada materia, sobre 100.",
+      "averagesEmpty": "Todavía no tienes notas en ninguna materia.",
+      "noAverage": "Sin notas"
+    }
+  },
   "onboarding": {
     "title": "Verifica tu identidad",
     "subtitle": "Necesitamos una foto de tu documento de identidad para completar tu perfil.",
@@ -304,6 +387,7 @@
   "admin": {
     "title": "Administración",
     "nav": {
+      "dashboard": "Resumen",
       "label": "Secciones de administración",
       "institutions": "Instituciones",
       "subjects": "Materias",

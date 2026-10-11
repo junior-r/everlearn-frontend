@@ -2,6 +2,7 @@ export {
   ADMIN_SECTIONS,
   adminSections,
   canAccessAdmin,
+  hasAdminDashboard,
   hasOwnPassword,
   registrableRoles,
   rolesIn,

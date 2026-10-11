@@ -79,6 +79,8 @@ test("a member of two institutions chooses one, and the choice decides what they
   await page.getByRole("link", { name: "Cambiar de institución" }).click();
   await expect(page).toHaveURL("/es/select-institution");
   await page.getByRole("button", { name: new RegExp(school.name) }).click();
+  await expect(page).toHaveURL("/es/admin");
+  await page.getByRole("link", { name: "Miembros" }).click();
   await expect(page).toHaveURL("/es/admin/members");
   await expect(page.getByTestId("active-institution")).toHaveText(school.name);
   await expect(page.getByRole("row", { name: /Directora Prueba/ })).toBeVisible();
@@ -99,7 +101,7 @@ test("a member of a single institution never sees the selector", async ({ page, 
 
   await expect(page).toHaveURL("/es");
   await expect(page.getByText(`Institución: ${institution.name}`)).toBeVisible();
-  await expect(page.getByText("Docente")).toBeVisible();
+  await expect(page.getByText("Docente", { exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "Cambiar de institución" })).toHaveCount(0);
   await institution.dispose();
 });
@@ -167,6 +169,8 @@ test("registering an email that already has an account adds the person instead o
   const teacher = await school.registerActive("TEACHER", { firstName: "Alan", lastName: "Turing" });
 
   await signIn(page, academy.admin.email, academy.admin.password);
+  await expect(page).toHaveURL("/es/admin");
+  await page.getByRole("link", { name: "Miembros" }).click();
   await expect(page).toHaveURL("/es/admin/members");
   const form = page.getByRole("form", { name: "Registrar miembro" });
   await form.getByLabel("Nombres").fill("Otro Nombre");

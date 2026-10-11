@@ -6,6 +6,7 @@ import {
   CalendarCheckIcon,
   CalendarDotsIcon,
   ChalkboardTeacherIcon,
+  ChartPieSliceIcon,
   GearSixIcon,
   IdentificationCardIcon,
   TreeStructureIcon,
@@ -19,6 +20,7 @@ import { useActiveInstitution } from "@/entities/institution";
 import {
   ADMIN_SECTIONS,
   adminSections,
+  hasAdminDashboard,
   hasOwnPassword,
   useSession,
   type AdminSection,
@@ -125,20 +127,23 @@ export function AdminShell({ children }: { children: ReactNode }) {
   const current = ADMIN_SECTIONS.find(
     (section) => pathname === localizedPath(locale, sectionPath(section)),
   );
-  const isAdminRoot = pathname === localizedPath(locale, "/admin");
-  const isAllowedHere = isAdminRoot ? sections.length > 0 : current !== undefined && sections.includes(current);
+  const dashboardPath = localizedPath(locale, "/admin");
+  const isAdminRoot = pathname === dashboardPath;
+  // `/admin` is the dashboard for those who have one; everyone else is sent on to their first section
+  const hasDashboard = isUsable && hasAdminDashboard(user, institution.active?.id ?? null);
+  const isAllowedHere = isAdminRoot ? hasDashboard : current !== undefined && sections.includes(current);
   const fallback = sections.length > 0 ? sectionPath(sections[0]) : "/";
 
   useEffect(() => {
     if (session.status === "anonymous") {
       router.replace("/login");
-    } else if (session.status === "authenticated" && !isDeciding && (!isAllowedHere || isAdminRoot)) {
-      // Covers both "not an admin here" and "an admin, but not for this section"
+    } else if (session.status === "authenticated" && !isDeciding && !isAllowedHere) {
+      // Covers "not an admin here", "an admin, but not for this section" and "no dashboard for this role"
       router.replace(fallback);
     }
-  }, [session.status, isDeciding, isAllowedHere, isAdminRoot, fallback, router]);
+  }, [session.status, isDeciding, isAllowedHere, fallback, router]);
 
-  if (!user || isDeciding || !isAllowedHere || isAdminRoot) {
+  if (!user || isDeciding || !isAllowedHere) {
     return <PageStatus>{common.loading}</PageStatus>;
   }
 
@@ -164,12 +169,17 @@ export function AdminShell({ children }: { children: ReactNode }) {
         </div>
         <nav aria-label={admin.nav.label} className="relative md:min-h-0 md:flex-1 md:overflow-y-auto">
           <ul className="flex gap-1 overflow-x-auto md:flex-col">
-            {sections.map((section) => {
-              const href = localizedPath(locale, sectionPath(section));
+            {[
+              ...(hasDashboard ? [{ key: "dashboard", href: dashboardPath, icon: ChartPieSliceIcon }] : []),
+              ...sections.map((section) => ({
+                key: section,
+                href: localizedPath(locale, sectionPath(section)),
+                icon: sectionIcons[section],
+              })),
+            ].map(({ key, href, icon: SectionIcon }) => {
               const isCurrent = pathname === href;
-              const SectionIcon = sectionIcons[section];
               return (
-                <li key={section}>
+                <li key={key}>
                   <Link
                     href={href}
                     aria-current={isCurrent ? "page" : undefined}
@@ -181,7 +191,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
                     )}
                   >
                     <SectionIcon aria-hidden weight={isCurrent ? "fill" : "regular"} className="size-5 shrink-0" />
-                    {admin.nav[section]}
+                    {key === "dashboard" ? admin.nav.dashboard : admin.nav[key as AdminSection]}
                   </Link>
                 </li>
               );

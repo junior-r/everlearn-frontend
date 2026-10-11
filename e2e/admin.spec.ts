@@ -21,6 +21,8 @@ test("the full pipeline: an admin registers a Student, the Student onboards, the
 
   // 1. The Institution Admin registers the Student in the dashboard
   await signIn(page, institution.admin.email, institution.admin.password);
+  await expect(page).toHaveURL("/es/admin");
+  await page.getByRole("link", { name: "Miembros" }).click();
   await expect(page).toHaveURL("/es/admin/members");
   // Scoped to the form: Next.js keeps the previous page in the DOM, hidden, after a navigation
   const memberForm = page.getByRole("form", { name: "Registrar miembro" });
@@ -150,11 +152,13 @@ test("a Platform Admin creates an institution with its first admin, enters it an
   const name = `Liceo ${slug}`;
   const adminEmail = `e2e-first-admin-${unique()}@example.com`;
   await signIn(page, PLATFORM_ADMIN.email, PLATFORM_ADMIN.password);
-  await expect(page).toHaveURL("/es/admin/institutions");
+  await expect(page).toHaveURL("/es/admin");
   // At platform level there is no institution in play, and only institutions to manage
   await expect(page.getByTestId("admin-context")).toHaveText("Plataforma");
   const nav = page.getByRole("navigation", { name: "Secciones de administración" });
-  await expect(nav.getByRole("link")).toHaveText(["Instituciones"]);
+  await expect(nav.getByRole("link")).toHaveText(["Resumen", "Instituciones"]);
+  await nav.getByRole("link", { name: "Instituciones" }).click();
+  await expect(page).toHaveURL("/es/admin/institutions");
   await page.goto("/es/admin/members");
   await expect(page).toHaveURL("/es/admin/institutions");
 
@@ -183,6 +187,7 @@ test("a Platform Admin creates an institution with its first admin, enters it an
   await expect(page.getByTestId("active-institution")).toHaveText(name);
   await expect(page.getByText("Estás gestionando")).toBeVisible();
   await expect(nav.getByRole("link")).toHaveText([
+    "Resumen",
     "Instituciones",
     "Miembros",
     "Revisiones pendientes",
@@ -211,13 +216,15 @@ test("a Platform Admin creates an institution with its first admin, enters it an
   await page.getByRole("button", { name: "Volver a la plataforma" }).click();
   await expect(page).toHaveURL("/es/admin/institutions");
   await expect(page.getByTestId("admin-context")).toHaveText("Plataforma");
-  await expect(nav.getByRole("link")).toHaveText(["Instituciones"]);
+  await expect(nav.getByRole("link")).toHaveText(["Resumen", "Instituciones"]);
 
   // The appointed admin signs in with the credentials shown, and works only inside that institution
   const adminContext = await browser.newContext({ locale: "es-ES" });
   const adminPage = await adminContext.newPage();
   await signIn(adminPage, adminEmail, temporaryPassword);
   await chooseOwnPassword(adminPage, temporaryPassword);
+  await expect(adminPage).toHaveURL("/es/admin");
+  await adminPage.getByRole("link", { name: "Miembros" }).click();
   await expect(adminPage).toHaveURL("/es/admin/members");
   await expect(adminPage.getByTestId("active-institution")).toHaveText(name);
   await expect(adminPage.getByRole("link", { name: "Instituciones" })).toHaveCount(0);

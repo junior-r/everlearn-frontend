@@ -43,6 +43,7 @@
     "settings": "Profile settings",
     "changeInstitution": "Switch institution",
     "account": "Your account",
+    "teacherDashboard": "Teacher dashboard",
     "progress": "My grades",
     "calendar": "Evaluation calendar"
   },
@@ -244,6 +245,88 @@
     "stop": "Stop answering",
     "disclaimer": "Answers are generated automatically and may contain mistakes."
   },
+  "dashboard": {
+    "platform": {
+      "title": "Platform overview",
+      "subtitle": "Every institution in figures. Enter an institution to see its own.",
+      "summary": "Platform figures",
+      "activeInstitutions": "Active institutions",
+      "inactiveHint": "{count} inactive",
+      "totalUsers": "Users",
+      "activeUsers": "Active users",
+      "pendingReviews": "Pending reviews",
+      "pendingHint": "Documents to review across all institutions",
+      "largestTitle": "Members per institution",
+      "largestHint": "The active institutions with the most active members.",
+      "largestEmpty": "No institution has members yet.",
+      "statusTitle": "Users by status",
+      "statusHint": "Accounts across the platform.",
+      "statusEmpty": "There are no users yet.",
+      "status": {
+        "active": "Active",
+        "pendingOnboarding": "Onboarding",
+        "suspended": "Suspended"
+      }
+    },
+    "institution": {
+      "title": "Institution overview",
+      "subtitle": "{name} in figures.",
+      "summary": "Institution figures",
+      "activeStudents": "Active students",
+      "teachers": "Teachers",
+      "activeGroups": "Active groups",
+      "activeGroupsHint": "In the current academic period",
+      "attendanceRate": "Overall attendance",
+      "noAttendance": "No records yet",
+      "attendanceHint": "Arriving late counts as attending",
+      "attendanceTitle": "Recorded attendance",
+      "attendanceChartHint": "Attendance records of every class. Excused absences do not count towards the percentage.",
+      "attendanceEmpty": "No attendance has been recorded yet.",
+      "marks": {
+        "present": "Present",
+        "late": "Late",
+        "absent": "Absent",
+        "excused": "Excused"
+      },
+      "pendingOne": "1 identity document is waiting for review.",
+      "pendingMany": "{count} identity documents are waiting for review."
+    },
+    "teacher": {
+      "title": "Teacher dashboard",
+      "subtitle": "Your subjects in figures: what is left to publish, who is at risk and how averages are going.",
+      "summary": "Figures of your subjects",
+      "activeCourses": "Active subjects",
+      "draftEvaluations": "Evaluations to publish",
+      "draftHint": "Drafts your students cannot see yet",
+      "atRisk": "Students at risk",
+      "atRiskHint": "Below 70% attendance in your classes",
+      "distributionTitle": "Distribution of averages",
+      "distributionHint": "Your students' averages by range ({count} in total).",
+      "distributionEmpty": "No grades have been recorded in your subjects yet.",
+      "band": "{from}–{to}%",
+      "atRiskTitle": "Students at risk because of absences",
+      "atRiskEmpty": "No student is below 70% attendance in your classes.",
+      "columns": {
+        "student": "Student",
+        "group": "Group",
+        "attendance": "Attendance",
+        "classes": "Classes"
+      },
+      "classes": "{attended} of {counted}"
+    },
+    "student": {
+      "summary": "Figures of your subjects",
+      "courses": "Subjects",
+      "graded": "Graded evaluations",
+      "gradedHint": "of {total} published",
+      "pending": "To be graded",
+      "pendingHint": "Published and not graded yet",
+      "averagesTitle": "Average per subject",
+      "averagesHint": "Your current average in each subject, out of 100.",
+      "averagesEmpty": "You have no grades in any subject yet.",
+      "noAverage": "No grades"
+    }
+  },
   "onboarding": {
     "title": "Verify your identity",
     "subtitle": "We need a photo of your identity document to complete your profile.",
@@ -304,6 +387,7 @@
   "admin": {
     "title": "Administration",
     "nav": {
+      "dashboard": "Overview",
       "label": "Administration sections",
       "institutions": "Institutions",
       "subjects": "Subjects",

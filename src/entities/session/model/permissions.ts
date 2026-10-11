@@ -39,6 +39,15 @@ export function adminSections(user: SessionUser, activeInstitutionId: string | n
   return roles.includes("STAFF") ? ["members"] : [];
 }
 
+/**
+ * Whether `/admin` itself has something to show: the figures of the platform
+ * for a Platform Admin, or of the institution for its Institution Admin. Staff
+ * only register members, so they go straight to that section.
+ */
+export function hasAdminDashboard(user: SessionUser, activeInstitutionId: string | null): boolean {
+  return user.isPlatformAdmin || rolesIn(user, activeInstitutionId).includes("ADMIN");
+}
+
 export function canAccessAdmin(user: SessionUser, activeInstitutionId: string | null): boolean {
   return adminSections(user, activeInstitutionId).length > 0;
 }
