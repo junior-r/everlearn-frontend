@@ -6,11 +6,12 @@ import { useEffect } from "react";
 import { useActiveInstitution } from "@/entities/institution";
 import { canAccessAdmin, hasOwnPassword, roleTone, useSession } from "@/entities/session";
 import { LogoutButton } from "@/features/auth/logout";
+import { MyClasses } from "@/features/classroom/enter-class";
 import { format, localizedPath, useDictionary, useLocale, useLocalizedRouter } from "@/shared/i18n";
 import { Avatar, Badge, CenteredCard, PageStatus } from "@/shared/ui";
 
 /**
- * Placeholder landing screen for Teachers and Students. Pending members go to
+ * Landing screen of Teachers and Students, with their classes. Pending members go to
  * onboarding, and whoever is an admin of the institution they entered goes to the dashboard.
  */
 export function HomePage() {
@@ -74,6 +75,9 @@ export function HomePage() {
             ))}
           </p>
         </div>
+      )}
+      {institution.active && institution.roles.some((role) => role === "TEACHER" || role === "STUDENT") && (
+        <MyClasses institutionId={institution.active.id} />
       )}
       <nav aria-label={home.account} className="mt-4 flex flex-col gap-2">
         {institution.institutions.length > 1 && (

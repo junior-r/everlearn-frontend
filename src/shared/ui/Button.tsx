@@ -28,6 +28,10 @@ const base =
 /** For links and labels that should look like a full-width button. */
 export const buttonBase = `${base} ${sizes.md}`;
 
+/** The complete classes of a button, for a link that must look like one. */
+export const buttonClass = (variant: Variant = "primary", size: Size = "md") =>
+  cn(base, sizes[size], buttonStyles[variant]);
+
 export function Button({
   variant = "primary",
   size = "md",
@@ -44,7 +48,7 @@ export function Button({
       type={type}
       disabled={disabled || isLoading}
       aria-busy={isLoading}
-      className={cn(base, sizes[size], buttonStyles[variant], className)}
+      className={cn(buttonClass(variant, size), className)}
     >
       {isLoading && (
         <span

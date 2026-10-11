@@ -32,7 +32,7 @@ function useI18n(): I18nContextValue {
 export const useDictionary = (): Dictionary => useI18n().dictionary;
 export const useLocale = (): Locale => useI18n().locale;
 
-/** Navigation that keeps the current locale: `replace("/login")` goes to `/es/login`. */
+/** Navigation that keeps the current locale: `replace("/login")` and `push("/login")` go to `/es/login`. */
 export function useLocalizedRouter() {
   const router = useRouter();
   const locale = useLocale();
@@ -40,5 +40,9 @@ export function useLocalizedRouter() {
     (path: string) => router.replace(localizedPath(locale, path)),
     [router, locale],
   );
-  return useMemo(() => ({ replace }), [replace]);
+  const push = useCallback(
+    (path: string) => router.push(localizedPath(locale, path)),
+    [router, locale],
+  );
+  return useMemo(() => ({ replace, push }), [replace, push]);
 }

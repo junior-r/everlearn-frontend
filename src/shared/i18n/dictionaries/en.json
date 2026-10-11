@@ -44,6 +44,59 @@
     "changeInstitution": "Switch institution",
     "account": "Your account"
   },
+  "classroom": {
+    "myClasses": {
+      "title": "My classes",
+      "empty": "You have no classes assigned yet.",
+      "group": "Group {name}",
+      "teacher": "Teacher: {name}",
+      "live": "Live",
+      "notLive": "No class in progress",
+      "start": "Start class",
+      "startFor": "Start the {subject} class",
+      "enter": "Enter the class",
+      "enterFor": "Enter the {subject} class"
+    },
+    "heading": "{subject} · {group}",
+    "preparing": "Preparing the class…",
+    "connecting": "Connecting to the class…",
+    "reconnecting": "Reconnecting…",
+    "backHome": "Back to home",
+    "leave": "Leave the class",
+    "participants": "Participants",
+    "you": "{name} (you)",
+    "unnamed": "Participant",
+    "muted": "microphone muted",
+    "cameraOff": "camera off",
+    "controls": {
+      "label": "Class controls",
+      "micOn": "Unmute microphone",
+      "micOff": "Mute microphone",
+      "cameraOn": "Turn camera on",
+      "cameraOff": "Turn camera off",
+      "startAudio": "Turn on the class sound"
+    },
+    "deviceError": "We could not use your camera or microphone. Check your browser permissions.",
+    "closed": {
+      "lost": "The connection to the class was lost.",
+      "failed": "We could not connect to the class.",
+      "ended": "The class has ended.",
+      "duplicate": "You entered this class from another tab or device.",
+      "rejoin": "Enter again"
+    },
+    "chat": {
+      "title": "Class chat",
+      "empty": "No messages yet.",
+      "message": "Message",
+      "placeholder": "Write a message…",
+      "send": "Send",
+      "you": "You"
+    },
+    "captions": {
+      "title": "Live captions",
+      "empty": "Captions will appear when someone speaks."
+    }
+  },
   "onboarding": {
     "title": "Verify your identity",
     "subtitle": "We need a photo of your identity document to complete your profile.",
@@ -389,6 +442,13 @@
     "INVALID_TIME_RANGE": "The end time must be after the start time.",
     "SCHEDULE_SLOT_NOT_FOUND": "The class was not found.",
     "GROUP_NOT_FOUND": "The group was not found.",
-    "PERIOD_NOT_FOUND": "The period was not found."
+    "PERIOD_NOT_FOUND": "The period was not found.",
+    "CLASS_SESSION_NOT_FOUND": "The class was not found.",
+    "CLASS_SESSION_CLOSED": "This class has already ended.",
+    "NOT_CLASS_PARTICIPANT": "Only the assigned teacher and the enrolled students may enter this class.",
+    "COURSE_NOT_FOUND": "This group's subject was not found.",
+    "NOT_COURSE_TEACHER": "Only the teacher assigned to this subject may start its class.",
+    "VIDEO_UNAVAILABLE": "Video classes are not available right now.",
+    "CHAT_NOT_SENT": "The message could not be sent. Try again."
   }
 }

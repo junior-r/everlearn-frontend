@@ -44,6 +44,59 @@
     "changeInstitution": "Cambiar de institución",
     "account": "Tu cuenta"
   },
+  "classroom": {
+    "myClasses": {
+      "title": "Mis clases",
+      "empty": "Todavía no tienes clases asignadas.",
+      "group": "Grupo {name}",
+      "teacher": "Docente: {name}",
+      "live": "En vivo",
+      "notLive": "Sin clase en curso",
+      "start": "Iniciar clase",
+      "startFor": "Iniciar clase de {subject}",
+      "enter": "Entrar a la clase",
+      "enterFor": "Entrar a la clase de {subject}"
+    },
+    "heading": "{subject} · {group}",
+    "preparing": "Preparando la clase…",
+    "connecting": "Conectando con la clase…",
+    "reconnecting": "Reconectando…",
+    "backHome": "Volver al inicio",
+    "leave": "Salir de la clase",
+    "participants": "Participantes",
+    "you": "{name} (tú)",
+    "unnamed": "Participante",
+    "muted": "micrófono silenciado",
+    "cameraOff": "cámara apagada",
+    "controls": {
+      "label": "Controles de la clase",
+      "micOn": "Activar micrófono",
+      "micOff": "Silenciar micrófono",
+      "cameraOn": "Encender cámara",
+      "cameraOff": "Apagar cámara",
+      "startAudio": "Activar el sonido de la clase"
+    },
+    "deviceError": "No pudimos usar tu cámara o micrófono. Revisa los permisos del navegador.",
+    "closed": {
+      "lost": "Se perdió la conexión con la clase.",
+      "failed": "No pudimos conectar con la clase.",
+      "ended": "La clase terminó.",
+      "duplicate": "Entraste a esta clase desde otra pestaña o dispositivo.",
+      "rejoin": "Volver a entrar"
+    },
+    "chat": {
+      "title": "Chat de la clase",
+      "empty": "Todavía no hay mensajes.",
+      "message": "Mensaje",
+      "placeholder": "Escribe un mensaje…",
+      "send": "Enviar",
+      "you": "Tú"
+    },
+    "captions": {
+      "title": "Subtítulos en vivo",
+      "empty": "Los subtítulos aparecerán cuando alguien hable."
+    }
+  },
   "onboarding": {
     "title": "Verifica tu identidad",
     "subtitle": "Necesitamos una foto de tu documento de identidad para completar tu perfil.",
@@ -389,6 +442,13 @@
     "INVALID_TIME_RANGE": "La hora de fin debe ser posterior a la de inicio.",
     "SCHEDULE_SLOT_NOT_FOUND": "No se encontró la clase.",
     "GROUP_NOT_FOUND": "No se encontró el grupo.",
-    "PERIOD_NOT_FOUND": "No se encontró el período."
+    "PERIOD_NOT_FOUND": "No se encontró el período.",
+    "CLASS_SESSION_NOT_FOUND": "No se encontró la clase.",
+    "CLASS_SESSION_CLOSED": "Esta clase ya terminó.",
+    "NOT_CLASS_PARTICIPANT": "Solo el docente asignado y los estudiantes inscritos pueden entrar a esta clase.",
+    "COURSE_NOT_FOUND": "No se encontró la materia de este grupo.",
+    "NOT_COURSE_TEACHER": "Solo el docente asignado a esta materia puede iniciar su clase.",
+    "VIDEO_UNAVAILABLE": "Las clases por video no están disponibles en este momento.",
+    "CHAT_NOT_SENT": "No se pudo enviar el mensaje. Inténtalo de nuevo."
   }
 }

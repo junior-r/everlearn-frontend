@@ -1,6 +1,6 @@
 export { Avatar, Badge } from "./Badge";
 export type { BadgeTone } from "./Badge";
-export { Button, buttonBase, buttonStyles } from "./Button";
+export { Button, buttonBase, buttonClass, buttonStyles } from "./Button";
 export { CenteredCard, PageStatus } from "./CenteredCard";
 export { DataTable } from "./DataTable";
 export type { Column } from "./DataTable";

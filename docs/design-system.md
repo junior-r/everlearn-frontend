@@ -36,4 +36,4 @@ A recognisable, colourful identity that also carries meaning: colour tells roles
 
 - No manual theme toggle: the theme follows the operating system.
 - The tables are restyled, not redesigned: long tables still scroll horizontally on phones.
-- The home screen of Teachers and Students is still a welcome card; it has no features of its own yet.
+- The home screen of Teachers and Students is a welcome card with their classes; it has no timetable or grades yet.
