@@ -17,7 +17,24 @@
       "email": "Correo electrónico",
       "password": "Contraseña",
       "submit": "Iniciar sesión",
-      "google": "Continuar con Google"
+      "google": "Continuar con Google",
+      "forgot": "¿Olvidaste tu contraseña?"
+    },
+    "forgotPassword": {
+      "title": "Restablecer contraseña",
+      "subtitle": "Escribe el correo de tu cuenta y te enviaremos un enlace para elegir una contraseña nueva.",
+      "email": "Correo electrónico",
+      "submit": "Enviar enlace",
+      "sent": "Si ese correo tiene una cuenta, te enviamos un enlace para restablecer la contraseña. Vence en 15 minutos.",
+      "backToLogin": "Volver a iniciar sesión"
+    },
+    "resetPassword": {
+      "title": "Elige una contraseña nueva",
+      "subtitle": "El enlace funciona una sola vez. Al cambiar la contraseña se cierran tus sesiones abiertas.",
+      "submit": "Guardar contraseña",
+      "done": "Tu contraseña fue actualizada. Ya puedes iniciar sesión con ella.",
+      "missingToken": "Este enlace no es válido. Ábrelo desde el correo que te enviamos, o pide uno nuevo.",
+      "askAgain": "Pedir un enlace nuevo"
     },
     "callback": {
       "signingIn": "Iniciando sesión…"
@@ -362,7 +379,7 @@
   },
   "messages": {
     "title": "Mensajes",
-    "subtitle": "Escribe a docentes, estudiantes y personal de tu institución.",
+    "subtitle": "Escribe a tus docentes y compañeros de grupo, o a quienes tu rol te permite contactar.",
     "search": {
       "label": "Buscar personas",
       "placeholder": "Escribe un nombre...",
@@ -384,6 +401,7 @@
       "placeholder": "Escribe un mensaje...",
       "send": "Enviar mensaje",
       "older": "Cargar mensajes anteriores",
+      "closed": "Ya no puedes escribirle a esta persona. La conversación queda solo para lectura.",
       "back": "Volver a las conversaciones"
     }
   },
@@ -747,6 +765,8 @@
     "EVALUATION_HAS_GRADES": "La nota máxima no puede cambiar cuando ya hay notas registradas.",
     "EVALUATION_NOT_PUBLISHED": "Publica la evaluación antes de registrar notas.",
     "EVALUATION_ALREADY_PUBLISHED": "Solo se puede eliminar una evaluación en borrador.",
+    "INVALID_RESET_TOKEN": "Este enlace ya no es válido. Pide uno nuevo.",
+    "MESSAGE_NOT_ALLOWED": "Ya no puedes escribirle a esta persona.",
     "CONTACT_NOT_FOUND": "Esa persona no es miembro de esta institución.",
     "INVALID_MESSAGE": "El mensaje está vacío o es demasiado largo.",
     "MESSAGES_TOO_FAST": "Enviaste muchos mensajes en poco tiempo. Espera un momento e inténtalo de nuevo.",

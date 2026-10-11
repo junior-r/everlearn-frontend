@@ -149,6 +149,52 @@ test("people of another institution cannot be found or written to", async ({ pag
   await elsewhere.institution.dispose();
 });
 
+test("a Student finds only their Teachers and group mates; the office finds everyone", async ({
+  page,
+  browser,
+  playwright,
+}) => {
+  const { institution, student, teacher } = await createCourse(playwright);
+  const found = (who: Page) => who.getByRole("list", { name: "Personas encontradas" });
+
+  // Linus Pauling is a Student of the institution, but shares no group with Grace
+  await signIn(page, student.email, student.password);
+  await page.getByRole("link", { name: "Mensajes" }).click();
+  await page.getByLabel("Buscar personas").fill("Pauling");
+  await expect(found(page)).toContainText("No se encontró a nadie con ese nombre.");
+  await page.getByLabel("Buscar personas").fill("Directora");
+  await expect(found(page)).toContainText("No se encontró a nadie con ese nombre.");
+  await page.getByLabel("Buscar personas").fill("Turing");
+  await expect(found(page).getByRole("button", { name: /Alan Turing/ })).toBeVisible();
+
+  // The Teacher reaches the office, but not a Student who is not theirs
+  const teacherPage = await openAs(browser, teacher.email, teacher.password);
+  await teacherPage.getByRole("link", { name: "Mensajes" }).click();
+  await teacherPage.getByLabel("Buscar personas").fill("Pauling");
+  await expect(found(teacherPage)).toContainText("No se encontró a nadie con ese nombre.");
+  await teacherPage.getByLabel("Buscar personas").fill("Directora");
+  await expect(found(teacherPage).getByRole("button", { name: /Directora Prueba/ })).toBeVisible();
+  await teacherPage.context().close();
+
+  // The Institution Admin reaches anyone, and the Student may then answer
+  const adminPage = await openAs(browser, institution.admin.email, institution.admin.password);
+  await adminPage.getByRole("link", { name: "Mensajes" }).click();
+  await adminPage.getByLabel("Buscar personas").fill("Grace");
+  await found(adminPage).getByRole("button", { name: /Grace Hopper/ }).click();
+  const note = adminPage.getByRole("form", { name: "Escribir a Grace Hopper" }).getByLabel("Tu mensaje");
+  await note.fill("Pasa por la oficina, por favor.");
+  await note.press("Enter");
+  await expect(adminPage.getByRole("log", { name: "Conversación con Grace Hopper" })).toContainText("Pasa por la oficina");
+  await adminPage.context().close();
+
+  await page.getByRole("navigation", { name: "Conversaciones" }).getByRole("button", { name: /Directora Prueba/ }).click();
+  const answer = page.getByRole("form", { name: "Escribir a Directora Prueba" }).getByLabel("Tu mensaje");
+  await answer.fill("Voy enseguida.");
+  await answer.press("Enter");
+  await expect(page.getByRole("log", { name: "Conversación con Directora Prueba" })).toContainText("Voy enseguida.");
+  await institution.dispose();
+});
+
 test("a Teacher exports the gradebook as a CSV file", async ({ page, playwright }) => {
   const { institution, teacher } = await createCourse(playwright);
   await signIn(page, teacher.email, teacher.password);

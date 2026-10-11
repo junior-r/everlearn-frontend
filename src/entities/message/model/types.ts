@@ -34,6 +34,8 @@ export interface ConversationSummary {
 export interface Conversation {
   peer: Contact;
   messages: DirectMessage[];
+  /** False when the two may no longer write to each other; the conversation can still be read. */
+  canWrite: boolean;
 }
 
 /** What the browser tells the server it is showing while a conversation is open. Mirrors the backend. */

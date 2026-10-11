@@ -32,6 +32,7 @@ interface Thread {
   messages: DirectMessage[];
   /** Whether there may be messages older than the ones loaded. */
   hasOlder: boolean;
+  canWrite: boolean;
   error: string | null;
 }
 
@@ -69,15 +70,15 @@ export function Messenger({ institutionId, userId }: MessengerProps) {
     }
     let cancelled = false;
     openConversation(institutionId, peerId)
-      .then(({ peer, messages }) => {
+      .then(({ peer, messages, canWrite }) => {
         if (!cancelled) {
-          setThread({ peerId, peer, messages, hasOlder: messages.length >= PAGE_SIZE, error: null });
+          setThread({ peerId, peer, messages, canWrite, hasOlder: messages.length >= PAGE_SIZE, error: null });
           reloadConversations();
         }
       })
       .catch((error: unknown) => {
         if (!cancelled) {
-          setThread({ peerId, peer: null, messages: [], hasOlder: false, error: errorCode(error) });
+          setThread({ peerId, peer: null, messages: [], canWrite: false, hasOlder: false, error: errorCode(error) });
         }
       });
     return () => {
@@ -236,6 +237,7 @@ export function Messenger({ institutionId, userId }: MessengerProps) {
                   userId={userId}
                   peerId={current.peerId}
                   peerName={peerName}
+                  canWrite={current.canWrite}
                   messages={current.messages}
                   onSent={(message) => {
                     setThread((open) =>

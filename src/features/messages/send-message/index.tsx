@@ -14,12 +14,22 @@ interface MessageThreadProps {
   userId: string;
   peerId: string;
   peerName: string;
+  /** False for a conversation that can be read but no longer continued. */
+  canWrite: boolean;
   messages: DirectMessage[];
   onSent(message: DirectMessage): void;
 }
 
 /** A conversation: what was said, oldest first, and the field to write the next message. */
-export function MessageThread({ institutionId, userId, peerId, peerName, messages, onSent }: MessageThreadProps) {
+export function MessageThread({
+  institutionId,
+  userId,
+  peerId,
+  peerName,
+  canWrite,
+  messages,
+  onSent,
+}: MessageThreadProps) {
   const { messages: text, errors } = useDictionary();
   const locale = useLocale();
   const [draft, setDraft] = useState("");
@@ -93,8 +103,10 @@ export function MessageThread({ institutionId, userId, peerId, peerName, message
           );
         })}
       </div>
+      {!canWrite && <p className="border-t border-line p-4 text-sm text-muted">{text.thread.closed}</p>}
       <form
         onSubmit={handleSubmit}
+        hidden={!canWrite}
         aria-label={format(text.thread.form, { name: peerName })}
         className="flex flex-col gap-2 border-t border-line p-3"
       >

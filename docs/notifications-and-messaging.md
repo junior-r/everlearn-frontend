@@ -16,6 +16,7 @@ A bell on every signed-in screen, a `/messages` page with live conversations, an
 - **There is no global header, so the same block goes in each shell.** `HeaderActions` (the way to messages and the bell) sits in the admin navigation, in the top bar of `PortalShell` and on the home card.
 - **The open conversation is in the address** (`/messages?with=<userId>`), so a notice can link to it and a reload keeps it.
 - **The file is downloaded with the session, not with a link.** The export needs the access token, so the browser fetches it and saves the blob; the name is built here from the subject and the group.
+- **The search only finds people the backend lets the member write to** (see the rule in the backend doc); the page does not repeat that rule. A conversation that may no longer be continued (`canWrite: false`) stays readable and shows a line instead of the field to write.
 - **The assistant's button stays off `/messages`.** It would sit on the send button, and the screen already is a chat.
 
 ## The Implementation

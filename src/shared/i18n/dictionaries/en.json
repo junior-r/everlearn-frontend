@@ -17,7 +17,24 @@
       "email": "Email",
       "password": "Password",
       "submit": "Sign in",
-      "google": "Continue with Google"
+      "google": "Continue with Google",
+      "forgot": "Forgot your password?"
+    },
+    "forgotPassword": {
+      "title": "Reset password",
+      "subtitle": "Enter the email of your account and we will send you a link to choose a new password.",
+      "email": "Email",
+      "submit": "Send link",
+      "sent": "If that email has an account, we sent it a link to reset the password. It expires in 15 minutes.",
+      "backToLogin": "Back to sign in"
+    },
+    "resetPassword": {
+      "title": "Choose a new password",
+      "subtitle": "The link works once. Changing the password signs you out everywhere.",
+      "submit": "Save password",
+      "done": "Your password was updated. You can now sign in with it.",
+      "missingToken": "This link is not valid. Open it from the email we sent you, or ask for a new one.",
+      "askAgain": "Ask for a new link"
     },
     "callback": {
       "signingIn": "Signing you in…"
@@ -362,7 +379,7 @@
   },
   "messages": {
     "title": "Messages",
-    "subtitle": "Write to teachers, students and staff of your institution.",
+    "subtitle": "Write to your teachers and group mates, or to whoever your role lets you contact.",
     "search": {
       "label": "Find people",
       "placeholder": "Type a name...",
@@ -384,6 +401,7 @@
       "placeholder": "Type a message...",
       "send": "Send message",
       "older": "Load earlier messages",
+      "closed": "You can no longer write to this person. The conversation is read-only.",
       "back": "Back to conversations"
     }
   },
@@ -747,6 +765,8 @@
     "EVALUATION_HAS_GRADES": "The maximum score cannot change once grades have been recorded.",
     "EVALUATION_NOT_PUBLISHED": "Publish the evaluation before recording grades.",
     "EVALUATION_ALREADY_PUBLISHED": "Only a draft evaluation can be deleted.",
+    "INVALID_RESET_TOKEN": "This link is no longer valid. Ask for a new one.",
+    "MESSAGE_NOT_ALLOWED": "You can no longer write to this person.",
     "CONTACT_NOT_FOUND": "That person is not a member of this institution.",
     "INVALID_MESSAGE": "The message is empty or too long.",
     "MESSAGES_TOO_FAST": "You sent many messages in a short time. Wait a moment and try again.",

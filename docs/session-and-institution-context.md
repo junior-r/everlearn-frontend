@@ -28,3 +28,10 @@ Every screen knows which institution the session is acting in, and the two manda
 
 - The choice is per browser, not per account, though a stored id the current user does not belong to is ignored.
 - Pending members have no active memberships yet, so they never see the selector.
+
+## Password reset screens
+
+- **`/forgot-password`** and **`/reset-password`** are open to anyone, like `/login`, and live in `pages/login` with their forms in `features/auth/reset-password`. The login screen links to the first.
+- The reset token arrives after `#` in the address and is read with `useSyncExternalStore`, so the server-rendered page and the first client render agree. Without a token the screen explains itself and offers a new link.
+- Both forms call the API with `skipAuth`, since nobody is signed in. After a reset the member signs in with the new password; they are not signed in automatically.
+- **E2E:** `e2e/password-reset.spec.ts` reads the link from the backend's log, which needs `EMAIL_LOG_BODIES=true` (the default in `docker-compose.yml`).
