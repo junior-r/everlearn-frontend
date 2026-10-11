@@ -30,6 +30,8 @@ export interface ApiClient {
   request<T>(path: string, options?: RequestOptions): Promise<T>;
   /** Like `request`, for endpoints that return a file instead of JSON. */
   requestBlob(path: string, options?: RequestOptions): Promise<Blob>;
+  /** Like `request`, for endpoints that answer little by little as Server-Sent Events. */
+  requestStream(path: string, options?: RequestOptions): Promise<ReadableStream<Uint8Array>>;
   getAccessToken(): string | null;
   setAccessToken(token: string | null): void;
   /** Calls the listener whenever the access token changes; returns an unsubscribe function. */
@@ -157,9 +159,24 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     return response.blob();
   }
 
+  async function requestStream(path: string, request: RequestOptions = {}): Promise<ReadableStream<Uint8Array>> {
+    const response = await sendWithRefresh(path, {
+      ...request,
+      headers: { ...request.headers, Accept: "text/event-stream" },
+    });
+    if (!response.ok) {
+      throw await toApiError(response);
+    }
+    if (!response.body) {
+      throw new ApiError(response.status, "NETWORK_ERROR", "The server sent no answer");
+    }
+    return response.body;
+  }
+
   return {
     request,
     requestBlob,
+    requestStream,
     getAccessToken: () => accessToken,
     setAccessToken,
     subscribe(listener) {

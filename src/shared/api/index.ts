@@ -3,6 +3,7 @@ import { createApiClient } from "./api-client";
 
 export { ApiError } from "./api-client";
 export type { ApiClient, RequestOptions } from "./api-client";
+export { readEventStream } from "./event-stream";
 
 /** The single API client instance for the app. */
 export const apiClient = createApiClient({

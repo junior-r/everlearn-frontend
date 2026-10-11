@@ -81,6 +81,28 @@ describe("createApiClient", () => {
     expect((calls[2].init.headers as Record<string, string>)["x-institution-id"]).toBe("inst-1");
   });
 
+  it("hands over a streamed answer, asking for it as an event stream", async () => {
+    const { client, calls } = setup(
+      () => new Response('data: {"type":"done"}\n\n', { status: 200, headers: { "Content-Type": "text/event-stream" } }),
+    );
+    client.setAccessToken("token-1");
+
+    const body = await client.requestStream("/ai/chat", { method: "POST", body: { messages: [] } });
+
+    expect(await new Response(body).text()).toBe('data: {"type":"done"}\n\n');
+    expect((calls[0].init.headers as Record<string, string>).Accept).toBe("text/event-stream");
+    expect(authHeader(calls[0])).toBe("Bearer token-1");
+  });
+
+  it("reports a stream refused before it starts as an ApiError with the backend code", async () => {
+    const { client } = setup(() => json(429, { code: "ASSISTANT_BUSY", message: "slow down" }));
+
+    await expect(client.requestStream("/ai/chat", { skipAuth: true })).rejects.toMatchObject({
+      status: 429,
+      code: "ASSISTANT_BUSY",
+    });
+  });
+
   it("reports a failed download as an ApiError with the backend code", async () => {
     const { client } = setup(() => json(404, { code: "APPLICATION_NOT_FOUND", message: "nope" }));
 

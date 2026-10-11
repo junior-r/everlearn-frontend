@@ -203,6 +203,42 @@
       "draft": "Borrador"
     }
   },
+  "assistant": {
+    "title": "Asistente de IA",
+    "open": "Abrir asistente de IA",
+    "close": "Cerrar asistente de IA",
+    "clear": "Nueva conversación",
+    "conversation": "Conversación con el asistente",
+    "greeting": "Hola, soy tu asistente. ¿En qué te ayudo?",
+    "hints": {
+      "ADMIN": "Puedo consultar las horas de clase de los docentes de una materia en un mes.",
+      "STUDENT": "Puedo consultar tus notas, tus promedios y los detalles de una evaluación.",
+      "OTHER": "Todavía no puedo consultar tus datos en la plataforma, pero puedo ayudarte con dudas generales."
+    },
+    "suggestionsLabel": "Preguntas sugeridas",
+    "suggestions": {
+      "ADMIN": [
+        "¿Cuántas horas de clase tienen los docentes este mes?"
+      ],
+      "STUDENT": [
+        "¿Cómo van mis notas?",
+        "¿Cuál es mi promedio en cada materia?"
+      ],
+      "OTHER": [
+        "¿En qué puedes ayudarme?"
+      ]
+    },
+    "you": "Tú",
+    "assistant": "Asistente",
+    "thinking": "Pensando…",
+    "lookingUp": "Consultando los datos…",
+    "retry": "Reintentar",
+    "inputLabel": "Tu pregunta",
+    "placeholder": "Escribe tu pregunta...",
+    "send": "Enviar pregunta",
+    "stop": "Detener respuesta",
+    "disclaimer": "Las respuestas se generan automáticamente y pueden contener errores."
+  },
   "onboarding": {
     "title": "Verifica tu identidad",
     "subtitle": "Necesitamos una foto de tu documento de identidad para completar tu perfil.",
@@ -562,6 +598,9 @@
     "EVALUATION_HAS_GRADES": "La nota máxima no puede cambiar cuando ya hay notas registradas.",
     "EVALUATION_NOT_PUBLISHED": "Publica la evaluación antes de registrar notas.",
     "EVALUATION_ALREADY_PUBLISHED": "Solo se puede eliminar una evaluación en borrador.",
+    "ASSISTANT_BUSY": "Hiciste muchas preguntas en poco tiempo. Espera un momento e inténtalo de nuevo.",
+    "ASSISTANT_UNAVAILABLE": "El asistente no está disponible en este momento. Inténtalo más tarde.",
+    "INVALID_CONVERSATION": "No se pudo enviar la pregunta. Empieza una nueva conversación.",
     "SCORE_OUT_OF_RANGE": "Una nota debe estar entre 0 y la nota máxima de la evaluación.",
     "STUDENT_NOT_ENROLLED": "El estudiante ya no está inscrito en este grupo. Recarga la página."
   }

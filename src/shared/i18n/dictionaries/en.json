@@ -203,6 +203,42 @@
       "draft": "Draft"
     }
   },
+  "assistant": {
+    "title": "AI assistant",
+    "open": "Open AI assistant",
+    "close": "Close AI assistant",
+    "clear": "New conversation",
+    "conversation": "Conversation with the assistant",
+    "greeting": "Hi, I'm your assistant. How can I help?",
+    "hints": {
+      "ADMIN": "I can look up the class hours of the teachers of a subject in a month.",
+      "STUDENT": "I can look up your grades, your averages and the details of an evaluation.",
+      "OTHER": "I can't look up your data on the platform yet, but I can help with general questions."
+    },
+    "suggestionsLabel": "Suggested questions",
+    "suggestions": {
+      "ADMIN": [
+        "How many class hours do the teachers have this month?"
+      ],
+      "STUDENT": [
+        "How are my grades going?",
+        "What is my average in each subject?"
+      ],
+      "OTHER": [
+        "What can you help me with?"
+      ]
+    },
+    "you": "You",
+    "assistant": "Assistant",
+    "thinking": "Thinking…",
+    "lookingUp": "Looking up the data…",
+    "retry": "Try again",
+    "inputLabel": "Your question",
+    "placeholder": "Type your question...",
+    "send": "Send question",
+    "stop": "Stop answering",
+    "disclaimer": "Answers are generated automatically and may contain mistakes."
+  },
   "onboarding": {
     "title": "Verify your identity",
     "subtitle": "We need a photo of your identity document to complete your profile.",
@@ -562,6 +598,9 @@
     "EVALUATION_HAS_GRADES": "The maximum score cannot change once grades have been recorded.",
     "EVALUATION_NOT_PUBLISHED": "Publish the evaluation before recording grades.",
     "EVALUATION_ALREADY_PUBLISHED": "Only a draft evaluation can be deleted.",
+    "ASSISTANT_BUSY": "You asked many questions in a short time. Wait a moment and try again.",
+    "ASSISTANT_UNAVAILABLE": "The assistant is not available right now. Try again later.",
+    "INVALID_CONVERSATION": "The question could not be sent. Start a new conversation.",
     "SCORE_OUT_OF_RANGE": "A score must be between 0 and the evaluation's maximum score.",
     "STUDENT_NOT_ENROLLED": "The student is no longer enrolled in this group. Reload the page."
   }

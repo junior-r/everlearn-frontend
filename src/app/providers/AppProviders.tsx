@@ -3,6 +3,7 @@
 import { Suspense, type ReactNode } from "react";
 import { ActiveInstitutionProvider } from "@/entities/institution";
 import { SessionProvider } from "@/entities/session";
+import { AIChatWidget } from "@/widgets/ai-chat";
 import { DictionaryProvider, type Dictionary, type Locale } from "@/shared/i18n";
 import { SessionRouting } from "./SessionRouting";
 
@@ -22,6 +23,10 @@ export function AppProviders({ locale, dictionary, children }: AppProvidersProps
             <SessionRouting />
           </Suspense>
           {children}
+          {/* After the page, so it floats above it; it reads the pathname too */}
+          <Suspense>
+            <AIChatWidget />
+          </Suspense>
         </ActiveInstitutionProvider>
       </SessionProvider>
     </DictionaryProvider>
