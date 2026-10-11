@@ -1,8 +1,12 @@
 import { apiClient, forInstitution } from "@/shared/api";
-import type { InstitutionDashboard, PlatformDashboard, TeacherDashboard } from "./model/types";
+import type { AcademicOverview, InstitutionDashboard, PlatformDashboard, TeacherDashboard } from "./model/types";
 
 export type {
+  AcademicOverview,
   AttendanceCounts,
+  GroupOverview,
+  PensumOverview,
+  TeacherLoad,
   GradeBand,
   InstitutionDashboard,
   PlatformDashboard,
@@ -25,6 +29,13 @@ export function fetchInstitutionDashboard(institutionId: string): Promise<Instit
 /** The signed-in Teacher's own courses in figures. */
 export function fetchTeacherDashboard(institutionId: string): Promise<TeacherDashboard> {
   return apiClient.request<TeacherDashboard>("/analytics/teacher", {
+    headers: forInstitution(institutionId),
+  });
+}
+
+/** The groups, pensums and Teachers' load of an institution right now. For its admins and Principals. */
+export function fetchAcademicOverview(institutionId: string): Promise<AcademicOverview> {
+  return apiClient.request<AcademicOverview>("/analytics/academic", {
     headers: forInstitution(institutionId),
   });
 }

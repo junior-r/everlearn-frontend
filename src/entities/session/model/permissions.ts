@@ -52,7 +52,9 @@ export function canAccessAdmin(user: SessionUser, activeInstitutionId: string | 
   return adminSections(user, activeInstitutionId).length > 0;
 }
 
-const BELOW_INSTITUTION_ADMIN: Role[] = ["COORDINATOR", "TEACHER", "STAFF", "STUDENT"];
+const BELOW_INSTITUTION_ADMIN: Role[] = ["COORDINATOR", "TEACHER", "STAFF", "GUARDIAN", "STUDENT"];
+// Staff enrol Students, and with them the Guardians who answer for them
+const REGISTERED_BY_STAFF: Role[] = ["GUARDIAN", "STUDENT"];
 
 /** The roles the user may give when registering a member; mirrors the backend rule. */
 export function registrableRoles(user: SessionUser, institutionId: string | null): Role[] {
@@ -63,7 +65,20 @@ export function registrableRoles(user: SessionUser, institutionId: string | null
   if (roles.includes("ADMIN")) {
     return BELOW_INSTITUTION_ADMIN;
   }
-  return roles.includes("STAFF") ? ["STUDENT"] : [];
+  return roles.includes("STAFF") ? REGISTERED_BY_STAFF : [];
+}
+
+/**
+ * Where the home screen sends someone whose role has a screen of its own: a
+ * Principal to the academic overview, and someone who is only a Guardian to
+ * their wards. Teachers and Students stay on the home screen, where their classes are.
+ */
+export function landingPath(roles: readonly Role[]): string | null {
+  if (roles.includes("COORDINATOR")) {
+    return "/principal";
+  }
+  const hasClasses = roles.includes("TEACHER") || roles.includes("STUDENT");
+  return roles.includes("GUARDIAN") && !hasClasses ? "/guardian" : null;
 }
 
 /** Whether the user may use the app at all yet, or must first replace a temporary password. */

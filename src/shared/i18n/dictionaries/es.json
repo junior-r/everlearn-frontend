@@ -61,6 +61,7 @@
     "changeInstitution": "Cambiar de institución",
     "account": "Tu cuenta",
     "teacherDashboard": "Panel docente",
+    "wards": "Mis representados",
     "progress": "Mis notas",
     "calendar": "Calendario de evaluaciones"
   },
@@ -266,6 +267,45 @@
     "disclaimer": "Las respuestas se generan automáticamente y pueden contener errores."
   },
   "dashboard": {
+    "academic": {
+      "title": "Panel académico",
+      "subtitle": "Los grupos, la carga de los docentes y los pensums de tu institución.",
+      "summary": "Cifras académicas",
+      "activeGroups": "Grupos activos",
+      "activeGroupsHint": "Del período académico en curso",
+      "students": "Estudiantes activos",
+      "teachers": "Docentes",
+      "attendanceRate": "Asistencia general",
+      "noAttendance": "Sin registros todavía",
+      "attendanceHint": "Llegar tarde cuenta como asistir",
+      "unassigned": "Materias sin docente",
+      "unassignedHint": "En los grupos activos",
+      "hours": "{hours} h",
+      "groups": {
+        "title": "Grupos activos",
+        "empty": "No hay grupos en el período académico en curso.",
+        "name": "Grupo",
+        "pensum": "Pensum",
+        "students": "Estudiantes",
+        "courses": "Materias",
+        "withoutTeacher": "Sin docente",
+        "weeklyHours": "Horas semanales"
+      },
+      "load": {
+        "title": "Carga horaria de los docentes",
+        "hint": "Horas de clase por semana según el horario, de los docentes con más carga.",
+        "empty": "Todavía no hay clases en el horario.",
+        "courses": "{count} materias"
+      },
+      "pensums": {
+        "title": "Pensums",
+        "empty": "Todavía no hay pensums.",
+        "code": "Código",
+        "name": "Nombre",
+        "subjects": "Materias",
+        "activeGroups": "Grupos activos"
+      }
+    },
     "platform": {
       "title": "Resumen de la plataforma",
       "subtitle": "Todas las instituciones en cifras. Entra a una institución para ver las suyas.",
@@ -405,6 +445,39 @@
       "back": "Volver a las conversaciones"
     }
   },
+  "guardian": {
+    "title": "Mis representados",
+    "subtitle": "El horario, las notas y la asistencia de los estudiantes que representas.",
+    "wards": "Estudiantes que representas",
+    "noWards": "Todavía no tienes estudiantes vinculados. Pide a la administración de la institución que te vincule con tu representado.",
+    "group": "Grupo {name}",
+    "noGroup": "Sin grupo asignado",
+    "summary": "Resumen del estudiante",
+    "courses": "Materias",
+    "attendanceRate": "Asistencia",
+    "noAttendance": "Sin registros todavía",
+    "attendanceHint": "Llegar tarde cuenta como asistir",
+    "upcoming": "Próximas evaluaciones",
+    "upcomingHint": "En los próximos 30 días",
+    "averagesTitle": "Promedio por materia",
+    "averagesHint": "Promedio actual en cada materia, sobre 100.",
+    "averagesEmpty": "Todavía no tiene notas en ninguna materia.",
+    "noAverage": "Sin notas",
+    "scheduleTitle": "Horario semanal",
+    "scheduleEmpty": "Su grupo todavía no tiene horario.",
+    "room": "Aula {room}",
+    "noTeacher": "Sin docente asignado",
+    "upcomingTitle": "Próximas evaluaciones",
+    "upcomingEmpty": "No hay evaluaciones con fecha de entrega en los próximos 30 días.",
+    "attendanceTitle": "Asistencia reciente",
+    "attendanceEmpty": "Todavía no se ha registrado su asistencia.",
+    "status": {
+      "PRESENT": "Presente",
+      "LATE": "Tarde",
+      "ABSENT": "Ausente",
+      "EXCUSED": "Justificada"
+    }
+  },
   "onboarding": {
     "title": "Verifica tu identidad",
     "subtitle": "Necesitamos una foto de tu documento de identidad para completar tu perfil.",
@@ -490,6 +563,26 @@
       "delete": "Eliminar",
       "create": "Crear"
     },
+    "guardians": {
+      "title": "Representantes y estudiantes",
+      "empty": "Todavía no hay representantes vinculados a estudiantes.",
+      "guardian": "Representante",
+      "student": "Estudiante",
+      "relationship": "Parentesco",
+      "linkTitle": "Vincular representante",
+      "link": "Vincular",
+      "unlink": "Desvincular",
+      "unlinkFor": "Desvincular a {guardian} de {student}",
+      "needsBoth": "Registra al menos un representante y un estudiante para poder vincularlos.",
+      "relationships": {
+        "MOTHER": "Madre",
+        "FATHER": "Padre",
+        "LEGAL_GUARDIAN": "Tutor legal",
+        "GRANDPARENT": "Abuelo o abuela",
+        "SIBLING": "Hermano o hermana",
+        "OTHER": "Otro"
+      }
+    },
     "institutions": {
       "title": "Instituciones",
       "subtitle": "Solo los administradores de la plataforma pueden crear instituciones.",
@@ -523,7 +616,7 @@
     },
     "members": {
       "title": "Miembros",
-      "subtitle": "Registra a los docentes y estudiantes de tu institución. Ellos no pueden registrarse por su cuenta.",
+      "subtitle": "Registra a los docentes, estudiantes y representantes de tu institución. Ellos no pueden registrarse por su cuenta.",
       "empty": "Esta institución aún no tiene miembros.",
       "name": "Nombre",
       "firstName": "Nombres",
@@ -767,6 +860,9 @@
     "EVALUATION_ALREADY_PUBLISHED": "Solo se puede eliminar una evaluación en borrador.",
     "INVALID_RESET_TOKEN": "Este enlace ya no es válido. Pide uno nuevo.",
     "MESSAGE_NOT_ALLOWED": "Ya no puedes escribirle a esta persona.",
+    "WARD_NOT_FOUND": "No se encontró a ese estudiante entre tus representados.",
+    "INVALID_GUARDIAN_LINK": "Elige un representante y un estudiante de esta institución.",
+    "GUARDIAN_LINK_NOT_FOUND": "Ese vínculo ya no existe.",
     "CONTACT_NOT_FOUND": "Esa persona no es miembro de esta institución.",
     "INVALID_MESSAGE": "El mensaje está vacío o es demasiado largo.",
     "MESSAGES_TOO_FAST": "Enviaste muchos mensajes en poco tiempo. Espera un momento e inténtalo de nuevo.",

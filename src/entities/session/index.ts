@@ -4,6 +4,7 @@ export {
   canAccessAdmin,
   hasAdminDashboard,
   hasOwnPassword,
+  landingPath,
   registrableRoles,
   rolesIn,
 } from "./model/permissions";

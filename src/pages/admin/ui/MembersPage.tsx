@@ -3,6 +3,7 @@
 import { useCallback } from "react";
 import { fetchMembers, type Member } from "@/entities/member";
 import { registrableRoles, roleTone, statusTone, useSession, type Role } from "@/entities/session";
+import { GuardianLinks } from "@/features/guardians/link-guardian";
 import { RegisterMemberForm } from "@/features/members/register-member";
 import { errorMessage, useDictionary } from "@/shared/i18n";
 import { useResource } from "@/shared/lib/use-resource";
@@ -52,6 +53,9 @@ function Members({ institutionId }: { institutionId: string }) {
           allowedRoles={allowedRoles}
           onRegistered={members.reload}
         />
+      </Section>
+      <Section title={admin.guardians.title}>
+        <GuardianLinks institutionId={institutionId} members={members.data ?? []} />
       </Section>
     </>
   );

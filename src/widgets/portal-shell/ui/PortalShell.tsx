@@ -1,10 +1,11 @@
 "use client";
 
-import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr";
+import { ArrowLeftIcon, BuildingsIcon, GearSixIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { useEffect, type ReactNode } from "react";
 import { useActiveInstitution } from "@/entities/institution";
 import { hasOwnPassword, useSession, type Role } from "@/entities/session";
+import { LogoutButton } from "@/features/auth/logout";
 import { localizedPath, useDictionary, useLocale, useLocalizedRouter } from "@/shared/i18n";
 import { ErrorNotice, Logo, PageHeader, PageStatus } from "@/shared/ui";
 import { HeaderActions } from "@/widgets/header-actions";
@@ -14,6 +15,8 @@ interface PortalShellProps {
   subtitle: string;
   /** The roles the page is for; the member must hold one of them in the institution they entered. */
   roles: Role[];
+  /** True for the screen a role lands on after signing in: it offers the account links instead of a way back. */
+  isLanding?: boolean;
   children(institutionId: string): ReactNode;
 }
 
@@ -21,12 +24,14 @@ interface PortalShellProps {
  * Frame of the Teacher and Student pages beyond the home screen. Hiding a page
  * from other roles is a convenience: the backend authorizes every request again.
  */
-export function PortalShell({ title, subtitle, roles, children }: PortalShellProps) {
+export function PortalShell({ title, subtitle, roles, isLanding = false, children }: PortalShellProps) {
   const router = useLocalizedRouter();
   const locale = useLocale();
   const session = useSession();
   const institution = useActiveInstitution();
-  const { common, evaluations } = useDictionary();
+  const { common, evaluations, home } = useDictionary();
+  const linkClass =
+    "inline-flex items-center gap-1.5 rounded-xl px-2 py-1.5 text-sm font-medium text-brand underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-brand";
   // While a temporary password is pending, SessionRouting owns the navigation
   const isReady = session.user !== null && hasOwnPassword(session.user) && !institution.isLoading;
 
@@ -46,14 +51,32 @@ export function PortalShell({ title, subtitle, roles, children }: PortalShellPro
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Logo name={common.brand} />
         <div className="flex items-center gap-2">
-          <Link
-            href={localizedPath(locale, "/")}
-            className="inline-flex items-center gap-1.5 rounded-xl px-2 py-1.5 text-sm font-medium text-brand underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-brand"
-          >
-            <ArrowLeftIcon aria-hidden weight="bold" className="size-4" />
-            {evaluations.backHome}
-          </Link>
+          {isLanding ? (
+            <>
+              {institution.institutions.length > 1 && (
+                <Link href={localizedPath(locale, "/select-institution")} className={linkClass}>
+                  <BuildingsIcon aria-hidden className="size-4" />
+                  {home.changeInstitution}
+                </Link>
+              )}
+              <Link href={localizedPath(locale, "/settings")} aria-label={home.settings} className={linkClass}>
+                <GearSixIcon aria-hidden className="size-4" />
+                {/* A phone has room for the icon only; the link keeps its name for everyone */}
+                <span className="hidden sm:inline">{home.settings}</span>
+              </Link>
+            </>
+          ) : (
+            <Link href={localizedPath(locale, "/")} className={linkClass}>
+              <ArrowLeftIcon aria-hidden weight="bold" className="size-4" />
+              {evaluations.backHome}
+            </Link>
+          )}
           <HeaderActions />
+          {isLanding && (
+            <div className="w-36 shrink-0 whitespace-nowrap">
+              <LogoutButton />
+            </div>
+          )}
         </div>
       </div>
       <PageHeader title={title} subtitle={subtitle} />

@@ -6,12 +6,13 @@ import {
   CalendarDotsIcon,
   ChartBarIcon,
   ChartPieSliceIcon,
+  UsersThreeIcon,
   GearSixIcon,
 } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { useEffect } from "react";
 import { useActiveInstitution } from "@/entities/institution";
-import { canAccessAdmin, hasOwnPassword, roleTone, useSession } from "@/entities/session";
+import { canAccessAdmin, hasOwnPassword, landingPath, roleTone, useSession } from "@/entities/session";
 import { LogoutButton } from "@/features/auth/logout";
 import { MyClasses } from "@/features/classroom/enter-class";
 import { format, localizedPath, useDictionary, useLocale, useLocalizedRouter } from "@/shared/i18n";
@@ -38,6 +39,9 @@ export function HomePage() {
     !institution.needsSelection &&
     canAccessAdmin(user, institution.active?.id ?? null);
 
+  const landing =
+    isReady && !needsOnboarding && !isAdmin && !institution.needsSelection ? landingPath(institution.roles) : null;
+
   useEffect(() => {
     if (session.status === "anonymous") {
       router.replace("/login");
@@ -45,10 +49,12 @@ export function HomePage() {
       router.replace("/onboarding");
     } else if (isAdmin) {
       router.replace("/admin");
+    } else if (landing) {
+      router.replace(landing);
     }
-  }, [session.status, needsOnboarding, isAdmin, router]);
+  }, [session.status, needsOnboarding, isAdmin, landing, router]);
 
-  if (!isReady || needsOnboarding || isAdmin || institution.needsSelection) {
+  if (!isReady || needsOnboarding || isAdmin || landing || institution.needsSelection) {
     return <PageStatus>{common.loading}</PageStatus>;
   }
 
@@ -96,6 +102,13 @@ export function HomePage() {
           <Link href={localizedPath(locale, "/teacher")} className={linkClass}>
             <ChartPieSliceIcon aria-hidden className="size-5 text-muted" />
             {home.teacherDashboard}
+            {arrow}
+          </Link>
+        )}
+        {institution.roles.includes("GUARDIAN") && (
+          <Link href={localizedPath(locale, "/guardian")} className={linkClass}>
+            <UsersThreeIcon aria-hidden className="size-5 text-muted" />
+            {home.wards}
             {arrow}
           </Link>
         )}

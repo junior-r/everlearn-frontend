@@ -61,6 +61,7 @@
     "changeInstitution": "Switch institution",
     "account": "Your account",
     "teacherDashboard": "Teacher dashboard",
+    "wards": "My students",
     "progress": "My grades",
     "calendar": "Evaluation calendar"
   },
@@ -266,6 +267,45 @@
     "disclaimer": "Answers are generated automatically and may contain mistakes."
   },
   "dashboard": {
+    "academic": {
+      "title": "Academic overview",
+      "subtitle": "The groups, the teachers' load and the pensums of your institution.",
+      "summary": "Academic figures",
+      "activeGroups": "Active groups",
+      "activeGroupsHint": "In the current academic period",
+      "students": "Active students",
+      "teachers": "Teachers",
+      "attendanceRate": "Overall attendance",
+      "noAttendance": "No records yet",
+      "attendanceHint": "Arriving late counts as attending",
+      "unassigned": "Subjects without a teacher",
+      "unassignedHint": "In the active groups",
+      "hours": "{hours} h",
+      "groups": {
+        "title": "Active groups",
+        "empty": "There are no groups in the current academic period.",
+        "name": "Group",
+        "pensum": "Pensum",
+        "students": "Students",
+        "courses": "Subjects",
+        "withoutTeacher": "Without a teacher",
+        "weeklyHours": "Weekly hours"
+      },
+      "load": {
+        "title": "Teachers' weekly load",
+        "hint": "Class hours per week according to the timetable, for the teachers with the most.",
+        "empty": "There are no classes in the timetable yet.",
+        "courses": "{count} subjects"
+      },
+      "pensums": {
+        "title": "Pensums",
+        "empty": "There are no pensums yet.",
+        "code": "Code",
+        "name": "Name",
+        "subjects": "Subjects",
+        "activeGroups": "Active groups"
+      }
+    },
     "platform": {
       "title": "Platform overview",
       "subtitle": "Every institution in figures. Enter an institution to see its own.",
@@ -405,6 +445,39 @@
       "back": "Back to conversations"
     }
   },
+  "guardian": {
+    "title": "My students",
+    "subtitle": "The schedule, grades and attendance of the students you answer for.",
+    "wards": "Students you answer for",
+    "noWards": "No student is linked to you yet. Ask the institution's office to link you to your student.",
+    "group": "Group {name}",
+    "noGroup": "No group assigned",
+    "summary": "Student summary",
+    "courses": "Subjects",
+    "attendanceRate": "Attendance",
+    "noAttendance": "No records yet",
+    "attendanceHint": "Arriving late counts as attending",
+    "upcoming": "Upcoming evaluations",
+    "upcomingHint": "In the next 30 days",
+    "averagesTitle": "Average per subject",
+    "averagesHint": "Current average in each subject, out of 100.",
+    "averagesEmpty": "No grades in any subject yet.",
+    "noAverage": "No grades",
+    "scheduleTitle": "Weekly schedule",
+    "scheduleEmpty": "Their group has no timetable yet.",
+    "room": "Room {room}",
+    "noTeacher": "No teacher assigned",
+    "upcomingTitle": "Upcoming evaluations",
+    "upcomingEmpty": "No evaluations are due in the next 30 days.",
+    "attendanceTitle": "Recent attendance",
+    "attendanceEmpty": "No attendance has been recorded yet.",
+    "status": {
+      "PRESENT": "Present",
+      "LATE": "Late",
+      "ABSENT": "Absent",
+      "EXCUSED": "Excused"
+    }
+  },
   "onboarding": {
     "title": "Verify your identity",
     "subtitle": "We need a photo of your identity document to complete your profile.",
@@ -490,6 +563,26 @@
       "delete": "Delete",
       "create": "Create"
     },
+    "guardians": {
+      "title": "Guardians and students",
+      "empty": "No guardian is linked to a student yet.",
+      "guardian": "Guardian",
+      "student": "Student",
+      "relationship": "Relationship",
+      "linkTitle": "Link a guardian",
+      "link": "Link",
+      "unlink": "Unlink",
+      "unlinkFor": "Unlink {guardian} from {student}",
+      "needsBoth": "Register at least one guardian and one student to link them.",
+      "relationships": {
+        "MOTHER": "Mother",
+        "FATHER": "Father",
+        "LEGAL_GUARDIAN": "Legal guardian",
+        "GRANDPARENT": "Grandparent",
+        "SIBLING": "Sibling",
+        "OTHER": "Other"
+      }
+    },
     "institutions": {
       "title": "Institutions",
       "subtitle": "Only Platform Admins can create institutions.",
@@ -523,7 +616,7 @@
     },
     "members": {
       "title": "Members",
-      "subtitle": "Register your institution's Teachers and Students. They cannot register themselves.",
+      "subtitle": "Register the teachers, students and guardians of your institution. They cannot sign up on their own.",
       "empty": "This institution has no members yet.",
       "name": "Name",
       "firstName": "First names",
@@ -767,6 +860,9 @@
     "EVALUATION_ALREADY_PUBLISHED": "Only a draft evaluation can be deleted.",
     "INVALID_RESET_TOKEN": "This link is no longer valid. Ask for a new one.",
     "MESSAGE_NOT_ALLOWED": "You can no longer write to this person.",
+    "WARD_NOT_FOUND": "That student was not found among yours.",
+    "INVALID_GUARDIAN_LINK": "Choose a guardian and a student of this institution.",
+    "GUARDIAN_LINK_NOT_FOUND": "That link no longer exists.",
     "CONTACT_NOT_FOUND": "That person is not a member of this institution.",
     "INVALID_MESSAGE": "The message is empty or too long.",
     "MESSAGES_TOO_FAST": "You sent many messages in a short time. Wait a moment and try again.",

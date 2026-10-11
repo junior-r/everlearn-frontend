@@ -54,3 +54,38 @@ export interface TeacherDashboard {
   /** How many averages the distribution counts. */
   gradedAverages: number;
 }
+
+/** A group of the running period, as someone overseeing the teaching sees it. */
+export interface GroupOverview {
+  id: string;
+  name: string;
+  level: number;
+  periodName: string;
+  pensumName: string;
+  students: number;
+  courses: number;
+  coursesWithoutTeacher: number;
+  /** Hours of class the timetable gives the group each week. */
+  weeklyHours: number;
+}
+
+export interface PensumOverview {
+  id: string;
+  code: string;
+  name: string;
+  subjects: number;
+  activeGroups: number;
+}
+
+export interface TeacherLoad {
+  membershipId: string;
+  name: string;
+  courses: number;
+  weeklyHours: number;
+}
+
+export interface AcademicOverview {
+  groups: GroupOverview[];
+  pensums: PensumOverview[];
+  teachers: TeacherLoad[];
+}

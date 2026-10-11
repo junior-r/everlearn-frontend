@@ -204,6 +204,7 @@ test("a Platform Admin creates an institution with its first admin, enters it an
   // Inside an institution a Platform Admin may register any role, more admins included
   await expect(page.getByRole("form", { name: "Registrar miembro" }).getByLabel("Rol").locator("option")).toHaveText([
     "Estudiante",
+    "Representante",
     "Personal administrativo",
     "Docente",
     "Directivo",
@@ -230,14 +231,14 @@ test("a Platform Admin creates an institution with its first admin, enters it an
   await expect(adminPage.getByRole("link", { name: "Instituciones" })).toHaveCount(0);
   await expect(
     adminPage.getByRole("form", { name: "Registrar miembro" }).getByLabel("Rol").locator("option"),
-  ).toHaveText(["Estudiante", "Personal administrativo", "Docente", "Directivo"]);
+  ).toHaveText(["Estudiante", "Representante", "Personal administrativo", "Docente", "Directivo"]);
   await adminContext.close();
 
   await row.getByRole("button", { name: /Desactivar/ }).click();
   await expect(row).toContainText("Inactiva");
 });
 
-test("Staff register Students and nothing else", async ({ page, playwright }) => {
+test("Staff register Students and their Guardians, and nothing else", async ({ page, playwright }) => {
   const institution = await createInstitution(playwright);
   const staff = await institution.registerActive("STAFF", { firstName: "Rosalind", lastName: "Franklin" });
   const studentEmail = `e2e-student-${unique()}@example.com`;
@@ -254,7 +255,7 @@ test("Staff register Students and nothing else", async ({ page, playwright }) =>
   }
 
   const memberForm = page.getByRole("form", { name: "Registrar miembro" });
-  await expect(memberForm.getByLabel("Rol").locator("option")).toHaveText(["Estudiante"]);
+  await expect(memberForm.getByLabel("Rol").locator("option")).toHaveText(["Estudiante", "Representante"]);
   await memberForm.getByLabel("Nombres").fill("Katherine");
   await memberForm.getByLabel("Apellidos").fill("Johnson");
   await memberForm.getByLabel("Correo electrónico").fill(studentEmail);

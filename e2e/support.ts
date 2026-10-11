@@ -10,7 +10,7 @@ export const PLATFORM_ADMIN = {
 export const PASSWORD = "e2e-own-password";
 
 type Playwright = PlaywrightWorkerArgs["playwright"];
-type MemberRole = "ADMIN" | "TEACHER" | "STAFF" | "STUDENT";
+type MemberRole = "ADMIN" | "COORDINATOR" | "TEACHER" | "STAFF" | "STUDENT" | "GUARDIAN";
 type RegistrableRole = Exclude<MemberRole, "ADMIN">;
 
 export interface Account {

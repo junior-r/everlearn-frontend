@@ -4,6 +4,7 @@ import {
   canAccessAdmin,
   hasAdminDashboard,
   hasOwnPassword,
+  landingPath,
   registrableRoles,
   rolesIn,
 } from "./permissions";
@@ -80,12 +81,12 @@ describe("adminSections", () => {
 describe("registrableRoles", () => {
   it("lets each level register only the levels below it", () => {
     expect(registrableRoles(platformAdmin, "a")).toEqual([
-      "ADMIN", "COORDINATOR", "TEACHER", "STAFF", "STUDENT",
+      "ADMIN", "COORDINATOR", "TEACHER", "STAFF", "GUARDIAN", "STUDENT",
     ]);
     expect(registrableRoles(memberOf("a", "ADMIN"), "a")).toEqual([
-      "COORDINATOR", "TEACHER", "STAFF", "STUDENT",
+      "COORDINATOR", "TEACHER", "STAFF", "GUARDIAN", "STUDENT",
     ]);
-    expect(registrableRoles(memberOf("a", "STAFF"), "a")).toEqual(["STUDENT"]);
+    expect(registrableRoles(memberOf("a", "STAFF"), "a")).toEqual(["GUARDIAN", "STUDENT"]);
     expect(registrableRoles(memberOf("a", "TEACHER"), "a")).toEqual([]);
   });
 
@@ -113,5 +114,23 @@ describe("hasAdminDashboard", () => {
     expect(hasAdminDashboard(memberOf("a", "STAFF"), "a")).toBe(false);
     expect(hasAdminDashboard(mixed, "b")).toBe(false);
     expect(hasAdminDashboard(mixed, null)).toBe(false);
+  });
+});
+
+describe("landingPath", () => {
+  it("sends a Principal to the academic overview, whatever else they are", () => {
+    expect(landingPath(["COORDINATOR"])).toBe("/principal");
+    expect(landingPath(["TEACHER", "COORDINATOR"])).toBe("/principal");
+  });
+
+  it("sends someone who is only a Guardian to their wards", () => {
+    expect(landingPath(["GUARDIAN"])).toBe("/guardian");
+  });
+
+  it("keeps Teachers and Students on the home screen, even when they are Guardians too", () => {
+    expect(landingPath(["TEACHER"])).toBeNull();
+    expect(landingPath(["STUDENT"])).toBeNull();
+    expect(landingPath(["TEACHER", "GUARDIAN"])).toBeNull();
+    expect(landingPath([])).toBeNull();
   });
 });
