@@ -38,3 +38,26 @@ export function searchMembers(
     signal,
   });
 }
+
+/** One page of the members of an institution, with how many match in all. */
+export interface MemberPage {
+  items: Member[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+/** The members table, a page at a time, narrowed by what was typed (name, email or document) and by role. */
+export function fetchMemberPage(
+  institutionId: string,
+  filter: { page: number; query: string; role: Role | "" },
+): Promise<MemberPage> {
+  const params = new URLSearchParams({ page: String(filter.page) });
+  if (filter.query.trim()) {
+    params.set("query", filter.query.trim());
+  }
+  if (filter.role) {
+    params.set("role", filter.role);
+  }
+  return apiClient.request<MemberPage>(`/members/page?${params}`, { headers: forInstitution(institutionId) });
+}

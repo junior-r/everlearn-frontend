@@ -1,7 +1,8 @@
 "use client";
 
 import { BooksIcon, CalendarCheckIcon, HourglassMediumIcon } from "@phosphor-icons/react/dist/ssr";
-import { useCallback, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useCallback } from "react";
 import {
   fetchMyWards,
   fetchWardOverview,
@@ -10,12 +11,14 @@ import {
   type WardOverview as Overview,
 } from "@/entities/guardian";
 import { WeekTimetable } from "@/entities/schedule";
-import { errorMessage, format, useDictionary, useLocale } from "@/shared/i18n";
+import { errorMessage, format, useDictionary, useLocale, useLocalizedRouter } from "@/shared/i18n";
 import { cn } from "@/shared/lib/cn";
 import { toneFor } from "@/shared/lib/tone";
 import { useResource } from "@/shared/lib/use-resource";
 import { Avatar, Badge, BarChart, ErrorNotice, Section, StatCard, StatGrid, type BadgeTone } from "@/shared/ui";
 
+/** The query parameter that names the ward whose tab is open. */
+const WARD_PARAM = "ward";
 const STATUS_TONE: Record<AttendanceEntry["status"], BadgeTone> = {
   PRESENT: "mint",
   LATE: "sun",
@@ -140,14 +143,17 @@ function WardPanel({ institutionId, ward }: { institutionId: string; ward: Ward 
 
 /**
  * A Guardian's portal: the Students they answer for and, for the one chosen,
- * the weekly schedule, averages, upcoming evaluations and attendance. Every
+ * the weekly schedule, averages, upcoming evaluations and attendance. It reads
+ * the address (`?ward=`), so it must sit inside a Suspense boundary. Every
  * figure comes from the backend, which shows only the Guardian's own wards.
  */
 export function GuardianPortal({ institutionId }: { institutionId: string }) {
   const { common, errors, guardian: text } = useDictionary();
   const load = useCallback(() => fetchMyWards(institutionId), [institutionId]);
   const wards = useResource(load);
-  const [chosenId, setChosenId] = useState<string | null>(null);
+  const router = useLocalizedRouter();
+  // The address says which ward is open, so a notice about one of them can lead straight to it
+  const chosenId = useSearchParams()?.get(WARD_PARAM) ?? null;
   const chosen = wards.data?.find((ward) => ward.membershipId === chosenId) ?? wards.data?.[0];
 
   if (!wards.data) {
@@ -171,7 +177,7 @@ export function GuardianPortal({ institutionId }: { institutionId: string }) {
               type="button"
               role="tab"
               aria-selected={isChosen}
-              onClick={() => setChosenId(ward.membershipId)}
+              onClick={() => router.replace(`/guardian?${WARD_PARAM}=${encodeURIComponent(ward.membershipId)}`)}
               className={cn(
                 "flex items-center gap-3 rounded-2xl border px-4 py-2.5 text-left transition-colors focus-visible:outline-2 focus-visible:outline-brand",
                 isChosen ? "border-brand bg-brand-soft" : "border-line bg-surface hover:border-brand/50",

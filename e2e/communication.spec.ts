@@ -34,11 +34,15 @@ test("a Student is welcomed, and hears of a new evaluation the moment it is publ
   test.setTimeout(120_000);
   const { institution, teacher, student } = await createCourse(playwright);
   const guardian = await institution.registerActive("GUARDIAN", { firstName: "Gina", lastName: "Rometty" });
-  await institution.apiPut("/guardian-links", {
-    studentMembershipId: student.membershipId,
-    guardianMembershipId: guardian.membershipId,
-    relationship: "MOTHER",
-  });
+  // She answers for two Students; Ada comes first in her portal, and the news will be about Grace
+  const ada = await institution.registerActive("STUDENT", { firstName: "Ada", lastName: "Byron" });
+  for (const ward of [ada, student]) {
+    await institution.apiPut("/guardian-links", {
+      studentMembershipId: ward.membershipId,
+      guardianMembershipId: guardian.membershipId,
+      relationship: "MOTHER",
+    });
+  }
 
   // Approved during setup: the welcome is waiting when they first sign in
   await signIn(page, student.email, student.password);
@@ -69,13 +73,20 @@ test("a Student is welcomed, and hears of a new evaluation the moment it is publ
   await expect(bell(page)).toHaveAccessibleName("Abrir notificaciones");
   await expect(notices(page).getByRole("listitem")).toHaveCount(2);
 
-  // Her Guardian was told too, about her by name, and the notice opens the Guardian's portal
+  // Her Guardian was told too, about her by name, and the notice opens the portal on her, not on the first ward
   const guardianPage = await openAs(browser, guardian.email, guardian.password);
+  await expect(guardianPage.getByRole("tab", { name: /Ada Byron/ })).toHaveAttribute("aria-selected", "true");
   await bell(guardianPage).click();
   const forWard = notices(guardianPage).getByRole("button", { name: /Nueva evaluación para Grace Hopper/ });
   await expect(forWard).toContainText("Examen parcial · Matemática");
   await forWard.click();
-  await expect(guardianPage).toHaveURL("/es/guardian");
+  await expect(guardianPage).toHaveURL(`/es/guardian?ward=${student.membershipId}`);
+  await expect(guardianPage.getByRole("tab", { name: /Grace Hopper/ })).toHaveAttribute("aria-selected", "true");
+  await expect(guardianPage.getByRole("tabpanel", { name: "Grace Hopper" })).toBeVisible();
+  // The tabs still work, and the address follows them
+  await guardianPage.getByRole("tab", { name: /Ada Byron/ }).click();
+  await expect(guardianPage.getByRole("tabpanel", { name: "Ada Byron" })).toBeVisible();
+  await expect(guardianPage).toHaveURL(`/es/guardian?ward=${ada.membershipId}`);
   await guardianPage.context().close();
 
   // The Teacher who published is told nothing about their own evaluation

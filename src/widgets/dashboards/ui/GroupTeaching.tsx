@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback } from "react";
-import { fetchGroup, type GroupCourse } from "@/entities/group";
-import { fetchGroupSchedule, WeekTimetable } from "@/entities/schedule";
+import { fetchGroupTeaching, type GroupTeaching as Teaching } from "@/entities/dashboard";
+import { WeekTimetable } from "@/entities/schedule";
 import { errorMessage, format, useDictionary, useLocale } from "@/shared/i18n";
 import { useResource } from "@/shared/lib/use-resource";
 import { Badge, DataTable, ErrorNotice, Section, type Column } from "@/shared/ui";
@@ -16,28 +16,25 @@ interface GroupTeachingProps {
 
 /**
  * One group for whoever oversees the teaching: the Teacher of each subject and
- * the weekly timetable. Read-only: assigning and scheduling stay with the
- * Institution Admin.
+ * the weekly timetable. It is given a count of Students and no roster.
+ * Read-only: assigning and scheduling stay with the Institution Admin.
  */
 export function GroupTeaching({ institutionId, groupId }: GroupTeachingProps) {
   const { common, dashboard, errors } = useDictionary();
   const text = dashboard.academic.group;
   const locale = useLocale();
-  const loadGroup = useCallback(() => fetchGroup(institutionId, groupId), [institutionId, groupId]);
-  const loadSchedule = useCallback(() => fetchGroupSchedule(institutionId, groupId), [institutionId, groupId]);
-  const group = useResource(loadGroup);
-  const schedule = useResource(loadSchedule);
+  const load = useCallback(() => fetchGroupTeaching(institutionId, groupId), [institutionId, groupId]);
+  const group = useResource(load);
 
-  if (!group.data || !schedule.data) {
-    const error = group.error ?? schedule.error;
-    return error ? (
-      <ErrorNotice message={errorMessage(errors, error)} />
+  if (!group.data) {
+    return group.error ? (
+      <ErrorNotice message={errorMessage(errors, group.error)} />
     ) : (
       <p className="text-sm text-muted">{common.loading}</p>
     );
   }
   const count = new Intl.NumberFormat(locale);
-  const columns: Array<Column<GroupCourse>> = [
+  const columns: Array<Column<Teaching["courses"][number]>> = [
     {
       header: text.subject,
       cell: (row) => (
@@ -62,9 +59,9 @@ export function GroupTeaching({ institutionId, groupId }: GroupTeachingProps) {
         <h2 className="font-display text-2xl font-semibold">{group.data.name}</h2>
         <p className="mt-1 text-sm text-muted">
           {format(text.summary, {
-            pensum: group.data.pensum.name,
-            period: group.data.period.name,
-            students: count.format(group.data.studentCount),
+            pensum: group.data.pensumName,
+            period: group.data.periodName,
+            students: count.format(group.data.students),
           })}
         </p>
       </div>
@@ -79,14 +76,7 @@ export function GroupTeaching({ institutionId, groupId }: GroupTeachingProps) {
       </Section>
       <Section title={text.scheduleTitle}>
         <WeekTimetable
-          schedule={schedule.data.map((slot) => ({
-            dayOfWeek: slot.dayOfWeek,
-            startMinute: slot.startMinute,
-            endMinute: slot.endMinute,
-            subjectName: slot.subject.name,
-            teacherName: slot.teacher && fullName(slot.teacher),
-            room: slot.room,
-          }))}
+          schedule={group.data.schedule}
           emptyText={text.scheduleEmpty}
           labels={{ room: text.room, noTeacher: text.noTeacher }}
         />

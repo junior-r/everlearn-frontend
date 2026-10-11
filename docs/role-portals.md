@@ -22,7 +22,9 @@ Each lands on a screen of their own: a Guardian on the Students they answer for 
 - **`features/guardians/link-guardian`:** `GuardianLinks`, on the admin Members page: the table of links and the form to add one. The Guardian and the Student are each found with `Autocomplete` (`shared/ui`), which asks `GET /members/search` as the user types, by name or document number, so the form never loads the members of the institution. Staff see it too.
 - **`shared/ui/Autocomplete`:** an ARIA combobox for lists too long to load: it waits 250 ms after typing, aborts the request it replaces, ignores an answer to an older query, and is driven by arrow keys and Enter (which picks a match instead of submitting the form). Its wording comes in as `messages`, so it holds no text.
 - **`widgets/ward-overview`:** `GuardianPortal`: ward tabs, summary cards, average per subject, weekly schedule by day, upcoming evaluations, recent attendance.
-- **`widgets/dashboards`:** `GroupTeaching` (`/principal/groups/:groupId`, reached from a group's name in the dashboard): the Teacher and weekly hours of each subject, and the weekly timetable. `WeekTimetable` (`entities/schedule`) is the same read-only timetable the Guardian portal shows.
+- **The Members table** (`pages/admin/MembersPage`) never loads the institution: it asks `GET /members/page` for 20 rows, again when the search (debounced), the role filter or the page (`Pagination`, `shared/ui`) changes.
+- **A ward's tab lives in the address** (`/guardian?ward=<Student membership id>`): tabs replace the address, and a notice about a ward links to it, so the portal opens on that Student. An unknown id falls back to the first ward.
+- **`widgets/dashboards`:** `GroupTeaching` (`/principal/groups/:groupId`, reached from a group's name in the dashboard), from `GET /analytics/academic/groups/:groupId`, which sends no Student data beyond a count: the Teacher and weekly hours of each subject, and the weekly timetable. `WeekTimetable` (`entities/schedule`) is the same read-only timetable the Guardian portal shows.
 - **`widgets/dashboards`:** `AcademicDashboard`: cards (active groups, students, Teachers, attendance, subjects without a Teacher), the groups table, the busiest Teachers' weekly load, the pensums table.
 - **`pages/dashboards`:** `GuardianPage`, `PrincipalPage`; routes `app/[lang]/guardian`, `app/[lang]/principal`.
 - **Registration:** `registrableRoles` now offers "Representante" to Institution Admins and Staff, after "Estudiante", which stays the default.
@@ -32,5 +34,6 @@ Each lands on a screen of their own: a Guardian on the Students they answer for 
 
 - A Guardian's portal shows averages per subject, not each evaluation and its feedback.
 - A Principal can open a group, but not a single Teacher's week across groups.
-- The Members table above the link form still loads every member of the institution; only the pickers search.
+- The Teacher and Student pickers of the admin Groups and Availability pages still load the member list (`GET /members`); they are the last screens that do.
+- Teachers have no screen to take attendance by hand; the backend endpoint exists.
 - Neither portal has a phone-specific layout beyond the shared responsive grid.

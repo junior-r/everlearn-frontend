@@ -19,8 +19,11 @@ describe("notificationPath", () => {
     expect(notificationPath(notice("CLASS_STARTING"))).toBe("/");
   });
 
-  it("takes a Guardian to their portal for anything about a ward", () => {
+  it("takes a Guardian to the ward a notice is about, or to their portal when it does not say", () => {
     for (const type of ["WARD_EVALUATION_PUBLISHED", "WARD_GRADE_POSTED", "WARD_ATTENDANCE"] as const) {
+      expect(notificationPath(notice(type, { studentId: "m 1", studentName: "Grace Hopper" }))).toBe(
+        "/guardian?ward=m%201",
+      );
       expect(notificationPath(notice(type, { studentName: "Grace Hopper" }))).toBe("/guardian");
     }
   });

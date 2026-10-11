@@ -89,3 +89,28 @@ export interface AcademicOverview {
   pensums: PensumOverview[];
   teachers: TeacherLoad[];
 }
+
+/** One group for whoever oversees the teaching: who teaches what and when. It names no Student. */
+export interface GroupTeaching {
+  id: string;
+  name: string;
+  level: number;
+  periodName: string;
+  pensumName: string;
+  students: number;
+  courses: Array<{
+    subjectId: string;
+    code: string;
+    name: string;
+    weeklyHours: number;
+    teacher: { membershipId: string; firstName: string; lastName: string } | null;
+  }>;
+  schedule: Array<{
+    dayOfWeek: string;
+    startMinute: number;
+    endMinute: number;
+    subjectName: string;
+    teacherName: string | null;
+    room: string | null;
+  }>;
+}

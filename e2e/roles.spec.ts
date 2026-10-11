@@ -165,3 +165,31 @@ test("a Principal lands on the teaching of the institution, to read and not to a
   await expect(page).toHaveURL("/es/login");
   await institution.dispose();
 });
+
+test("the office finds members in a table that is filled a page at a time", async ({ page, playwright }) => {
+  const { institution } = await createCourse(playwright);
+  await signIn(page, institution.admin.email, institution.admin.password);
+  await page.getByRole("link", { name: "Miembros" }).click();
+
+  const table = page.getByRole("table", { name: "Miembros" });
+  const pages = page.getByRole("navigation", { name: "Páginas de miembros" });
+  await expect(pages).toContainText("Página 1 de 1 · 4 miembros");
+  await expect(pages.getByRole("button", { name: "Anterior" })).toBeDisabled();
+  await expect(pages.getByRole("button", { name: "Siguiente" })).toBeDisabled();
+
+  // What is typed is searched by the server, in names and emails
+  const search = page.getByRole("search", { name: "Buscar en los miembros" });
+  await search.getByLabel("Buscar").fill("hopper");
+  await expect(pages).toContainText("Página 1 de 1 · 1 miembros");
+  await expect(table.getByRole("row")).toHaveCount(2);
+  await expect(table.getByRole("row", { name: /Grace Hopper/ })).toContainText("Estudiante");
+  await search.getByLabel("Buscar").fill("nadie-se-llama-asi");
+  await expect(page.getByText("Ningún miembro coincide con la búsqueda.")).toBeVisible();
+
+  // The role narrows it too
+  await search.getByLabel("Buscar").fill("");
+  await search.getByLabel("Rol").selectOption({ label: "Docente" });
+  await expect(pages).toContainText("· 1 miembros");
+  await expect(table.getByRole("row", { name: /Alan Turing/ })).toBeVisible();
+  await institution.dispose();
+});

@@ -11,6 +11,7 @@ export { ErrorNotice } from "./ErrorNotice";
 export { Logo } from "./Logo";
 export { Mosaic } from "./Mosaic";
 export { PageHeader, Section } from "./Section";
+export { Pagination } from "./Pagination";
 export { SelectField } from "./SelectField";
 export { StatCard, StatGrid } from "./StatCard";
 export { TextField } from "./TextField";

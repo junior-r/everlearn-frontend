@@ -32,7 +32,7 @@ A bell on every signed-in screen, a `/messages` page with live conversations, an
 
 ## Guardians and grades
 
-The bell words four more notices: a Student's own grade (`GRADE_POSTED`, opens `/progress`) and, for a Guardian, a ward's new evaluation, grade or absence (`WARD_…`, open `/guardian`). The backend sends the facts (`studentName`, `score`, `status`); the wording, including how an absence or a late arrival reads, is in `notifications.types` and `notifications.attendance`.
+The bell words four more notices: a Student's own grade (`GRADE_POSTED`, opens `/progress`) and, for a Guardian, a ward's new evaluation, grade or absence (`WARD_…`, open `/guardian?ward=<studentId>`, on that ward's tab). The backend sends the facts (`studentName`, `score`, `status`); the wording, including how an absence or a late arrival reads, is in `notifications.types` and `notifications.attendance`.
 
 ## Known gaps
 

@@ -36,8 +36,10 @@ export function notificationPath(notification: AppNotification): string {
       return "/progress";
     case "WARD_EVALUATION_PUBLISHED":
     case "WARD_GRADE_POSTED":
-    case "WARD_ATTENDANCE":
-      return "/guardian";
+    case "WARD_ATTENDANCE": {
+      const { studentId } = notification.data;
+      return typeof studentId === "string" ? `/guardian?ward=${encodeURIComponent(studentId)}` : "/guardian";
+    }
     case "DIRECT_MESSAGE": {
       const { senderId } = notification.data;
       return typeof senderId === "string" ? `/messages?with=${encodeURIComponent(senderId)}` : "/messages";

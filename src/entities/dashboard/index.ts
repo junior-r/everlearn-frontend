@@ -1,10 +1,17 @@
 import { apiClient, forInstitution } from "@/shared/api";
-import type { AcademicOverview, InstitutionDashboard, PlatformDashboard, TeacherDashboard } from "./model/types";
+import type {
+  AcademicOverview,
+  GroupTeaching,
+  InstitutionDashboard,
+  PlatformDashboard,
+  TeacherDashboard,
+} from "./model/types";
 
 export type {
   AcademicOverview,
   AttendanceCounts,
   GroupOverview,
+  GroupTeaching,
   PensumOverview,
   TeacherLoad,
   GradeBand,
@@ -36,6 +43,13 @@ export function fetchTeacherDashboard(institutionId: string): Promise<TeacherDas
 /** The groups, pensums and Teachers' load of an institution right now. For its admins and Principals. */
 export function fetchAcademicOverview(institutionId: string): Promise<AcademicOverview> {
   return apiClient.request<AcademicOverview>("/analytics/academic", {
+    headers: forInstitution(institutionId),
+  });
+}
+
+/** The Teachers and weekly timetable of one group. For the institution's admins and Principals. */
+export function fetchGroupTeaching(institutionId: string, groupId: string): Promise<GroupTeaching> {
+  return apiClient.request<GroupTeaching>(`/analytics/academic/groups/${groupId}`, {
     headers: forInstitution(institutionId),
   });
 }

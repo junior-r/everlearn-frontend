@@ -674,7 +674,16 @@
       "temporaryPassword": "Temporary password",
       "dismiss": "I have copied them",
       "existingTitle": "Member added",
-      "existingBody": "{name} already had an account. They were added to this institution and keep using their current credentials."
+      "existingBody": "{name} already had an account. They were added to this institution and keep using their current credentials.",
+      "searchTitle": "Search the members",
+      "search": "Search",
+      "searchPlaceholder": "Name, email or document",
+      "allRoles": "All roles",
+      "noMatches": "No member matches the search.",
+      "pages": "Pages of members",
+      "pageStatus": "Page {page} of {pages} · {total} members",
+      "previousPage": "Previous",
+      "nextPage": "Next"
     },
     "reviews": {
       "title": "Pending reviews",

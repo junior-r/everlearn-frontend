@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useDictionary } from "@/shared/i18n";
 import { AcademicDashboard } from "@/widgets/dashboards";
 import { PortalShell } from "@/widgets/portal-shell";
@@ -20,7 +21,12 @@ export function GuardianPage() {
   const { guardian } = useDictionary();
   return (
     <PortalShell title={guardian.title} subtitle={guardian.subtitle} roles={["GUARDIAN"]} isLanding>
-      {(institutionId) => <GuardianPortal key={institutionId} institutionId={institutionId} />}
+      {(institutionId) => (
+        // The portal reads the ward from the address, which needs a Suspense boundary to prerender
+        <Suspense>
+          <GuardianPortal key={institutionId} institutionId={institutionId} />
+        </Suspense>
+      )}
     </PortalShell>
   );
 }

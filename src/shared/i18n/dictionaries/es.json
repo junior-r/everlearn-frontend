@@ -674,7 +674,16 @@
       "temporaryPassword": "Contraseña temporal",
       "dismiss": "Ya las copié",
       "existingTitle": "Miembro añadido",
-      "existingBody": "{name} ya tenía una cuenta. Se añadió a esta institución y seguirá usando sus credenciales actuales."
+      "existingBody": "{name} ya tenía una cuenta. Se añadió a esta institución y seguirá usando sus credenciales actuales.",
+      "searchTitle": "Buscar en los miembros",
+      "search": "Buscar",
+      "searchPlaceholder": "Nombre, correo o documento",
+      "allRoles": "Todos los roles",
+      "noMatches": "Ningún miembro coincide con la búsqueda.",
+      "pages": "Páginas de miembros",
+      "pageStatus": "Página {page} de {pages} · {total} miembros",
+      "previousPage": "Anterior",
+      "nextPage": "Siguiente"
     },
     "reviews": {
       "title": "Revisiones pendientes",
