@@ -33,6 +33,8 @@ export interface ApiClient {
   /** Like `request`, for endpoints that answer little by little as Server-Sent Events. */
   requestStream(path: string, options?: RequestOptions): Promise<ReadableStream<Uint8Array>>;
   getAccessToken(): string | null;
+  /** Renews the access token from the refresh cookie; resolves to null when the session is over. */
+  refresh(): Promise<string | null>;
   setAccessToken(token: string | null): void;
   /** Calls the listener whenever the access token changes; returns an unsubscribe function. */
   subscribe(listener: TokenListener): () => void;
@@ -178,6 +180,7 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     requestBlob,
     requestStream,
     getAccessToken: () => accessToken,
+    refresh: refreshOnce,
     setAccessToken,
     subscribe(listener) {
       listeners.add(listener);

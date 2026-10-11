@@ -29,6 +29,7 @@ import { LogoutButton } from "@/features/auth/logout";
 import { localizedPath, useDictionary, useLocale, useLocalizedRouter } from "@/shared/i18n";
 import { cn } from "@/shared/lib/cn";
 import { Avatar, Button, Logo, PageHeader, PageStatus } from "@/shared/ui";
+import { HeaderActions } from "@/widgets/header-actions";
 
 const sectionPath = (section: AdminSection) => `/admin/${section}`;
 
@@ -150,10 +151,14 @@ export function AdminShell({ children }: { children: ReactNode }) {
   const userName = `${user.firstName} ${user.lastName}`;
   return (
     <div className="mx-auto flex min-h-page max-w-7xl flex-col gap-6 px-4 py-4 md:flex-row md:gap-8 md:py-6">
-      <aside className="relative flex shrink-0 flex-col gap-5 overflow-hidden rounded-3xl bg-ink p-5 text-on-ink md:sticky md:top-6 md:h-[calc(100dvh-3rem)] md:w-64">
-        <span aria-hidden className="pattern-fine-dots pointer-events-none absolute inset-0 text-on-ink" />
-        <div className="relative flex flex-col gap-4">
-          <Logo name={common.brand} variant="inverse" />
+      {/* Not clipped: the notification list opens beyond the edge of the navigation */}
+      <aside className="relative z-30 flex shrink-0 flex-col gap-5 rounded-3xl bg-ink p-5 text-on-ink md:sticky md:top-6 md:h-[calc(100dvh-3rem)] md:w-64">
+        <span aria-hidden className="pattern-fine-dots pointer-events-none absolute inset-0 rounded-3xl text-on-ink" />
+        <div className="relative z-10 flex flex-col gap-4">
+          <div className="flex items-center justify-between gap-2">
+            <Logo name={common.brand} variant="inverse" />
+            <HeaderActions variant="inverse" align="left" />
+          </div>
           <div className="flex items-center gap-3">
             <Avatar name={userName} size="md" />
             <div className="min-w-0">

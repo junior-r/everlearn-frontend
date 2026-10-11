@@ -165,6 +165,9 @@
       "noStudents": "Este grupo todavía no tiene estudiantes inscritos.",
       "save": "Guardar notas",
       "saved": "Notas guardadas.",
+      "export": "Exportar a CSV",
+      "exportHint": "Descarga las notas guardadas. Los cambios sin guardar no se incluyen.",
+      "exportName": "Notas",
       "unsavedOne": "1 cambio sin guardar",
       "unsavedMany": "{count} cambios sin guardar",
       "invalid": "Revisa las notas marcadas: van de 0 a la nota máxima, con dos decimales como mucho."
@@ -325,6 +328,63 @@
       "averagesHint": "Tu promedio actual en cada materia, sobre 100.",
       "averagesEmpty": "Todavía no tienes notas en ninguna materia.",
       "noAverage": "Sin notas"
+    }
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "open": "Abrir notificaciones",
+    "openWithUnread": "Abrir notificaciones, {count} sin leer",
+    "unread": "sin leer",
+    "empty": "No tienes notificaciones.",
+    "markAllRead": "Marcar todas como leídas",
+    "types": {
+      "WELCOME": {
+        "title": "¡Te damos la bienvenida!",
+        "body": "Tu documento fue aprobado y tu cuenta ya está activa."
+      },
+      "EVALUATION_PUBLISHED": {
+        "title": "Nueva evaluación: {evaluationTitle}",
+        "body": "{subjectName} · Grupo {groupName}"
+      },
+      "EVALUATION_DUE": {
+        "title": "Vence pronto: {evaluationTitle}",
+        "body": "{subjectName} · Entrega: {dueAt}"
+      },
+      "CLASS_STARTING": {
+        "title": "Tu clase de {subjectName} está por empezar",
+        "body": "Grupo {groupName} · {startsAt}"
+      },
+      "DIRECT_MESSAGE": {
+        "title": "Nuevo mensaje de {senderName}",
+        "body": "Abre la conversación para leerlo."
+      }
+    }
+  },
+  "messages": {
+    "title": "Mensajes",
+    "subtitle": "Escribe a docentes, estudiantes y personal de tu institución.",
+    "search": {
+      "label": "Buscar personas",
+      "placeholder": "Escribe un nombre...",
+      "results": "Personas encontradas",
+      "empty": "No se encontró a nadie con ese nombre."
+    },
+    "list": {
+      "label": "Conversaciones",
+      "empty": "Todavía no tienes conversaciones. Busca a alguien para empezar.",
+      "unread": "{count} sin leer"
+    },
+    "thread": {
+      "label": "Conversación con {name}",
+      "form": "Escribir a {name}",
+      "none": "Elige una conversación o busca a alguien para escribirle.",
+      "empty": "Todavía no hay mensajes. Escribe el primero.",
+      "you": "Tú",
+      "inputLabel": "Tu mensaje",
+      "placeholder": "Escribe un mensaje...",
+      "send": "Enviar mensaje",
+      "older": "Cargar mensajes anteriores",
+      "back": "Volver a las conversaciones"
     }
   },
   "onboarding": {
@@ -687,6 +747,9 @@
     "EVALUATION_HAS_GRADES": "La nota máxima no puede cambiar cuando ya hay notas registradas.",
     "EVALUATION_NOT_PUBLISHED": "Publica la evaluación antes de registrar notas.",
     "EVALUATION_ALREADY_PUBLISHED": "Solo se puede eliminar una evaluación en borrador.",
+    "CONTACT_NOT_FOUND": "Esa persona no es miembro de esta institución.",
+    "INVALID_MESSAGE": "El mensaje está vacío o es demasiado largo.",
+    "MESSAGES_TOO_FAST": "Enviaste muchos mensajes en poco tiempo. Espera un momento e inténtalo de nuevo.",
     "ASSISTANT_BUSY": "Hiciste muchas preguntas en poco tiempo. Espera un momento e inténtalo de nuevo.",
     "ASSISTANT_UNAVAILABLE": "El asistente no está disponible en este momento. Inténtalo más tarde.",
     "INVALID_CONVERSATION": "No se pudo enviar la pregunta. Empieza una nueva conversación.",

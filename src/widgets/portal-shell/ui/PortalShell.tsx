@@ -7,6 +7,7 @@ import { useActiveInstitution } from "@/entities/institution";
 import { hasOwnPassword, useSession, type Role } from "@/entities/session";
 import { localizedPath, useDictionary, useLocale, useLocalizedRouter } from "@/shared/i18n";
 import { ErrorNotice, Logo, PageHeader, PageStatus } from "@/shared/ui";
+import { HeaderActions } from "@/widgets/header-actions";
 
 interface PortalShellProps {
   title: string;
@@ -44,13 +45,16 @@ export function PortalShell({ title, subtitle, roles, children }: PortalShellPro
     <div className="mx-auto flex min-h-page max-w-6xl animate-rise flex-col gap-6 px-4 py-4 md:py-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Logo name={common.brand} />
-        <Link
-          href={localizedPath(locale, "/")}
-          className="inline-flex items-center gap-1.5 rounded-xl px-2 py-1.5 text-sm font-medium text-brand underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-brand"
-        >
-          <ArrowLeftIcon aria-hidden weight="bold" className="size-4" />
-          {evaluations.backHome}
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href={localizedPath(locale, "/")}
+            className="inline-flex items-center gap-1.5 rounded-xl px-2 py-1.5 text-sm font-medium text-brand underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-brand"
+          >
+            <ArrowLeftIcon aria-hidden weight="bold" className="size-4" />
+            {evaluations.backHome}
+          </Link>
+          <HeaderActions />
+        </div>
       </div>
       <PageHeader title={title} subtitle={subtitle} />
       <main className="flex flex-col gap-8 pb-8">

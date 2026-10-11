@@ -86,6 +86,19 @@ export function deleteEvaluation(institutionId: string, evaluationId: string): P
   });
 }
 
+/** The gradebook of a course as a CSV file, worded and formatted for the given language. */
+export function downloadGradebook(
+  institutionId: string,
+  groupId: string,
+  subjectId: string,
+  locale: string,
+): Promise<Blob> {
+  const lang = locale === "en" ? "en" : "es";
+  return apiClient.requestBlob(`${coursePath(groupId, subjectId)}/gradebook/export?lang=${lang}`, {
+    headers: forInstitution(institutionId),
+  });
+}
+
 /** Stores scores in one evaluation; the backend stores all of them or none. */
 export function saveGrades(institutionId: string, evaluationId: string, grades: GradeEntry[]): Promise<void> {
   return apiClient.request<void>(`/evaluations/${evaluationId}/grades`, {

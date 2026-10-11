@@ -165,6 +165,9 @@
       "noStudents": "This group has no enrolled students yet.",
       "save": "Save grades",
       "saved": "Grades saved.",
+      "export": "Export to CSV",
+      "exportHint": "Downloads the saved grades. Unsaved changes are not included.",
+      "exportName": "Grades",
       "unsavedOne": "1 unsaved change",
       "unsavedMany": "{count} unsaved changes",
       "invalid": "Check the marked scores: they go from 0 to the maximum score, with two decimals at most."
@@ -325,6 +328,63 @@
       "averagesHint": "Your current average in each subject, out of 100.",
       "averagesEmpty": "You have no grades in any subject yet.",
       "noAverage": "No grades"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "open": "Open notifications",
+    "openWithUnread": "Open notifications, {count} unread",
+    "unread": "unread",
+    "empty": "You have no notifications.",
+    "markAllRead": "Mark all as read",
+    "types": {
+      "WELCOME": {
+        "title": "Welcome!",
+        "body": "Your document was approved and your account is now active."
+      },
+      "EVALUATION_PUBLISHED": {
+        "title": "New evaluation: {evaluationTitle}",
+        "body": "{subjectName} · Group {groupName}"
+      },
+      "EVALUATION_DUE": {
+        "title": "Due soon: {evaluationTitle}",
+        "body": "{subjectName} · Due: {dueAt}"
+      },
+      "CLASS_STARTING": {
+        "title": "Your {subjectName} class is about to start",
+        "body": "Group {groupName} · {startsAt}"
+      },
+      "DIRECT_MESSAGE": {
+        "title": "New message from {senderName}",
+        "body": "Open the conversation to read it."
+      }
+    }
+  },
+  "messages": {
+    "title": "Messages",
+    "subtitle": "Write to teachers, students and staff of your institution.",
+    "search": {
+      "label": "Find people",
+      "placeholder": "Type a name...",
+      "results": "People found",
+      "empty": "Nobody was found with that name."
+    },
+    "list": {
+      "label": "Conversations",
+      "empty": "You have no conversations yet. Find someone to start one.",
+      "unread": "{count} unread"
+    },
+    "thread": {
+      "label": "Conversation with {name}",
+      "form": "Write to {name}",
+      "none": "Choose a conversation or find someone to write to.",
+      "empty": "No messages yet. Write the first one.",
+      "you": "You",
+      "inputLabel": "Your message",
+      "placeholder": "Type a message...",
+      "send": "Send message",
+      "older": "Load earlier messages",
+      "back": "Back to conversations"
     }
   },
   "onboarding": {
@@ -687,6 +747,9 @@
     "EVALUATION_HAS_GRADES": "The maximum score cannot change once grades have been recorded.",
     "EVALUATION_NOT_PUBLISHED": "Publish the evaluation before recording grades.",
     "EVALUATION_ALREADY_PUBLISHED": "Only a draft evaluation can be deleted.",
+    "CONTACT_NOT_FOUND": "That person is not a member of this institution.",
+    "INVALID_MESSAGE": "The message is empty or too long.",
+    "MESSAGES_TOO_FAST": "You sent many messages in a short time. Wait a moment and try again.",
     "ASSISTANT_BUSY": "You asked many questions in a short time. Wait a moment and try again.",
     "ASSISTANT_UNAVAILABLE": "The assistant is not available right now. Try again later.",
     "INVALID_CONVERSATION": "The question could not be sent. Start a new conversation.",

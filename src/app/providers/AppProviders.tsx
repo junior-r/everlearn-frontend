@@ -5,6 +5,7 @@ import { ActiveInstitutionProvider } from "@/entities/institution";
 import { SessionProvider } from "@/entities/session";
 import { AIChatWidget } from "@/widgets/ai-chat";
 import { DictionaryProvider, type Dictionary, type Locale } from "@/shared/i18n";
+import { RealtimeConnection } from "./RealtimeConnection";
 import { SessionRouting } from "./SessionRouting";
 
 interface AppProvidersProps {
@@ -22,6 +23,7 @@ export function AppProviders({ locale, dictionary, children }: AppProvidersProps
           <Suspense>
             <SessionRouting />
           </Suspense>
+          <RealtimeConnection />
           {children}
           {/* After the page, so it floats above it; it reads the pathname too */}
           <Suspense>

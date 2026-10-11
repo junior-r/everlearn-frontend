@@ -9,8 +9,9 @@ import { hasOwnPassword, useSession } from "@/entities/session";
 import { AssistantChat, useAssistantChat } from "@/features/assistant/ask-assistant";
 import { localizedPath, useDictionary, useLocale } from "@/shared/i18n";
 
-// The virtual classroom fills the screen and has its own chat in that corner
-const HIDDEN_ON = ["/class/"];
+// Screens with a chat of their own in that corner: the virtual classroom fills the screen, and in
+// direct messages the button would sit on top of the send button
+const HIDDEN_ON = ["/class/", "/messages"];
 
 const iconButton =
   "grid size-9 place-items-center rounded-xl text-muted transition-colors hover:bg-surface-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-40";

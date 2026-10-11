@@ -1,8 +1,9 @@
 "use client";
 
-import { ChatTextIcon } from "@phosphor-icons/react/dist/ssr";
+import { ChatTextIcon, DownloadSimpleIcon } from "@phosphor-icons/react/dist/ssr";
 import { Fragment, useCallback, useId, useMemo, useState } from "react";
 import {
+  downloadGradebook,
   formatNumber,
   MAX_FEEDBACK_LENGTH,
   parseScore,
@@ -12,6 +13,7 @@ import {
 } from "@/entities/evaluation";
 import { errorMessage, format, useDictionary, useLocale } from "@/shared/i18n";
 import { cn } from "@/shared/lib/cn";
+import { fileName, saveBlob } from "@/shared/lib/download";
 import { useSubmit } from "@/shared/lib/use-submit";
 import { Avatar, Button, ErrorNotice } from "@/shared/ui";
 import { cellKey, pendingChanges, type Drafts } from "./lib/changes";
@@ -56,6 +58,11 @@ export function GradebookTable({ institutionId, gradebook, onSaved }: GradebookT
     [institutionId],
   );
   const { submit, isSubmitting, error } = useSubmit(save);
+  const download = useCallback(
+    () => downloadGradebook(institutionId, gradebook.groupId, gradebook.subject.id, locale),
+    [institutionId, gradebook.groupId, gradebook.subject.id, locale],
+  );
+  const exporting = useSubmit(download);
   const number = (value: number) => formatNumber(value, locale);
 
   async function handleSave() {
@@ -69,6 +76,13 @@ export function GradebookTable({ institutionId, gradebook, onSaved }: GradebookT
     }
     // Also after a failure: the evaluations saved before it are already stored
     onSaved();
+  }
+
+  async function handleExport() {
+    const file = await exporting.submit();
+    if (file) {
+      saveBlob(file, fileName(`${text.exportName} ${gradebook.subject.name} ${gradebook.groupName}`, "csv"));
+    }
   }
 
   function handleType(key: string, value: string) {
@@ -99,7 +113,7 @@ export function GradebookTable({ institutionId, gradebook, onSaved }: GradebookT
   const hasInvalid = changes.invalid.size > 0;
   return (
     <div className="flex flex-col gap-3">
-      <ErrorNotice message={hasInvalid ? text.invalid : errorMessage(errors, error)} />
+      <ErrorNotice message={hasInvalid ? text.invalid : errorMessage(errors, error ?? exporting.error)} />
       <div className="overflow-x-auto rounded-2xl border border-line bg-surface shadow-card">
         <table className="w-full text-left text-sm">
           <caption className="sr-only">
@@ -246,6 +260,17 @@ export function GradebookTable({ institutionId, gradebook, onSaved }: GradebookT
           {changes.count > 1 && format(text.unsavedMany, { count: String(changes.count) })}
           {changes.count === 0 && justSaved && text.saved}
         </p>
+        <Button
+          size="sm"
+          variant="secondary"
+          className="ml-auto"
+          isLoading={exporting.isSubmitting}
+          title={text.exportHint}
+          onClick={handleExport}
+        >
+          <DownloadSimpleIcon aria-hidden weight="bold" className="size-4" />
+          {text.export}
+        </Button>
       </div>
     </div>
   );

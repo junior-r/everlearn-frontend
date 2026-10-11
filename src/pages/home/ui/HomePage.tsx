@@ -16,6 +16,7 @@ import { LogoutButton } from "@/features/auth/logout";
 import { MyClasses } from "@/features/classroom/enter-class";
 import { format, localizedPath, useDictionary, useLocale, useLocalizedRouter } from "@/shared/i18n";
 import { Avatar, Badge, CenteredCard, PageStatus } from "@/shared/ui";
+import { HeaderActions } from "@/widgets/header-actions";
 
 /**
  * Landing screen of Teachers and Students, with their classes. Pending members go to
@@ -73,6 +74,9 @@ export function HomePage() {
           </h1>
           <p className="mt-1 truncate text-sm text-muted">{format(home.signedInAs, { email: user.email })}</p>
         </div>
+      </div>
+      <div className="mt-3 flex justify-end">
+        <HeaderActions />
       </div>
       {institution.active && (
         <div className="mt-6 rounded-2xl bg-surface-muted p-4">
