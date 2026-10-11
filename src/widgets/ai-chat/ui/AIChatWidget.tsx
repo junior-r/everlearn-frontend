@@ -68,6 +68,8 @@ function FloatingAssistant({ institutionId, audiences }: FloatingAssistantProps)
       <button
         ref={launcher}
         type="button"
+        // globals.css keeps the corner under small screens free while this button exists
+        data-assistant-launcher
         aria-label={isOpen ? text.close : text.open}
         aria-expanded={isOpen}
         title={isOpen ? text.close : text.open}

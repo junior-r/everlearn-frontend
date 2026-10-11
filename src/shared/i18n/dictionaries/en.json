@@ -212,6 +212,7 @@
     "greeting": "Hi, I'm your assistant. How can I help?",
     "hints": {
       "ADMIN": "I can look up the class hours of the teachers of a subject in a month.",
+      "TEACHER": "I can look up your students' averages in a subject and who is at risk because of absences in a group.",
       "STUDENT": "I can look up your grades, your averages and the details of an evaluation.",
       "OTHER": "I can't look up your data on the platform yet, but I can help with general questions."
     },
@@ -219,6 +220,10 @@
     "suggestions": {
       "ADMIN": [
         "How many class hours do the teachers have this month?"
+      ],
+      "TEACHER": [
+        "How are my students' averages going?",
+        "Who is at risk because of absences?"
       ],
       "STUDENT": [
         "How are my grades going?",

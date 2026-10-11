@@ -144,7 +144,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
 
   const userName = `${user.firstName} ${user.lastName}`;
   return (
-    <div className="mx-auto flex min-h-dvh max-w-7xl flex-col gap-6 px-4 py-4 md:flex-row md:gap-8 md:py-6">
+    <div className="mx-auto flex min-h-page max-w-7xl flex-col gap-6 px-4 py-4 md:flex-row md:gap-8 md:py-6">
       <aside className="relative flex shrink-0 flex-col gap-5 overflow-hidden rounded-3xl bg-ink p-5 text-on-ink md:sticky md:top-6 md:h-[calc(100dvh-3rem)] md:w-64">
         <span aria-hidden className="pattern-fine-dots pointer-events-none absolute inset-0 text-on-ink" />
         <div className="relative flex flex-col gap-4">

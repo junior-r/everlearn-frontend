@@ -16,7 +16,9 @@ describe("canUseAssistant", () => {
 });
 
 describe("assistantAudiences", () => {
-  it("tells admins and Students what the assistant can look up for them", () => {
+  it("tells admins, Teachers and Students what the assistant can look up for them", () => {
+    expect(assistantAudiences(["TEACHER"], false)).toEqual(["TEACHER"]);
+    expect(assistantAudiences(["STUDENT", "TEACHER"], false)).toEqual(["TEACHER", "STUDENT"]);
     expect(assistantAudiences(["ADMIN"], false)).toEqual(["ADMIN"]);
     expect(assistantAudiences([], true)).toEqual(["ADMIN"]);
     expect(assistantAudiences(["STUDENT"], false)).toEqual(["STUDENT"]);
@@ -24,7 +26,7 @@ describe("assistantAudiences", () => {
   });
 
   it("tells every other role that it has no data yet", () => {
-    expect(assistantAudiences(["TEACHER"], false)).toEqual(["OTHER"]);
+    expect(assistantAudiences(["STAFF"], false)).toEqual(["OTHER"]);
     expect(assistantAudiences(["STAFF", "COORDINATOR"], false)).toEqual(["OTHER"]);
   });
 });

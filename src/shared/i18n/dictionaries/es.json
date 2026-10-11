@@ -212,6 +212,7 @@
     "greeting": "Hola, soy tu asistente. ¿En qué te ayudo?",
     "hints": {
       "ADMIN": "Puedo consultar las horas de clase de los docentes de una materia en un mes.",
+      "TEACHER": "Puedo consultar los promedios de tus estudiantes en una materia y quiénes están en riesgo por inasistencia en un grupo.",
       "STUDENT": "Puedo consultar tus notas, tus promedios y los detalles de una evaluación.",
       "OTHER": "Todavía no puedo consultar tus datos en la plataforma, pero puedo ayudarte con dudas generales."
     },
@@ -219,6 +220,10 @@
     "suggestions": {
       "ADMIN": [
         "¿Cuántas horas de clase tienen los docentes este mes?"
+      ],
+      "TEACHER": [
+        "¿Cómo van los promedios de mis estudiantes?",
+        "¿Quién está en riesgo por inasistencia?"
       ],
       "STUDENT": [
         "¿Cómo van mis notas?",

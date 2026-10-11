@@ -131,6 +131,23 @@
   }
 }
 
+/*
+ * The floating assistant button sits in the bottom corner. On small screens
+ * that corner is where pages end (a sign-out button, the last row of a table),
+ * so while the button is on screen every page keeps a band free under its
+ * content: the body is padded and full-height shells shrink by the same amount.
+ */
+@media (width < 48rem) {
+  body:has([data-assistant-launcher]) {
+    --assistant-clearance: 5rem;
+    padding-bottom: var(--assistant-clearance);
+  }
+}
+
+@utility min-h-page {
+  min-height: calc(100dvh - var(--assistant-clearance, 0px));
+}
+
 body {
   background-color: var(--background);
   /* A faint dot grid gives every page the same paper */

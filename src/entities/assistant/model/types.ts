@@ -23,13 +23,16 @@ export function canUseAssistant(roles: readonly string[], isPlatformAdmin: boole
   return isPlatformAdmin || roles.some((role) => ASSISTANT_ROLES.includes(role));
 }
 
-export type AssistantAudience = "ADMIN" | "STUDENT" | "OTHER";
+export type AssistantAudience = "ADMIN" | "TEACHER" | "STUDENT" | "OTHER";
 
 /** What the assistant can look up for the member, to tell them what to ask. Mirrors the backend rule. */
 export function assistantAudiences(roles: readonly string[], isPlatformAdmin: boolean): AssistantAudience[] {
   const audiences: AssistantAudience[] = [];
   if (isPlatformAdmin || roles.includes("ADMIN")) {
     audiences.push("ADMIN");
+  }
+  if (roles.includes("TEACHER")) {
+    audiences.push("TEACHER");
   }
   if (roles.includes("STUDENT")) {
     audiences.push("STUDENT");

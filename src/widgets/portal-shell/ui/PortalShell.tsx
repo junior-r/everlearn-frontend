@@ -41,7 +41,7 @@ export function PortalShell({ title, subtitle, roles, children }: PortalShellPro
   const institutionId = institution.active?.id ?? null;
   const isAllowed = institutionId !== null && institution.roles.some((role) => roles.includes(role));
   return (
-    <div className="mx-auto flex min-h-dvh max-w-6xl animate-rise flex-col gap-6 px-4 py-4 md:py-6">
+    <div className="mx-auto flex min-h-page max-w-6xl animate-rise flex-col gap-6 px-4 py-4 md:py-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Logo name={common.brand} />
         <Link

@@ -19,7 +19,7 @@ interface CenteredCardProps {
 export function CenteredCard({ brand, wide = false, children }: CenteredCardProps) {
   const { common } = useDictionary();
   return (
-    <div className="grid min-h-dvh lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+    <div className="grid min-h-page lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
       {/* Sticky, so the panel stays whole while a long form scrolls beside it */}
       <aside className="hidden overflow-hidden bg-ink p-10 text-on-ink lg:sticky lg:top-0 lg:flex lg:h-dvh lg:flex-col lg:justify-between xl:p-14">
         <Logo name={brand} variant="inverse" />
@@ -50,7 +50,7 @@ export function CenteredCard({ brand, wide = false, children }: CenteredCardProp
 
 export function PageStatus({ children }: { children: ReactNode }) {
   return (
-    <main className="flex min-h-dvh flex-col items-center justify-center gap-4">
+    <main className="flex min-h-page flex-col items-center justify-center gap-4">
       <span aria-hidden className="flex gap-1.5">
         <span className="size-3 animate-bounce rounded-full bg-brand [animation-delay:-0.3s]" />
         <span className="size-3 animate-bounce rounded-full bg-sun [animation-delay:-0.15s]" />
