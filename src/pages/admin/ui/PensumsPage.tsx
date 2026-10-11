@@ -59,10 +59,8 @@ function Pensums({ institutionId }: { institutionId: string }) {
           />
         </Section>
       )}
-      <Section title={text.newTitle}>
-        <div className="max-w-md">
-          <CreatePensumForm institutionId={institutionId} onCreated={pensums.reload} />
-        </div>
+      <Section title={text.newTitle} panel>
+        <CreatePensumForm institutionId={institutionId} onCreated={pensums.reload} />
       </Section>
     </>
   );

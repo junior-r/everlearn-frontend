@@ -16,8 +16,8 @@ interface RegisteredMember {
 
 interface RegisterMemberFormProps {
   institutionId: string;
-  /** Only a Platform Admin may appoint Institution Admins; the backend enforces this too. */
-  canAppointAdmins: boolean;
+  /** The roles this user may give, most junior first; the backend enforces the same rule. */
+  allowedRoles: Role[];
   onRegistered(): void;
 }
 
@@ -27,7 +27,7 @@ interface RegisterMemberFormProps {
  */
 export function RegisterMemberForm({
   institutionId,
-  canAppointAdmins,
+  allowedRoles,
   onRegistered,
 }: RegisterMemberFormProps) {
   const { admin, errors, roles } = useDictionary();
@@ -36,6 +36,8 @@ export function RegisterMemberForm({
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<Role>("STUDENT");
+  // Falls back to an allowed role, so the select and the request always agree
+  const chosenRole = allowedRoles.includes(role) ? role : (allowedRoles[0] ?? "STUDENT");
   const [registered, setRegistered] = useState<RegisteredMember | null>(null);
   const register = useCallback(
     (body: { firstName: string; lastName: string; email: string; role: Role }) =>
@@ -47,13 +49,10 @@ export function RegisterMemberForm({
     [institutionId],
   );
   const { submit, isSubmitting, error } = useSubmit(register);
-  const roleOptions: Role[] = canAppointAdmins
-    ? ["STUDENT", "TEACHER", "ADMIN"]
-    : ["STUDENT", "TEACHER"];
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const result = await submit({ firstName, lastName, email, role });
+    const result = await submit({ firstName, lastName, email, role: chosenRole });
     if (result) {
       setRegistered(result);
       setFirstName("");
@@ -125,9 +124,9 @@ export function RegisterMemberForm({
       />
       <SelectField
         label={text.role}
-        value={role}
+        value={chosenRole}
         onChange={(event) => setRole(event.target.value as Role)}
-        options={roleOptions.map((option) => ({ value: option, label: roles[option] }))}
+        options={allowedRoles.map((option) => ({ value: option, label: roles[option] }))}
       />
       <Button type="submit" isLoading={isSubmitting}>
         {text.register}

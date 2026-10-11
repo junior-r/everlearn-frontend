@@ -12,8 +12,8 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export const buttonStyles: Record<Variant, string> = {
-  primary: "bg-brand text-on-brand hover:bg-brand-strong",
-  secondary: "border border-line bg-surface text-foreground hover:bg-surface-muted",
+  primary: "bg-brand text-on-brand shadow-sm shadow-brand/30 hover:bg-brand-strong",
+  secondary: "border border-line bg-surface text-foreground hover:border-brand/50 hover:bg-brand-soft",
   danger: "border border-danger/40 bg-surface text-danger hover:bg-danger-surface",
 };
 
@@ -23,7 +23,7 @@ const sizes: Record<Size, string> = {
 };
 
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex items-center justify-center gap-2 rounded-xl text-sm font-semibold transition duration-150 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-60";
 
 /** For links and labels that should look like a full-width button. */
 export const buttonBase = `${base} ${sizes.md}`;

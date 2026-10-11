@@ -8,7 +8,8 @@ import {
 import { apiClient, forInstitution } from "@/shared/api";
 import { errorMessage, format, useDictionary } from "@/shared/i18n";
 import { useSubmit } from "@/shared/lib/use-submit";
-import { Button, ErrorNotice, TextField } from "@/shared/ui";
+import { roleTone } from "@/entities/session";
+import { Avatar, Badge, Button, ErrorNotice, TextField } from "@/shared/ui";
 
 type Decision = "APPROVE" | "REJECT";
 
@@ -101,19 +102,26 @@ export function ReviewApplicationCard({
   return (
     <article
       aria-label={registeredName}
-      className="flex flex-col gap-5 rounded-xl border border-line bg-surface p-5"
+      className="flex flex-col gap-5 rounded-2xl border border-line bg-surface p-5 shadow-card sm:p-6"
     >
-      <header>
-        <h2 className="text-lg font-semibold">{registeredName}</h2>
-        <p className="text-sm text-muted">
-          {applicant.email}
-          {application.requestedRole && ` · ${roles[application.requestedRole]}`}
-          {application.documentType && ` · ${onboarding.documentType[application.documentType]}`}
-        </p>
+      <header className="flex flex-wrap items-center gap-x-4 gap-y-3">
+        <Avatar name={registeredName} size="md" />
+        <div className="min-w-0 flex-1">
+          <h2 className="text-lg font-semibold">{registeredName}</h2>
+          <p className="truncate text-sm text-muted">{applicant.email}</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {application.requestedRole && (
+            <Badge tone={roleTone[application.requestedRole]}>{roles[application.requestedRole]}</Badge>
+          )}
+          {application.documentType && (
+            <Badge tone="neutral">{onboarding.documentType[application.documentType]}</Badge>
+          )}
+        </div>
       </header>
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,20rem)_1fr]">
-        <div className="flex aspect-[85.6/53.98] items-center justify-center overflow-hidden rounded-lg bg-black">
+        <div className="flex aspect-[85.6/53.98] items-center justify-center overflow-hidden rounded-xl bg-ink ring-4 ring-surface-muted">
           {photo.url && (
             // A blob URL of a private image; next/image cannot fetch or optimise it
             // eslint-disable-next-line @next/next/no-img-element
@@ -128,7 +136,7 @@ export function ReviewApplicationCard({
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="text-xs uppercase tracking-wide text-muted">
+            <thead className="text-xs font-semibold text-muted">
               <tr>
                 <th scope="col" className="py-2 pr-4 font-medium">{text.field}</th>
                 <th scope="col" className="py-2 pr-4 font-medium">{text.registered}</th>

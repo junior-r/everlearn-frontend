@@ -18,8 +18,8 @@ Every screen knows which institution the session is acting in, and the two manda
 - **`ActiveInstitutionProvider`** (`entities/institution`) loads the institutions the user may enter and exposes `active`, `roles`, `needsSelection`, `select` and `clear`.
   - One institution: entered automatically.
   - Several: `needsSelection` is true until the user picks one on `/select-institution`.
-  - Platform Admin: starts on the first institution and switches from the admin sidebar.
-- **Roles follow the choice.** `canAccessAdmin(user, active.id)` is true only where the user is an Institution Admin, so the same person is an admin in one institution and a student in another.
+  - Platform Admin: belongs to no institution, so none is implied. They work at platform level (only the Institutions section) until they press "Gestionar" on an institution; the sidebar then names it and offers "Volver a la plataforma".
+- **Roles follow the choice.** `adminSections(user, active.id)` lists the dashboard sections for the role held there (Institution Admin: all of the institution's; Staff: Members only), so the same person is an admin in one institution and a student in another. `AdminShell` redirects away from a section the role does not include. `registrableRoles` decides which roles the member form offers.
 - **API calls** take the institution id explicitly and send it with `forInstitution(id)`.
 - **Signing out** clears the choice.
 - **Order of detours:** password change first, then institution selection. `/settings`, `/change-password` and `/login` never require an institution.

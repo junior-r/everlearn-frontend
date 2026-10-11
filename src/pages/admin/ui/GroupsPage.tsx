@@ -106,7 +106,7 @@ function Groups({ institutionId }: { institutionId: string }) {
         </>
       )}
 
-      <Section title={text.newTitle}>
+      <Section title={text.newTitle} panel>
         <CreateGroupForm
           institutionId={institutionId}
           pensums={pensums.data ?? []}
@@ -126,7 +126,9 @@ function Groups({ institutionId }: { institutionId: string }) {
           getKey={(row) => row.id}
           emptyText={text.noPeriods}
         />
-        <CreatePeriodForm institutionId={institutionId} onCreated={periods.reload} />
+        <div className="max-w-xl rounded-2xl border border-line bg-surface p-5 shadow-card sm:p-6">
+          <CreatePeriodForm institutionId={institutionId} onCreated={periods.reload} />
+        </div>
       </Section>
     </>
   );

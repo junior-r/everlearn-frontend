@@ -18,7 +18,7 @@ export function SelectField({ label, options, className, id, ...props }: SelectF
         {...props}
         id={selectId}
         className={cn(
-          "h-11 rounded-lg border border-line bg-surface px-3 text-sm text-foreground focus-visible:border-brand focus-visible:outline-2 focus-visible:outline-brand/30",
+          "h-11 rounded-xl border border-line bg-surface px-3 text-sm text-foreground transition-colors hover:border-brand/50 focus-visible:border-brand focus-visible:outline-2 focus-visible:outline-brand/25 focus-visible:outline-offset-0 focus-visible:outline-4",
           className,
         )}
       >

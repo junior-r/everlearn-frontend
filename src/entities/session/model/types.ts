@@ -1,4 +1,4 @@
-export type Role = "ADMIN" | "COORDINATOR" | "TEACHER" | "STUDENT" | "GUARDIAN";
+export type Role = "ADMIN" | "COORDINATOR" | "TEACHER" | "STAFF" | "STUDENT" | "GUARDIAN";
 
 export type UserStatus = "PENDING_ONBOARDING" | "ACTIVE" | "SUSPENDED";
 

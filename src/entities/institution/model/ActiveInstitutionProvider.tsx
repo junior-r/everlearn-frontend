@@ -17,12 +17,13 @@ import type { Institution } from "./types";
 interface ActiveInstitutionValue {
   /** The institutions the signed-in user may enter (all of them for a Platform Admin). */
   institutions: Institution[];
-  /** The institution this session is acting in; null until chosen or when there are none. */
+  /** The institution this session is acting in; null until chosen, when there are none, or for a Platform Admin at platform level. */
   active: Institution | null;
   /** The user's roles in the active institution. */
   roles: Role[];
   /** True when the user belongs to several institutions and has not chosen one yet. */
   needsSelection: boolean;
+  /** True until the institutions are first known; a later `reload` does not set it again. */
   isLoading: boolean;
   error: string | null;
   select(institutionId: string): void;
@@ -52,15 +53,18 @@ export function ActiveInstitutionProvider({ children }: { children: ReactNode })
   const value = useMemo<ActiveInstitutionValue>(() => {
     const institutions = data ?? [];
     const chosen = institutions.find((institution) => institution.id === selectedId);
-    // Platform Admins act on any institution, so they start on the first and switch from the dashboard
-    const implied = institutions.length === 1 || user?.isPlatformAdmin ? institutions[0] : undefined;
+    // A member of exactly one institution is simply in it. A Platform Admin belongs to none:
+    // they stay at platform level until they explicitly enter an institution to manage it.
+    const implied = institutions.length === 1 && !user?.isPlatformAdmin ? institutions[0] : undefined;
     const active = chosen ?? implied ?? null;
     return {
       institutions,
       active,
       roles: user ? rolesIn(user, active?.id ?? null) : [],
-      needsSelection: data !== null && active === null && institutions.length > 1,
-      isLoading,
+      needsSelection:
+        data !== null && active === null && institutions.length > 1 && !user?.isPlatformAdmin,
+      // Only the first load: during a `reload` the list stays usable, so pages keep their state
+      isLoading: isLoading && data === null,
       error,
       select: selection.set,
       clear,

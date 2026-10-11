@@ -1,32 +1,77 @@
 @import "tailwindcss";
 
+/*
+ * Design tokens. One brand colour (cobalt) for actions, an "ink" surface for
+ * the navigation, and six categorical tones used to tell roles, statuses and
+ * subjects apart. Each tone has a solid, a soft background and a readable ink.
+ */
 :root {
-  --background: #f6f7f9;
-  --foreground: #101828;
+  --background: #f6f6fb;
+  --foreground: #17152e;
   --surface: #ffffff;
-  --surface-muted: #f2f4f7;
-  --line: #d0d5dd;
-  --muted: #667085;
-  --brand: #3538cd;
-  --brand-strong: #2d31a6;
+  --surface-muted: #efeff8;
+  --line: #dcdcec;
+  --muted: #5f5d7a;
+  --brand: #2f47e6;
+  --brand-strong: #2236bd;
+  --brand-soft: #e4e8ff;
   --on-brand: #ffffff;
-  --danger: #b42318;
-  --danger-surface: #fef3f2;
+  --ink: #17152e;
+  --ink-raised: #23213f;
+  --on-ink: #f4f3ff;
+  --danger: #c0271d;
+  --danger-surface: #fdeceb;
+
+  --sun: #ffb72b;
+  --sun-soft: #fff3d6;
+  --sun-ink: #7a4d00;
+  --coral: #ff6b57;
+  --coral-soft: #ffe6e1;
+  --coral-ink: #9c2413;
+  --mint: #19b98b;
+  --mint-soft: #dcf7ee;
+  --mint-ink: #0b6249;
+  --sky: #22a7e8;
+  --sky-soft: #def2fd;
+  --sky-ink: #0b5a85;
+  --grape: #8757f5;
+  --grape-soft: #ebe3ff;
+  --grape-ink: #4b25ad;
+  --pink: #f0569f;
+  --pink-soft: #fde3f0;
+  --pink-ink: #9a1859;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0c111d;
-    --foreground: #f5f5f6;
-    --surface: #161b26;
-    --surface-muted: #1f242f;
-    --line: #333741;
-    --muted: #94969c;
-    --brand: #6172f3;
-    --brand-strong: #8098f9;
-    --on-brand: #0c111d;
-    --danger: #fda29b;
-    --danger-surface: #55160c;
+    --background: #0f0e1c;
+    --foreground: #f1f0fa;
+    --surface: #1a1830;
+    --surface-muted: #232140;
+    --line: #34325a;
+    --muted: #a3a1c2;
+    --brand: #8493ff;
+    --brand-strong: #a2adff;
+    --brand-soft: #262a5c;
+    --on-brand: #0f0e1c;
+    --ink: #151329;
+    --ink-raised: #232140;
+    --on-ink: #f4f3ff;
+    --danger: #ff9f94;
+    --danger-surface: #4a1612;
+
+    --sun-soft: #40300d;
+    --sun-ink: #ffd27a;
+    --coral-soft: #47201b;
+    --coral-ink: #ffa597;
+    --mint-soft: #0f3a30;
+    --mint-ink: #6fe0bd;
+    --sky-soft: #10344a;
+    --sky-ink: #86d2f7;
+    --grape-soft: #2d2357;
+    --grape-ink: #c0a6ff;
+    --pink-soft: #47193a;
+    --pink-ink: #f9a3cb;
   }
 }
 
@@ -39,15 +84,102 @@
   --color-muted: var(--muted);
   --color-brand: var(--brand);
   --color-brand-strong: var(--brand-strong);
+  --color-brand-soft: var(--brand-soft);
   --color-on-brand: var(--on-brand);
+  --color-ink: var(--ink);
+  --color-ink-raised: var(--ink-raised);
+  --color-on-ink: var(--on-ink);
   --color-danger: var(--danger);
   --color-danger-surface: var(--danger-surface);
+  --color-sun: var(--sun);
+  --color-sun-soft: var(--sun-soft);
+  --color-sun-ink: var(--sun-ink);
+  --color-coral: var(--coral);
+  --color-coral-soft: var(--coral-soft);
+  --color-coral-ink: var(--coral-ink);
+  --color-mint: var(--mint);
+  --color-mint-soft: var(--mint-soft);
+  --color-mint-ink: var(--mint-ink);
+  --color-sky: var(--sky);
+  --color-sky-soft: var(--sky-soft);
+  --color-sky-ink: var(--sky-ink);
+  --color-grape: var(--grape);
+  --color-grape-soft: var(--grape-soft);
+  --color-grape-ink: var(--grape-ink);
+  --color-pink: var(--pink);
+  --color-pink-soft: var(--pink-soft);
+  --color-pink-ink: var(--pink-ink);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-outfit);
+  --shadow-card: 0 1px 2px rgb(23 21 46 / 0.05), 0 12px 32px -16px rgb(47 71 230 / 0.22);
+  --animate-rise: rise 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-pop: pop 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
+  /* A faint dot grid gives every page the same paper */
+  background-image: radial-gradient(color-mix(in srgb, var(--brand) 14%, transparent) 1px, transparent 1px);
+  background-size: 22px 22px;
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-outfit), var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/* Patterns are drawn in the element's text colour, so a tone class colours them */
+.pattern-dots {
+  background-image: radial-gradient(currentColor 22%, transparent 24%);
+  background-size: 25% 25%;
+}
+
+.pattern-stripes {
+  background-image: repeating-linear-gradient(135deg, currentColor 0 12%, transparent 12% 24%);
+}
+
+.pattern-ring {
+  background-image: radial-gradient(circle, transparent 34%, currentColor 35% 62%, transparent 63%);
+}
+
+.pattern-fine-dots {
+  background-image: radial-gradient(color-mix(in srgb, currentColor 20%, transparent) 1px, transparent 1px);
+  background-size: 14px 14px;
+}
+
+/* Unavailable hours and empty timetable cells read as "nothing here" without looking disabled */
+.pattern-hatch {
+  background-image: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--line) 70%, transparent) 0 1px,
+    transparent 1px 7px
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

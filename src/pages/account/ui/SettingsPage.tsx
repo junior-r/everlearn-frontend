@@ -11,7 +11,7 @@ import { CenteredCard, ErrorNotice, PageStatus } from "@/shared/ui";
 
 function Notice({ children }: { children: string }) {
   return (
-    <p role="status" className="rounded-lg border border-brand/40 px-3 py-2.5 text-sm">
+    <p role="status" className="rounded-xl bg-mint-soft px-3 py-2.5 text-sm text-mint-ink">
       {children}
     </p>
   );
@@ -44,7 +44,7 @@ function Settings() {
       <h1 className="mt-6 text-2xl font-semibold tracking-tight">{settings.title}</h1>
       <p className="mt-1.5 text-sm text-muted">{settings.subtitle}</p>
 
-      <section className="mt-8" aria-label={settings.profile}>
+      <section className="mt-8 border-t border-line pt-6" aria-label={settings.profile}>
         <h2 className="text-lg font-semibold">{settings.profile}</h2>
         <dl className="mt-3 grid gap-2 text-sm">
           <div>
@@ -60,7 +60,7 @@ function Settings() {
         </dl>
       </section>
 
-      <section className="mt-8 flex flex-col gap-3" aria-label={settings.google.title}>
+      <section className="mt-8 flex flex-col gap-3 border-t border-line pt-6" aria-label={settings.google.title}>
         <h2 className="text-lg font-semibold">{settings.google.title}</h2>
         {justLinked && user.googleLinked && <Notice>{settings.google.success}</Notice>}
         <ErrorNotice message={errorMessage(errors, linkError)} />
@@ -76,7 +76,7 @@ function Settings() {
         )}
       </section>
 
-      <section className="mt-8 flex flex-col gap-3" aria-label={settings.password}>
+      <section className="mt-8 flex flex-col gap-3 border-t border-line pt-6" aria-label={settings.password}>
         <h2 className="text-lg font-semibold">{settings.password}</h2>
         {passwordChanged && <Notice>{auth.changePassword.changed}</Notice>}
         <ChangePasswordForm onChanged={() => setPasswordChanged(true)} />

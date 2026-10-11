@@ -21,7 +21,7 @@ function Reviews({ institutionId }: { institutionId: string }) {
     <>
       <ErrorNotice message={errorMessage(errors, reviews.error)} />
       {pending.length === 0 && !reviews.error && (
-        <p className="rounded-lg border border-dashed border-line p-6 text-sm text-muted">
+        <p className="rounded-2xl border border-dashed border-line bg-surface/60 p-6 text-sm text-muted">
           {admin.reviews.empty}
         </p>
       )}

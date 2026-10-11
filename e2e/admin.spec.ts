@@ -47,7 +47,7 @@ test("the full pipeline: an admin registers a Student, the Student onboards, the
   await signIn(studentPage, studentEmail, temporaryPassword);
   // The temporary password only lets them choose their own; then onboarding opens
   await chooseOwnPassword(studentPage, temporaryPassword);
-  await completeOnboarding(studentPage, "Grace Brewster");
+  await completeOnboarding(studentPage, "Grace Brewster", "Hopper");
 
   // 3. The admin reviews: the photo sits beside the registered, OCR and confirmed data
   await page.getByRole("link", { name: "Revisiones pendientes" }).click();
@@ -59,8 +59,10 @@ test("the full pipeline: an admin registers a Student, the Student onboards, the
   await expect.poll(() => photo.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
   const nameRow = card.getByRole("row", { name: /^Nombre/ });
   await expect(nameRow).toContainText("Grace Hopper");
-  await expect(nameRow).toContainText("María Fernanda González Pérez");
-  await expect(nameRow).toContainText("Grace Brewster González Pérez");
+  // Registered name, nothing from the OCR (the fake camera shows no document), and the confirmed name
+  await expect(nameRow.getByRole("cell").nth(0)).toHaveText("Grace Hopper");
+  await expect(nameRow.getByRole("cell").nth(1)).toHaveText("");
+  await expect(nameRow.getByRole("cell").nth(2)).toHaveText("Grace Brewster Hopper");
 
   await card.getByRole("button", { name: "Aprobar" }).click();
   await expect(page.getByText("No hay solicitudes pendientes de revisión.")).toBeVisible();
@@ -140,36 +142,123 @@ test("an Institution Admin manages subjects for their institution only", async (
   await institution.dispose();
 });
 
-test("a Platform Admin creates an institution and deactivates it", async ({ page }) => {
+test("a Platform Admin creates an institution with its first admin, enters it and comes back out", async ({
+  page,
+  browser,
+}) => {
   const slug = `e2e-ui-${unique()}`;
   const name = `Liceo ${slug}`;
+  const adminEmail = `e2e-first-admin-${unique()}@example.com`;
   await signIn(page, PLATFORM_ADMIN.email, PLATFORM_ADMIN.password);
+  await expect(page).toHaveURL("/es/admin/institutions");
+  // At platform level there is no institution in play, and only institutions to manage
+  await expect(page.getByTestId("admin-context")).toHaveText("Plataforma");
+  const nav = page.getByRole("navigation", { name: "Secciones de administración" });
+  await expect(nav.getByRole("link")).toHaveText(["Instituciones"]);
+  await page.goto("/es/admin/members");
   await expect(page).toHaveURL("/es/admin/institutions");
 
   const institutionForm = page.getByRole("form", { name: "Nueva institución" });
   await institutionForm.getByLabel("Nombre", { exact: true }).fill(name);
   await institutionForm.getByLabel("Identificador").fill(slug);
+  await institutionForm.getByLabel("Nombres del administrador").fill("Marie");
+  await institutionForm.getByLabel("Apellidos del administrador").fill("Curie");
+  await institutionForm.getByLabel("Correo del administrador").fill(adminEmail);
   await institutionForm.getByRole("button", { name: "Crear" }).click();
+
+  await expect(page.getByRole("heading", { name: "Institución creada" })).toBeVisible();
+  await expect(page.getByRole("status")).toContainText(`Marie Curie, quien administrará ${name}`);
+  const temporaryPassword = await page.getByTestId("temporary-password").innerText();
+  expect(temporaryPassword.length).toBeGreaterThanOrEqual(12);
+  await page.getByRole("button", { name: "Ya las copié" }).click();
+  await expect(page.getByText(temporaryPassword)).toHaveCount(0);
 
   const row = page.getByRole("row", { name: new RegExp(slug) });
   await expect(row).toContainText("America/Caracas");
   await expect(row).toContainText("Activa");
-  // The new institution is immediately selectable for the other admin pages
+
+  // Entering the institution makes the context explicit and opens every section of it
+  await row.getByRole("button", { name: /Gestionar/ }).click();
+  await expect(page).toHaveURL("/es/admin/members");
+  await expect(page.getByTestId("active-institution")).toHaveText(name);
+  await expect(page.getByText("Estás gestionando")).toBeVisible();
+  await expect(nav.getByRole("link")).toHaveText([
+    "Instituciones",
+    "Miembros",
+    "Revisiones pendientes",
+    "Materias",
+    "Pensums",
+    "Grupos",
+    "Disponibilidad docente",
+    "Horarios",
+  ]);
+  // The first admin is already there, and needs no identity check
+  const adminRow = page.getByRole("row", { name: /Marie Curie/ });
+  await expect(adminRow).toContainText("Administrador de institución");
+  await expect(adminRow).toContainText("Activo");
+  // Inside an institution a Platform Admin may register any role, more admins included
+  await expect(page.getByRole("form", { name: "Registrar miembro" }).getByLabel("Rol").locator("option")).toHaveText([
+    "Estudiante",
+    "Personal administrativo",
+    "Docente",
+    "Directivo",
+    "Administrador de institución",
+  ]);
+  // The choice survives a reload
+  await page.reload();
+  await expect(page.getByTestId("active-institution")).toHaveText(name);
+
+  await page.getByRole("button", { name: "Volver a la plataforma" }).click();
+  await expect(page).toHaveURL("/es/admin/institutions");
+  await expect(page.getByTestId("admin-context")).toHaveText("Plataforma");
+  await expect(nav.getByRole("link")).toHaveText(["Instituciones"]);
+
+  // The appointed admin signs in with the credentials shown, and works only inside that institution
+  const adminContext = await browser.newContext({ locale: "es-ES" });
+  const adminPage = await adminContext.newPage();
+  await signIn(adminPage, adminEmail, temporaryPassword);
+  await chooseOwnPassword(adminPage, temporaryPassword);
+  await expect(adminPage).toHaveURL("/es/admin/members");
+  await expect(adminPage.getByTestId("active-institution")).toHaveText(name);
+  await expect(adminPage.getByRole("link", { name: "Instituciones" })).toHaveCount(0);
   await expect(
-    page.getByRole("combobox", { name: "Institución" }).locator("option", { hasText: name }),
-  ).toHaveCount(1);
+    adminPage.getByRole("form", { name: "Registrar miembro" }).getByLabel("Rol").locator("option"),
+  ).toHaveText(["Estudiante", "Personal administrativo", "Docente", "Directivo"]);
+  await adminContext.close();
 
   await row.getByRole("button", { name: /Desactivar/ }).click();
   await expect(row).toContainText("Inactiva");
+});
 
-  // A Platform Admin may also appoint Institution Admins
-  await page.getByRole("link", { name: "Miembros" }).click();
-  await expect(
-    page
-      .getByRole("form", { name: "Registrar miembro" })
-      .getByLabel("Rol")
-      .locator("option", { hasText: "Administrador de institución" }),
-  ).toHaveCount(1);
+test("Staff register Students and nothing else", async ({ page, playwright }) => {
+  const institution = await createInstitution(playwright);
+  const staff = await institution.registerActive("STAFF", { firstName: "Rosalind", lastName: "Franklin" });
+  const studentEmail = `e2e-student-${unique()}@example.com`;
+  await signIn(page, staff.email, staff.password);
+  await expect(page).toHaveURL("/es/admin/members");
+  await expect(page.getByTestId("active-institution")).toHaveText(institution.name);
+
+  // Members is their whole dashboard
+  const nav = page.getByRole("navigation", { name: "Secciones de administración" });
+  await expect(nav.getByRole("link")).toHaveText(["Miembros"]);
+  for (const section of ["reviews", "subjects", "groups", "schedule", "institutions"]) {
+    await page.goto(`/es/admin/${section}`);
+    await expect(page).toHaveURL("/es/admin/members");
+  }
+
+  const memberForm = page.getByRole("form", { name: "Registrar miembro" });
+  await expect(memberForm.getByLabel("Rol").locator("option")).toHaveText(["Estudiante"]);
+  await memberForm.getByLabel("Nombres").fill("Katherine");
+  await memberForm.getByLabel("Apellidos").fill("Johnson");
+  await memberForm.getByLabel("Correo electrónico").fill(studentEmail);
+  await memberForm.getByRole("button", { name: "Registrar" }).click();
+
+  await expect(page.getByRole("heading", { name: "Miembro registrado" })).toBeVisible();
+  await expect(page.getByTestId("temporary-password")).not.toBeEmpty();
+  const studentRow = page.getByRole("row", { name: /Katherine Johnson/ });
+  await expect(studentRow).toContainText("Estudiante");
+  await expect(studentRow).toContainText("Pendiente de verificación");
+  await institution.dispose();
 });
 
 test("Teachers and Students cannot reach the admin dashboard", async ({ page, browser, playwright }) => {

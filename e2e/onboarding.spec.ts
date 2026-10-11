@@ -30,18 +30,20 @@ test("photographs the ID, corrects the OCR data and submits it for review", asyn
   await expect(page.getByText("Analizando tu documento…")).toBeVisible();
   expect((await upload).status()).toBe(200);
 
-  // The mocked OCR data is shown for confirmation
+  // The fake camera shows no document, so the real OCR finds nothing: the form says so and is left blank
   await expect(page.getByRole("heading", { name: "Confirma tus datos" })).toBeVisible();
-  await expect(page.getByLabel("Nombres")).toHaveValue("María Fernanda");
-  await expect(page.getByLabel("Apellidos")).toHaveValue("González Pérez");
-  await expect(page.getByLabel("Número de documento")).toHaveValue("12345678");
-  await expect(page.getByLabel("Fecha de nacimiento")).toHaveValue("2008-03-14");
+  await expect(formError(page)).toContainText("No pudimos leer tu documento automáticamente");
+  await expect(page.getByLabel("Nombres")).toHaveValue("");
+  await expect(page.getByLabel("Número de documento")).toHaveValue("");
 
   // A reload resumes at the confirmation step instead of starting over
   await page.reload();
-  await expect(page.getByLabel("Número de documento")).toHaveValue("12345678");
+  await expect(page.getByRole("heading", { name: "Confirma tus datos" })).toBeVisible();
 
+  await page.getByLabel("Nombres").fill("Ada");
+  await page.getByLabel("Apellidos").fill("Lovelace");
   await page.getByLabel("Número de documento").fill("87654321");
+  await page.getByLabel("Fecha de nacimiento").fill("2008-03-14");
   await page.getByRole("button", { name: "Enviar para revisión" }).click();
 
   await expect(page.getByRole("heading", { name: "Solicitud enviada" })).toBeVisible();
@@ -49,6 +51,42 @@ test("photographs the ID, corrects the OCR data and submits it for review", asyn
   await expect(page.getByRole("heading", { name: "Solicitud enviada" })).toBeVisible();
   await page.getByRole("button", { name: "Cerrar sesión" }).click();
   await expect(page).toHaveURL("/es/login");
+  await institution.dispose();
+});
+
+test("the OCR service reads a legible ID and prefills the form", async ({ page, context, playwright }) => {
+  const institution = await createInstitution(playwright);
+  const student = await institution.register("STUDENT");
+  // A clean, flat ID card, the way a good photo of one looks
+  const cardPage = await context.newPage();
+  await cardPage.setContent(`
+    <div id="card" style="width:1000px;padding:40px;background:#fff;color:#000;font:34px/1.9 Arial,sans-serif">
+      <div>REPÚBLICA BOLIVARIANA DE VENEZUELA</div>
+      <div>CÉDULA DE IDENTIDAD &nbsp; V 12.345.678</div>
+      <div>APELLIDOS</div><div>GONZÁLEZ PÉREZ</div>
+      <div>NOMBRES</div><div>MARÍA FERNANDA</div>
+      <div>F. NACIMIENTO 14/03/2008</div>
+      <div>F. EXPEDICIÓN 02/05/2022</div>
+    </div>`);
+  const photo = await cardPage.locator("#card").screenshot({ type: "png" });
+  await cardPage.close();
+
+  await signIn(page, student.email, student.password);
+  await expect(page).toHaveURL("/es/onboarding");
+  await page.getByLabel("Subir una imagen").setInputFiles({
+    name: "cedula.png",
+    mimeType: "image/png",
+    buffer: photo,
+  });
+  await page.getByRole("button", { name: "Usar esta foto" }).click();
+
+  await expect(page.getByRole("heading", { name: "Confirma tus datos" })).toBeVisible();
+  await expect(page.getByLabel("Nombres")).toHaveValue("María Fernanda");
+  await expect(page.getByLabel("Apellidos")).toHaveValue("González Pérez");
+  await expect(page.getByLabel("Número de documento")).toHaveValue("V-12345678");
+  // The expiry-free birth date, not the later issue date
+  await expect(page.getByLabel("Fecha de nacimiento")).toHaveValue("2008-03-14");
+  await expect(page.getByText("No pudimos leer tu documento automáticamente")).toHaveCount(0);
   await institution.dispose();
 });
 

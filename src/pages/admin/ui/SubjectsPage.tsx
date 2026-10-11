@@ -6,7 +6,7 @@ import { CreateSubjectForm, DeleteSubjectButton } from "@/features/subjects/mana
 import { errorMessage, useDictionary } from "@/shared/i18n";
 import { useResource } from "@/shared/lib/use-resource";
 import { DataTable, ErrorNotice, type Column } from "@/shared/ui";
-import { AdminPage, WithActiveInstitution } from "@/widgets/admin-shell";
+import { AdminPage, Section, WithActiveInstitution } from "@/widgets/admin-shell";
 
 function Subjects({ institutionId }: { institutionId: string }) {
   const { admin, errors } = useDictionary();
@@ -44,10 +44,9 @@ function Subjects({ institutionId }: { institutionId: string }) {
         getKey={(row) => row.id}
         emptyText={text.empty}
       />
-      <section className="max-w-md">
-        <h2 className="mb-4 text-lg font-semibold">{text.newTitle}</h2>
+      <Section title={text.newTitle} panel>
         <CreateSubjectForm institutionId={institutionId} onCreated={subjects.reload} />
-      </section>
+      </Section>
     </>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { CheckIcon, HourglassMediumIcon } from "@phosphor-icons/react/dist/ssr";
 import { useEffect, useState } from "react";
 import {
   DOCUMENT_TYPES,
@@ -30,19 +31,39 @@ function stepFor(application: OnboardingApplication | null, isRetaking: boolean)
 function StepIndicator({ current }: { current: Step }) {
   const { onboarding } = useDictionary();
   return (
-    <ol className="mt-6 flex gap-2 text-xs font-medium">
-      {STEPS.map((step, index) => (
-        <li
-          key={step}
-          aria-current={step === current ? "step" : undefined}
-          className={cn(
-            "flex-1 border-t-2 pt-2",
-            STEPS.indexOf(current) >= index ? "border-brand text-foreground" : "border-line text-muted",
-          )}
-        >
-          {index + 1}. {onboarding.steps[step]}
-        </li>
-      ))}
+    <ol className="mt-6 flex gap-2 text-xs font-medium lg:mt-0">
+      {STEPS.map((step, index) => {
+        const isDone = STEPS.indexOf(current) > index;
+        const isCurrent = step === current;
+        return (
+          <li
+            key={step}
+            aria-current={isCurrent ? "step" : undefined}
+            className={cn(
+              "flex flex-1 items-center gap-2 rounded-xl px-2.5 py-2 transition-colors",
+              isCurrent && "bg-brand-soft text-foreground",
+              isDone && "text-mint-ink",
+              !isCurrent && !isDone && "text-muted",
+            )}
+          >
+            <span
+              aria-hidden
+              className={cn(
+                "flex size-6 shrink-0 items-center justify-center rounded-full font-display text-xs font-semibold",
+                isCurrent && "bg-brand text-on-brand",
+                isDone && "bg-mint-soft",
+                !isCurrent && !isDone && "bg-surface-muted",
+              )}
+            >
+              {isDone ? <CheckIcon weight="bold" className="size-3.5" /> : index + 1}
+            </span>
+            <span>
+              <span className="sr-only">{index + 1}. </span>
+              {onboarding.steps[step]}
+            </span>
+          </li>
+        );
+      })}
     </ol>
   );
 }
@@ -156,6 +177,7 @@ export function OnboardingPage() {
             <h1 className="text-2xl font-semibold tracking-tight">{onboarding.confirm.title}</h1>
             <p className="mt-1.5 text-sm text-muted">{onboarding.confirm.subtitle}</p>
           </div>
+          {application.extracted?.confidence === 0 && <ErrorNotice message={onboarding.unreadable} />}
           <ConfirmIdentityForm
             application={application}
             onConfirmed={handleConfirmed}
@@ -166,6 +188,12 @@ export function OnboardingPage() {
 
       {step === "done" && (
         <section className="mt-6 flex flex-col gap-5">
+          <span
+            aria-hidden
+            className="flex size-14 items-center justify-center rounded-2xl bg-sun-soft text-sun-ink"
+          >
+            <HourglassMediumIcon weight="fill" className="size-7" />
+          </span>
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">{onboarding.submitted.title}</h1>
             <p className="mt-1.5 text-sm text-muted">{onboarding.submitted.body}</p>

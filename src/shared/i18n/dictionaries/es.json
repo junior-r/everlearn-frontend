@@ -6,7 +6,9 @@
   "common": {
     "brand": "Everlearn",
     "loading": "Cargando…",
-    "or": "o"
+    "or": "o",
+    "panelTitle": "Tu institución, organizada en un solo lugar.",
+    "panelBody": "Miembros, pensums, grupos y horarios para toda la comunidad educativa."
   },
   "auth": {
     "login": {
@@ -39,7 +41,8 @@
     "signedInAs": "Sesión iniciada como {email}",
     "institution": "Institución: {name}",
     "settings": "Configuración de perfil",
-    "changeInstitution": "Cambiar de institución"
+    "changeInstitution": "Cambiar de institución",
+    "account": "Tu cuenta"
   },
   "onboarding": {
     "title": "Verifica tu identidad",
@@ -82,14 +85,16 @@
     "submitted": {
       "title": "Solicitud enviada",
       "body": "Tu institución revisará tus datos. Te avisaremos cuando tu cuenta esté activa."
-    }
+    },
+    "unreadable": "No pudimos leer tu documento automáticamente. Completa tus datos a mano o vuelve a tomar la foto."
   },
   "roles": {
     "ADMIN": "Administrador de institución",
-    "COORDINATOR": "Coordinador",
+    "COORDINATOR": "Directivo",
     "TEACHER": "Docente",
     "STUDENT": "Estudiante",
-    "GUARDIAN": "Representante"
+    "GUARDIAN": "Representante",
+    "STAFF": "Personal administrativo"
   },
   "userStatus": {
     "PENDING_ONBOARDING": "Pendiente de verificación",
@@ -106,7 +111,9 @@
       "reviews": "Revisiones pendientes",
       "pensums": "Pensums",
       "groups": "Grupos",
-      "settings": "Configuración de perfil"
+      "settings": "Configuración de perfil",
+      "availability": "Disponibilidad docente",
+      "schedule": "Horarios"
     },
     "institutionSwitcher": {
       "label": "Institución",
@@ -132,7 +139,16 @@
       "status": "Estado",
       "newTitle": "Nueva institución",
       "activate": "Activar",
-      "deactivate": "Desactivar"
+      "deactivate": "Desactivar",
+      "manage": "Gestionar",
+      "firstAdminTitle": "Primer administrador de la institución",
+      "adminFirstName": "Nombres del administrador",
+      "adminLastName": "Apellidos del administrador",
+      "adminEmail": "Correo del administrador",
+      "createdTitle": "Institución creada",
+      "createdBody": "Entrega estas credenciales a {name}, quien administrará {institution}. La contraseña temporal no se volverá a mostrar.",
+      "createdExistingBody": "{name} ya tenía una cuenta y ahora administra {institution}.",
+      "adminFailed": "La institución se creó, pero no se pudo registrar su administrador. Entra a gestionarla y regístralo desde Miembros."
     },
     "subjects": {
       "title": "Materias",
@@ -237,6 +253,47 @@
       "enrollTitle": "Inscribir estudiante",
       "remove": "Retirar",
       "noCapacity": "Sin límite"
+    },
+    "platform": {
+      "mode": "Plataforma",
+      "managing": "Estás gestionando",
+      "exit": "Volver a la plataforma",
+      "pickInstitution": "Elige una institución para gestionarla.",
+      "goToInstitutions": "Ir a Instituciones"
+    },
+    "availability": {
+      "title": "Disponibilidad docente",
+      "subtitle": "Define en qué horas puede dar clases cada docente durante un período.",
+      "teacher": "Docente",
+      "period": "Período",
+      "needsSetup": "Necesitas al menos un docente activo y un período académico.",
+      "caption": "Disponibilidad de {name}",
+      "hint": "Haz clic en las horas en que puede dar clases. Se guardan al pulsar el botón.",
+      "hour": "Hora",
+      "available": "disponible",
+      "unavailable": "no disponible",
+      "save": "Guardar disponibilidad",
+      "saved": "Disponibilidad guardada."
+    },
+    "schedule": {
+      "title": "Horarios",
+      "subtitle": "Arma el horario semanal de un grupo. Cada clase respeta la disponibilidad y los cruces del docente.",
+      "group": "Grupo",
+      "noGroups": "Crea un grupo primero para poder armar su horario.",
+      "caption": "Horario de {name}",
+      "hint": "Haz clic en una hora libre para programar una clase.",
+      "hour": "Hora",
+      "free": "libre",
+      "newTitle": "Programar clase",
+      "course": "Materia",
+      "day": "Día",
+      "start": "Inicio",
+      "end": "Fin",
+      "room": "Aula",
+      "add": "Programar",
+      "cancel": "Cancelar",
+      "remove": "Quitar",
+      "noCourses": "Asigna docentes a las materias del grupo antes de programar clases."
     }
   },
   "institutionSelector": {
@@ -260,6 +317,15 @@
       "requiresActive": "Podrás vincular Google cuando tu institución active tu cuenta.",
       "success": "Tu cuenta de Google quedó vinculada."
     }
+  },
+  "days": {
+    "MONDAY": "Lunes",
+    "TUESDAY": "Martes",
+    "WEDNESDAY": "Miércoles",
+    "THURSDAY": "Jueves",
+    "FRIDAY": "Viernes",
+    "SATURDAY": "Sábado",
+    "SUNDAY": "Domingo"
   },
   "errors": {
     "fallback": "Algo salió mal. Inténtalo de nuevo.",
@@ -312,6 +378,17 @@
     "STUDENT_ALREADY_ENROLLED": "El estudiante ya está inscrito en este grupo.",
     "STUDENT_NOT_FOUND": "No hay un estudiante activo con ese identificador.",
     "TEACHER_NOT_FOUND": "No hay un docente activo con ese identificador.",
-    "SUBJECT_NOT_IN_GROUP": "La materia no pertenece al nivel de este grupo."
+    "SUBJECT_NOT_IN_GROUP": "La materia no pertenece al nivel de este grupo.",
+    "GROUP_SCHEDULE_CONFLICT": "El grupo ya tiene una clase a esa hora.",
+    "TEACHER_SCHEDULE_CONFLICT": "El docente ya tiene una clase a esa hora en otro grupo.",
+    "OUTSIDE_TEACHER_AVAILABILITY": "El docente no está disponible a esa hora.",
+    "AVAILABILITY_CONFLICTS_WITH_SCHEDULE": "El docente ya tiene clases fuera de esa disponibilidad. Quita esas clases primero.",
+    "COURSE_HAS_NO_TEACHER": "Asigna un docente a esta materia antes de programarla.",
+    "COURSE_HAS_SCHEDULE": "Quita las clases programadas de esta materia antes de cambiar su docente.",
+    "SCHEDULE_BUSY": "Alguien más está cambiando este horario. Inténtalo de nuevo.",
+    "INVALID_TIME_RANGE": "La hora de fin debe ser posterior a la de inicio.",
+    "SCHEDULE_SLOT_NOT_FOUND": "No se encontró la clase.",
+    "GROUP_NOT_FOUND": "No se encontró el grupo.",
+    "PERIOD_NOT_FOUND": "No se encontró el período."
   }
 }

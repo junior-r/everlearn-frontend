@@ -1,61 +1,102 @@
 "use client";
 
+import {
+  BooksIcon,
+  BuildingsIcon,
+  CalendarCheckIcon,
+  CalendarDotsIcon,
+  ChalkboardTeacherIcon,
+  GearSixIcon,
+  IdentificationCardIcon,
+  TreeStructureIcon,
+  UsersThreeIcon,
+} from "@phosphor-icons/react/dist/ssr";
+import type { Icon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 import { useActiveInstitution } from "@/entities/institution";
-import { canAccessAdmin, hasOwnPassword, useSession } from "@/entities/session";
+import {
+  ADMIN_SECTIONS,
+  adminSections,
+  hasOwnPassword,
+  useSession,
+  type AdminSection,
+} from "@/entities/session";
 import { LogoutButton } from "@/features/auth/logout";
 import { localizedPath, useDictionary, useLocale, useLocalizedRouter } from "@/shared/i18n";
 import { cn } from "@/shared/lib/cn";
-import { PageStatus, SelectField } from "@/shared/ui";
+import { Avatar, Button, Logo, Mosaic, PageStatus } from "@/shared/ui";
 
-type NavKey = "institutions" | "members" | "reviews" | "subjects" | "pensums" | "groups";
+const sectionPath = (section: AdminSection) => `/admin/${section}`;
 
-const NAV: Array<{ key: NavKey; path: string; platformAdminOnly?: boolean }> = [
-  { key: "institutions", path: "/admin/institutions", platformAdminOnly: true },
-  { key: "members", path: "/admin/members" },
-  { key: "reviews", path: "/admin/reviews" },
-  { key: "subjects", path: "/admin/subjects" },
-  { key: "pensums", path: "/admin/pensums" },
-  { key: "groups", path: "/admin/groups" },
-];
+const sectionIcons: Record<AdminSection, Icon> = {
+  institutions: BuildingsIcon,
+  members: UsersThreeIcon,
+  reviews: IdentificationCardIcon,
+  subjects: BooksIcon,
+  pensums: TreeStructureIcon,
+  groups: ChalkboardTeacherIcon,
+  availability: CalendarCheckIcon,
+  schedule: CalendarDotsIcon,
+};
 
 /**
- * Which institution the dashboard acts on. A Platform Admin picks any from a
- * list; an Institution Admin sees the one they entered and, if they belong to
- * several, a link back to the selector.
+ * Tells the user which institution the dashboard is acting on.
+ * - A Platform Admin is either at platform level or has explicitly entered an
+ *   institution, and gets a clear way back out.
+ * - Institution Admins and Staff see their institution and, if they belong to
+ *   several, a link to the selector.
  */
 function InstitutionContext({ isPlatformAdmin }: { isPlatformAdmin: boolean }) {
   const locale = useLocale();
+  const router = useLocalizedRouter();
   const { admin } = useDictionary();
-  const { institutions, active, select } = useActiveInstitution();
+  const { institutions, active, clear } = useActiveInstitution();
+
+  if (isPlatformAdmin) {
+    if (!active) {
+      return (
+        <p
+          className="rounded-xl bg-sun px-3 py-2 text-sm font-semibold text-ink"
+          data-testid="admin-context"
+        >
+          {admin.platform.mode}
+        </p>
+      );
+    }
+    return (
+      <div className="flex flex-col gap-2 rounded-xl bg-ink-raised p-3 text-sm">
+        <p className="text-on-ink/60">{admin.platform.managing}</p>
+        <p className="font-medium" data-testid="active-institution">
+          {active.name}
+        </p>
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={() => {
+            clear();
+            router.replace(sectionPath("institutions"));
+          }}
+        >
+          {admin.platform.exit}
+        </Button>
+      </div>
+    );
+  }
   if (!active) {
     return null;
   }
-  if (isPlatformAdmin) {
-    return (
-      <SelectField
-        label={admin.institutionSwitcher.label}
-        value={active.id}
-        onChange={(event) => select(event.target.value)}
-        options={institutions.map((institution) => ({
-          value: institution.id,
-          label: institution.name,
-        }))}
-      />
-    );
-  }
   return (
-    <div className="text-sm">
-      <p className="text-muted">{admin.institutionSwitcher.label}</p>
+    <div className="rounded-xl bg-ink-raised p-3 text-sm">
+      <p className="text-on-ink/60">{admin.institutionSwitcher.label}</p>
       <p className="font-medium" data-testid="active-institution">
         {active.name}
       </p>
       {institutions.length > 1 && (
         <Link
           href={localizedPath(locale, "/select-institution")}
-          className="mt-1 inline-block font-medium text-brand"
+          className="mt-1 inline-block font-medium text-sun underline-offset-4 hover:underline"
         >
           {admin.institutionSwitcher.change}
         </Link>
@@ -65,8 +106,9 @@ function InstitutionContext({ isPlatformAdmin }: { isPlatformAdmin: boolean }) {
 }
 
 /**
- * Frame of the admin dashboard. It keeps non-admins out of the pages, but that
- * is a convenience: every admin request is authorized again by the backend.
+ * Frame of the admin dashboard. It shows only the sections the user's role
+ * allows and sends them away from the others, but that is a convenience:
+ * every admin request is authorized again by the backend.
  */
 export function AdminShell({ children }: { children: ReactNode }) {
   const router = useLocalizedRouter();
@@ -76,68 +118,88 @@ export function AdminShell({ children }: { children: ReactNode }) {
   const institution = useActiveInstitution();
   const { admin, common } = useDictionary();
   const user = session.user;
+  const isUsable = user !== null && hasOwnPassword(user) && user.status === "ACTIVE";
   // Until the institutions are known, there is no telling which role applies
-  const isDeciding = user !== null && hasOwnPassword(user) && institution.isLoading;
-  const isAllowed =
-    user !== null &&
-    hasOwnPassword(user) &&
-    user.status === "ACTIVE" &&
-    canAccessAdmin(user, institution.active?.id ?? null);
+  const isDeciding = isUsable && institution.isLoading;
+  const sections = isUsable ? adminSections(user, institution.active?.id ?? null) : [];
+  const current = ADMIN_SECTIONS.find(
+    (section) => pathname === localizedPath(locale, sectionPath(section)),
+  );
+  const isAdminRoot = pathname === localizedPath(locale, "/admin");
+  const isAllowedHere = isAdminRoot ? sections.length > 0 : current !== undefined && sections.includes(current);
+  const fallback = sections.length > 0 ? sectionPath(sections[0]) : "/";
 
   useEffect(() => {
     if (session.status === "anonymous") {
       router.replace("/login");
-    } else if (session.status === "authenticated" && !isDeciding && !isAllowed) {
-      router.replace("/");
+    } else if (session.status === "authenticated" && !isDeciding && (!isAllowedHere || isAdminRoot)) {
+      // Covers both "not an admin here" and "an admin, but not for this section"
+      router.replace(fallback);
     }
-  }, [session.status, isDeciding, isAllowed, router]);
+  }, [session.status, isDeciding, isAllowedHere, isAdminRoot, fallback, router]);
 
-  if (!user || isDeciding || !isAllowed) {
+  if (!user || isDeciding || !isAllowedHere || isAdminRoot) {
     return <PageStatus>{common.loading}</PageStatus>;
   }
 
-  const links = NAV.filter((item) => !item.platformAdminOnly || user.isPlatformAdmin);
-  const linkClass = (isCurrent: boolean) =>
-    cn(
-      "block whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium",
-      isCurrent ? "bg-brand text-on-brand" : "text-foreground hover:bg-surface-muted",
-    );
+  const userName = `${user.firstName} ${user.lastName}`;
   return (
-    <div className="mx-auto flex min-h-dvh max-w-6xl flex-col gap-6 px-4 py-6 md:flex-row md:gap-10 md:py-10">
-      <aside className="flex shrink-0 flex-col gap-6 md:w-60">
-        <div>
-          <p className="text-sm font-semibold tracking-tight text-brand">{common.brand}</p>
-          <p className="mt-1 text-lg font-semibold">{admin.title}</p>
-          <p className="break-all text-sm text-muted">{user.email}</p>
+    <div className="mx-auto flex min-h-dvh max-w-7xl flex-col gap-6 px-4 py-4 md:flex-row md:gap-8 md:py-6">
+      <aside className="relative flex shrink-0 flex-col gap-5 overflow-hidden rounded-3xl bg-ink p-5 text-on-ink md:sticky md:top-6 md:h-[calc(100dvh-3rem)] md:w-64">
+        <span aria-hidden className="pattern-fine-dots pointer-events-none absolute inset-0 text-on-ink" />
+        <div className="relative flex flex-col gap-4">
+          <Logo name={common.brand} variant="inverse" />
+          <div className="flex items-center gap-3">
+            <Avatar name={userName} size="md" />
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold">{admin.title}</p>
+              <p className="truncate text-xs text-on-ink/60" title={user.email}>
+                {user.email}
+              </p>
+            </div>
+          </div>
         </div>
-        <InstitutionContext isPlatformAdmin={user.isPlatformAdmin} />
-        <nav aria-label={admin.nav.label}>
+        <div className="relative">
+          <InstitutionContext isPlatformAdmin={user.isPlatformAdmin} />
+        </div>
+        <nav aria-label={admin.nav.label} className="relative md:min-h-0 md:flex-1 md:overflow-y-auto">
           <ul className="flex gap-1 overflow-x-auto md:flex-col">
-            {links.map((item) => {
-              const href = localizedPath(locale, item.path);
+            {sections.map((section) => {
+              const href = localizedPath(locale, sectionPath(section));
               const isCurrent = pathname === href;
+              const SectionIcon = sectionIcons[section];
               return (
-                <li key={item.key}>
+                <li key={section}>
                   <Link
                     href={href}
                     aria-current={isCurrent ? "page" : undefined}
-                    className={linkClass(isCurrent)}
+                    className={cn(
+                      "flex items-center gap-3 whitespace-nowrap rounded-xl px-3 py-2.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-sun",
+                      isCurrent
+                        ? "bg-brand text-on-brand shadow-sm shadow-brand/40"
+                        : "text-on-ink/75 hover:bg-ink-raised hover:text-on-ink",
+                    )}
                   >
-                    {admin.nav[item.key]}
+                    <SectionIcon aria-hidden weight={isCurrent ? "fill" : "regular"} className="size-5 shrink-0" />
+                    {admin.nav[section]}
                   </Link>
                 </li>
               );
             })}
           </ul>
         </nav>
-        <div className="flex flex-col gap-3 md:mt-auto">
-          <Link href={localizedPath(locale, "/settings")} className="text-sm font-medium text-brand">
+        <div className="relative flex flex-col gap-3">
+          <Link
+            href={localizedPath(locale, "/settings")}
+            className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-on-ink/75 transition-colors hover:bg-ink-raised hover:text-on-ink"
+          >
+            <GearSixIcon aria-hidden className="size-5 shrink-0" />
             {admin.nav.settings}
           </Link>
           <LogoutButton />
         </div>
       </aside>
-      <main className="min-w-0 flex-1">{children}</main>
+      <main className="min-w-0 flex-1 animate-rise md:py-2">{children}</main>
     </div>
   );
 }
@@ -154,34 +216,49 @@ export function AdminPage({
 }) {
   return (
     <div className="flex flex-col gap-6">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
-        <p className="mt-1.5 text-sm text-muted">{subtitle}</p>
+      <header className="flex items-center justify-between gap-6 overflow-hidden rounded-3xl border border-line bg-surface p-5 shadow-card sm:p-6">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{title}</h1>
+          <p className="mt-1.5 max-w-[65ch] text-sm text-muted">{subtitle}</p>
+        </div>
+        {/* Seeded by the title, so each section has its own strip of tiles */}
+        <Mosaic seed={title} columns={4} rows={2} className="hidden w-44 shrink-0 lg:grid" />
       </header>
       {children}
     </div>
   );
 }
 
-/** Renders its children with the active institution, or explains why there is none. */
+/** Renders its children with the active institution; the shell guarantees there is one on these pages. */
 export function WithActiveInstitution({ children }: { children(institutionId: string): ReactNode }) {
-  const { admin, common } = useDictionary();
-  const { active, isLoading } = useActiveInstitution();
-  if (isLoading && !active) {
-    return <p className="text-sm text-muted">{common.loading}</p>;
-  }
+  const { common } = useDictionary();
+  const { active } = useActiveInstitution();
   if (!active) {
-    return <p className="text-sm text-muted">{admin.institutionSwitcher.none}</p>;
+    return <p className="text-sm text-muted">{common.loading}</p>;
   }
   return <>{children(active.id)}</>;
 }
 
-/** Heading for a panel inside an admin page. */
-export function Section({ title, children }: { title: string; children: ReactNode }) {
+interface SectionProps {
+  title: string;
+  /** Frames the content as a card; for forms, which otherwise float on the page. */
+  panel?: boolean;
+  children: ReactNode;
+}
+
+/** Heading for a block inside an admin page. */
+export function Section({ title, panel = false, children }: SectionProps) {
   return (
     <section aria-label={title} className="flex flex-col gap-4">
-      <h2 className="text-lg font-semibold">{title}</h2>
-      {children}
+      <h2 className="flex items-center gap-2.5 text-lg font-semibold">
+        <span aria-hidden className="h-5 w-1.5 rounded-full bg-sun" />
+        {title}
+      </h2>
+      {panel ? (
+        <div className="max-w-xl rounded-2xl border border-line bg-surface p-5 shadow-card sm:p-6">{children}</div>
+      ) : (
+        children
+      )}
     </section>
   );
 }

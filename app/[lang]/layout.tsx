@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Outfit } from "next/font/google";
 import { notFound } from "next/navigation";
 import { AppProviders } from "@/app/providers/AppProviders";
 import "@/app/styles/globals.css";
@@ -13,6 +13,12 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+// Display face for headings and the wordmark; Geist stays for reading and data
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
 });
 
@@ -36,7 +42,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
   }
   const dictionary = await getDictionary(lang);
   return (
-    <html lang={lang} className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+    <html lang={lang} className={`${geistSans.variable} ${geistMono.variable} ${outfit.variable} h-full antialiased`}>
       <body className="min-h-full">
         <AppProviders locale={lang} dictionary={dictionary}>
           {children}

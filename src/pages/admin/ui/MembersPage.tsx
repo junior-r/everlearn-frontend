@@ -2,12 +2,12 @@
 
 import { useCallback } from "react";
 import { fetchMembers, type Member } from "@/entities/member";
-import { useSession } from "@/entities/session";
+import { registrableRoles, roleTone, statusTone, useSession, type Role } from "@/entities/session";
 import { RegisterMemberForm } from "@/features/members/register-member";
 import { errorMessage, useDictionary } from "@/shared/i18n";
 import { useResource } from "@/shared/lib/use-resource";
-import { DataTable, ErrorNotice, type Column } from "@/shared/ui";
-import { AdminPage, WithActiveInstitution } from "@/widgets/admin-shell";
+import { Avatar, Badge, DataTable, ErrorNotice, type Column } from "@/shared/ui";
+import { AdminPage, Section, WithActiveInstitution } from "@/widgets/admin-shell";
 
 function Members({ institutionId }: { institutionId: string }) {
   const { user } = useSession();
@@ -15,12 +15,25 @@ function Members({ institutionId }: { institutionId: string }) {
   const text = admin.members;
   const load = useCallback(() => fetchMembers(institutionId), [institutionId]);
   const members = useResource(load);
+  // Shown most junior first, so the default choice is the least privileged
+  const allowedRoles: Role[] = user ? [...registrableRoles(user, institutionId)].reverse() : [];
 
   const columns: Array<Column<Member>> = [
-    { header: text.name, cell: (row) => `${row.firstName} ${row.lastName}` },
-    { header: text.email, cell: (row) => row.email },
-    { header: text.role, cell: (row) => roles[row.role] },
-    { header: text.status, cell: (row) => userStatus[row.status] },
+    {
+      header: text.name,
+      cell: (row) => (
+        <span className="flex items-center gap-3 font-medium">
+          <Avatar name={`${row.firstName} ${row.lastName}`} />
+          {row.firstName} {row.lastName}
+        </span>
+      ),
+    },
+    { header: text.email, cell: (row) => <span className="text-muted">{row.email}</span> },
+    { header: text.role, cell: (row) => <Badge tone={roleTone[row.role]}>{roles[row.role]}</Badge> },
+    {
+      header: text.status,
+      cell: (row) => <Badge tone={statusTone(row.status)}>{userStatus[row.status]}</Badge>,
+    },
   ];
 
   return (
@@ -33,14 +46,13 @@ function Members({ institutionId }: { institutionId: string }) {
         getKey={(row) => row.membershipId}
         emptyText={text.empty}
       />
-      <section className="max-w-md">
-        <h2 className="mb-4 text-lg font-semibold">{text.newTitle}</h2>
+      <Section title={text.newTitle} panel>
         <RegisterMemberForm
           institutionId={institutionId}
-          canAppointAdmins={user?.isPlatformAdmin === true}
+          allowedRoles={allowedRoles}
           onRegistered={members.reload}
         />
-      </section>
+      </Section>
     </>
   );
 }

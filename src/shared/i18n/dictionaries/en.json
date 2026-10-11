@@ -6,7 +6,9 @@
   "common": {
     "brand": "Everlearn",
     "loading": "Loading…",
-    "or": "or"
+    "or": "or",
+    "panelTitle": "Your institution, organised in one place.",
+    "panelBody": "Members, curricula, groups and timetables for the whole school community."
   },
   "auth": {
     "login": {
@@ -39,7 +41,8 @@
     "signedInAs": "Signed in as {email}",
     "institution": "Institution: {name}",
     "settings": "Profile settings",
-    "changeInstitution": "Switch institution"
+    "changeInstitution": "Switch institution",
+    "account": "Your account"
   },
   "onboarding": {
     "title": "Verify your identity",
@@ -82,14 +85,16 @@
     "submitted": {
       "title": "Application submitted",
       "body": "Your institution will review your details. We will let you know when your account is active."
-    }
+    },
+    "unreadable": "We could not read your document automatically. Fill in your details by hand or retake the photo."
   },
   "roles": {
     "ADMIN": "Institution Admin",
-    "COORDINATOR": "Coordinator",
+    "COORDINATOR": "Principal",
     "TEACHER": "Teacher",
     "STUDENT": "Student",
-    "GUARDIAN": "Guardian"
+    "GUARDIAN": "Guardian",
+    "STAFF": "Staff"
   },
   "userStatus": {
     "PENDING_ONBOARDING": "Pending verification",
@@ -106,7 +111,9 @@
       "reviews": "Pending reviews",
       "pensums": "Pensums",
       "groups": "Groups",
-      "settings": "Profile settings"
+      "settings": "Profile settings",
+      "availability": "Teacher availability",
+      "schedule": "Timetables"
     },
     "institutionSwitcher": {
       "label": "Institution",
@@ -132,7 +139,16 @@
       "status": "Status",
       "newTitle": "New institution",
       "activate": "Activate",
-      "deactivate": "Deactivate"
+      "deactivate": "Deactivate",
+      "manage": "Manage",
+      "firstAdminTitle": "First administrator of the institution",
+      "adminFirstName": "Administrator's first names",
+      "adminLastName": "Administrator's last names",
+      "adminEmail": "Administrator's email",
+      "createdTitle": "Institution created",
+      "createdBody": "Give these credentials to {name}, who will administer {institution}. The temporary password will not be shown again.",
+      "createdExistingBody": "{name} already had an account and now administers {institution}.",
+      "adminFailed": "The institution was created, but its administrator could not be registered. Open it and register them from Members."
     },
     "subjects": {
       "title": "Subjects",
@@ -237,6 +253,47 @@
       "enrollTitle": "Enroll a student",
       "remove": "Remove",
       "noCapacity": "No limit"
+    },
+    "platform": {
+      "mode": "Platform",
+      "managing": "You are managing",
+      "exit": "Back to the platform",
+      "pickInstitution": "Choose an institution to manage it.",
+      "goToInstitutions": "Go to Institutions"
+    },
+    "availability": {
+      "title": "Teacher availability",
+      "subtitle": "Set the hours each teacher can teach during a period.",
+      "teacher": "Teacher",
+      "period": "Period",
+      "needsSetup": "You need at least one active teacher and one academic period.",
+      "caption": "Availability of {name}",
+      "hint": "Click the hours they can teach. They are saved when you press the button.",
+      "hour": "Time",
+      "available": "available",
+      "unavailable": "not available",
+      "save": "Save availability",
+      "saved": "Availability saved."
+    },
+    "schedule": {
+      "title": "Timetables",
+      "subtitle": "Build a group's weekly timetable. Each class respects the teacher's availability and other classes.",
+      "group": "Group",
+      "noGroups": "Create a group first to build its timetable.",
+      "caption": "Timetable of {name}",
+      "hint": "Click a free hour to schedule a class.",
+      "hour": "Time",
+      "free": "free",
+      "newTitle": "Schedule a class",
+      "course": "Subject",
+      "day": "Day",
+      "start": "Start",
+      "end": "End",
+      "room": "Room",
+      "add": "Schedule",
+      "cancel": "Cancel",
+      "remove": "Remove",
+      "noCourses": "Assign teachers to the group's subjects before scheduling classes."
     }
   },
   "institutionSelector": {
@@ -260,6 +317,15 @@
       "requiresActive": "You can link Google once your institution activates your account.",
       "success": "Your Google account is now linked."
     }
+  },
+  "days": {
+    "MONDAY": "Monday",
+    "TUESDAY": "Tuesday",
+    "WEDNESDAY": "Wednesday",
+    "THURSDAY": "Thursday",
+    "FRIDAY": "Friday",
+    "SATURDAY": "Saturday",
+    "SUNDAY": "Sunday"
   },
   "errors": {
     "fallback": "Something went wrong. Please try again.",
@@ -312,6 +378,17 @@
     "STUDENT_ALREADY_ENROLLED": "The student is already enrolled in this group.",
     "STUDENT_NOT_FOUND": "There is no active student with that id.",
     "TEACHER_NOT_FOUND": "There is no active teacher with that id.",
-    "SUBJECT_NOT_IN_GROUP": "The subject does not belong to this group's level."
+    "SUBJECT_NOT_IN_GROUP": "The subject does not belong to this group's level.",
+    "GROUP_SCHEDULE_CONFLICT": "The group already has a class at that time.",
+    "TEACHER_SCHEDULE_CONFLICT": "The teacher already has a class at that time in another group.",
+    "OUTSIDE_TEACHER_AVAILABILITY": "The teacher is not available at that time.",
+    "AVAILABILITY_CONFLICTS_WITH_SCHEDULE": "The teacher already has classes outside that availability. Remove those classes first.",
+    "COURSE_HAS_NO_TEACHER": "Assign a teacher to this subject before scheduling it.",
+    "COURSE_HAS_SCHEDULE": "Remove the classes scheduled for this subject before changing its teacher.",
+    "SCHEDULE_BUSY": "Someone else is changing this timetable. Try again.",
+    "INVALID_TIME_RANGE": "The end time must be after the start time.",
+    "SCHEDULE_SLOT_NOT_FOUND": "The class was not found.",
+    "GROUP_NOT_FOUND": "The group was not found.",
+    "PERIOD_NOT_FOUND": "The period was not found."
   }
 }

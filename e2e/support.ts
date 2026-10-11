@@ -10,7 +10,8 @@ export const PLATFORM_ADMIN = {
 export const PASSWORD = "e2e-own-password";
 
 type Playwright = PlaywrightWorkerArgs["playwright"];
-type MemberRole = "ADMIN" | "TEACHER" | "STUDENT";
+type MemberRole = "ADMIN" | "TEACHER" | "STAFF" | "STUDENT";
+type RegistrableRole = Exclude<MemberRole, "ADMIN">;
 
 export interface Account {
   email: string;
@@ -24,8 +25,11 @@ export interface Account {
 export const formError = (page: Page) => page.getByRole("main").getByRole("alert");
 
 const unique = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
-// The smallest byte sequence the backend accepts as a JPEG
-const TINY_JPEG = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46]);
+// A real 1x1 PNG: the OCR service must be able to open it, and reads nothing from it
+const BLANK_PNG = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+  "base64",
+);
 
 let platformTokenPromise: Promise<string> | null = null;
 
@@ -101,14 +105,14 @@ export async function createInstitution(playwright: Playwright) {
      * Registers a Teacher or Student who has already chosen their own
      * password, so they are pending onboarding and can sign in normally.
      */
-    async register(role: "TEACHER" | "STUDENT", names: Names = DEFAULT_NAMES): Promise<Account> {
+    async register(role: RegistrableRole, names: Names = DEFAULT_NAMES): Promise<Account> {
       const email = `e2e-${role.toLowerCase()}-${unique()}@example.com`;
       const registered = await addMember(adminToken, role, email, names);
       await replacePassword(api, email, registered.temporaryPassword ?? "");
       return { email, password: PASSWORD, membershipId: registered.member.membershipId, ...names };
     },
     /** Like `register`, but leaves the temporary password in place, as the admin would hand it over. */
-    async registerWithTemporaryPassword(role: "TEACHER" | "STUDENT", names: Names = DEFAULT_NAMES) {
+    async registerWithTemporaryPassword(role: RegistrableRole, names: Names = DEFAULT_NAMES) {
       const email = `e2e-${role.toLowerCase()}-${unique()}@example.com`;
       const registered = await addMember(adminToken, role, email, names);
       return {
@@ -119,7 +123,7 @@ export async function createInstitution(playwright: Playwright) {
       };
     },
     /** Registers a member and takes them through onboarding and approval, leaving them active. */
-    async registerActive(role: "TEACHER" | "STUDENT", names: Names = DEFAULT_NAMES): Promise<Account> {
+    async registerActive(role: RegistrableRole, names: Names = DEFAULT_NAMES): Promise<Account> {
       const email = `e2e-${role.toLowerCase()}-${unique()}@example.com`;
       const registered = await addMember(adminToken, role, email, names);
       const token = await replacePassword(api, email, registered.temporaryPassword ?? "");
@@ -127,7 +131,7 @@ export async function createInstitution(playwright: Playwright) {
         headers: bearer(token),
         multipart: {
           documentType: "NATIONAL_ID",
-          file: { name: "id.jpg", mimeType: "image/jpeg", buffer: TINY_JPEG },
+          file: { name: "id.png", mimeType: "image/png", buffer: BLANK_PNG },
         },
       });
       expect(uploaded.status(), "upload ID").toBe(200);
@@ -159,6 +163,12 @@ export async function createInstitution(playwright: Playwright) {
       expect(response.ok(), `POST ${path}: ${response.status()}`).toBe(true);
       return (await response.json()) as T;
     },
+    /** Like `api`, for the endpoints that use PUT. */
+    async apiPut<T>(path: string, data: object): Promise<T> {
+      const response = await api.put(API_URL + path, { headers: bearer(adminToken, institutionId), data });
+      expect(response.ok(), "PUT " + path + ": " + response.status()).toBe(true);
+      return (await response.json()) as T;
+    },
     dispose: () => api.dispose(),
   };
 }
@@ -184,8 +194,15 @@ export async function chooseOwnPassword(page: Page, temporaryPassword: string): 
   await form.getByRole("button", { name: "Guardar contraseña" }).click();
 }
 
-/** Takes a pending member from the camera step to "submitted for review". */
-export async function completeOnboarding(page: Page, firstName: string): Promise<void> {
+/**
+ * Takes a pending member from the camera step to "submitted for review". The
+ * fake camera shows no document, so the OCR reads nothing and every field is typed.
+ */
+export async function completeOnboarding(
+  page: Page,
+  firstName: string,
+  lastName = "Prueba",
+): Promise<void> {
   await expect(page).toHaveURL("/es/onboarding");
   await page.getByRole("button", { name: "Activar cámara" }).click();
   const video = page.getByTestId("camera-video");
@@ -194,7 +211,11 @@ export async function completeOnboarding(page: Page, firstName: string): Promise
   await page.getByRole("button", { name: "Tomar foto" }).click();
   await page.getByRole("button", { name: "Usar esta foto" }).click();
   await expect(page.getByRole("heading", { name: "Confirma tus datos" })).toBeVisible();
+  await expect(formError(page)).toContainText("No pudimos leer tu documento automáticamente");
   await page.getByLabel("Nombres").fill(firstName);
+  await page.getByLabel("Apellidos").fill(lastName);
+  await page.getByLabel("Número de documento").fill("12345678");
+  await page.getByLabel("Fecha de nacimiento").fill("2008-03-14");
   await page.getByRole("button", { name: "Enviar para revisión" }).click();
   await expect(page.getByRole("heading", { name: "Solicitud enviada" })).toBeVisible();
 }

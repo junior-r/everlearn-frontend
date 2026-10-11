@@ -2,10 +2,11 @@
 
 import { useEffect } from "react";
 import { useActiveInstitution } from "@/entities/institution";
-import { rolesIn, useSession } from "@/entities/session";
+import { rolesIn, roleTone, useSession } from "@/entities/session";
 import { LogoutButton } from "@/features/auth/logout";
 import { errorMessage, useDictionary, useLocalizedRouter } from "@/shared/i18n";
-import { CenteredCard, ErrorNotice, PageStatus } from "@/shared/ui";
+import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr";
+import { Avatar, Badge, CenteredCard, ErrorNotice, PageStatus } from "@/shared/ui";
 
 /** Lets a member of several institutions choose which one this session works in. */
 export function SelectInstitutionPage() {
@@ -43,17 +44,27 @@ export function SelectInstitutionPage() {
             <button
               type="button"
               onClick={() => enter(institution.id)}
-              className="flex w-full items-center justify-between gap-4 rounded-lg border border-line bg-surface px-4 py-3 text-left hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-brand"
+              className="group flex w-full items-center gap-4 rounded-2xl border border-line bg-surface px-4 py-3.5 text-left transition duration-150 hover:border-brand/60 hover:bg-brand-soft active:scale-[0.99] focus-visible:outline-2 focus-visible:outline-brand"
             >
-              <span>
+              <Avatar name={institution.name} size="md" />
+              <span className="min-w-0 flex-1">
                 <span className="block font-medium">{institution.name}</span>
-                <span className="block text-sm text-muted">
-                  {rolesIn(user, institution.id)
-                    .map((role) => roles[role])
-                    .join(" · ")}
+                <span className="mt-1.5 flex flex-wrap gap-1.5">
+                  {rolesIn(user, institution.id).map((role) => (
+                    <Badge key={role} tone={roleTone[role]}>
+                      {roles[role]}
+                    </Badge>
+                  ))}
                 </span>
               </span>
-              <span className="text-sm font-medium text-brand">{institutionSelector.enter}</span>
+              <span className="flex items-center gap-1.5 text-sm font-semibold text-brand">
+                {institutionSelector.enter}
+                <ArrowRightIcon
+                  aria-hidden
+                  weight="bold"
+                  className="size-4 transition-transform group-hover:translate-x-0.5"
+                />
+              </span>
             </button>
           </li>
         ))}

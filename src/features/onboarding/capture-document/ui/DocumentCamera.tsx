@@ -151,7 +151,7 @@ export function DocumentCamera({ disabled = false, onConfirm }: DocumentCameraPr
     <div className="flex flex-col gap-4">
       <ErrorNotice message={error ? text[error] : null} />
 
-      <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-black">
+      <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-ink">
         {state === "live" && (
           <>
             <video
@@ -177,12 +177,20 @@ export function DocumentCamera({ disabled = false, onConfirm }: DocumentCameraPr
           <img src={photo.url} alt={text.previewAlt} className="size-full object-contain" />
         )}
         {(state === "idle" || state === "starting") && (
-          <div className="flex size-full items-center justify-center p-6">
+          <div className="pattern-fine-dots flex size-full items-center justify-center p-6 text-on-ink">
+            {/* A stand-in ID card, so the frame shows what to place in it */}
             <div
               aria-hidden
-              className="w-[70%] rounded-xl border-2 border-dashed border-white/40"
+              className="flex w-[70%] items-center gap-[6%] rounded-xl border-2 border-dashed border-sun/80 bg-ink-raised/80 p-[6%]"
               style={{ aspectRatio: ID_CARD_ASPECT_RATIO }}
-            />
+            >
+              <span className="aspect-[3/4] h-full rounded-lg bg-grape/70" />
+              <span className="flex flex-1 flex-col gap-[10%]">
+                <span className="h-2 w-4/5 rounded-full bg-on-ink/40" />
+                <span className="h-2 w-3/5 rounded-full bg-on-ink/25" />
+                <span className="h-2 w-2/5 rounded-full bg-sun/70" />
+              </span>
+            </div>
           </div>
         )}
       </div>
