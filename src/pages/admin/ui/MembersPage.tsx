@@ -55,7 +55,7 @@ function Members({ institutionId }: { institutionId: string }) {
         />
       </Section>
       <Section title={admin.guardians.title}>
-        <GuardianLinks institutionId={institutionId} members={members.data ?? []} />
+        <GuardianLinks institutionId={institutionId} />
       </Section>
     </>
   );

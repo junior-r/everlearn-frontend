@@ -10,34 +10,35 @@ import {
   type GuardianLink,
   type GuardianRelationship,
 } from "@/entities/guardian";
-import type { Member } from "@/entities/member";
+import { searchMembers, type MemberMatch } from "@/entities/member";
 import { errorMessage, format, useDictionary } from "@/shared/i18n";
 import { useResource } from "@/shared/lib/use-resource";
 import { useSubmit } from "@/shared/lib/use-submit";
-import { Button, DataTable, ErrorNotice, SelectField, type Column } from "@/shared/ui";
-
-interface GuardianLinksProps {
-  institutionId: string;
-  /** The members of the institution; Guardians and Students are picked from them. */
-  members: Member[];
-}
+import { Autocomplete, Button, DataTable, ErrorNotice, SelectField, type Column } from "@/shared/ui";
 
 const fullName = (person: { firstName: string; lastName: string }) => `${person.firstName} ${person.lastName}`;
 
 /**
  * Who answers for which Student. The office ties a Guardian to a Student here;
  * from then on the Guardian sees that Student's schedule, grades and attendance.
+ * Both are found by searching: an institution has too many members to list.
  */
-export function GuardianLinks({ institutionId, members }: GuardianLinksProps) {
+export function GuardianLinks({ institutionId }: { institutionId: string }) {
   const { admin, errors } = useDictionary();
   const text = admin.guardians;
   const load = useCallback(() => fetchGuardianLinks(institutionId), [institutionId]);
   const links = useResource(load);
-  const guardians = members.filter((member) => member.role === "GUARDIAN");
-  const students = members.filter((member) => member.role === "STUDENT");
-  const [guardianId, setGuardianId] = useState("");
-  const [studentId, setStudentId] = useState("");
+  const [guardian, setGuardian] = useState<MemberMatch | null>(null);
+  const [student, setStudent] = useState<MemberMatch | null>(null);
   const [relationship, setRelationship] = useState<GuardianRelationship>("MOTHER");
+  const findGuardians = useCallback(
+    (query: string, signal: AbortSignal) => searchMembers(institutionId, "GUARDIAN", query, signal),
+    [institutionId],
+  );
+  const findStudents = useCallback(
+    (query: string, signal: AbortSignal) => searchMembers(institutionId, "STUDENT", query, signal),
+    [institutionId],
+  );
   const save = useCallback(
     (body: Parameters<typeof linkGuardian>[1]) => linkGuardian(institutionId, body),
     [institutionId],
@@ -45,18 +46,31 @@ export function GuardianLinks({ institutionId, members }: GuardianLinksProps) {
   const linking = useSubmit(save);
   const remove = useCallback((id: string) => unlinkGuardian(institutionId, id).then(() => true), [institutionId]);
   const unlinking = useSubmit(remove);
-  // The first of each list until one is chosen, so the form is ready as soon as it has options
-  const chosenGuardian = guardianId || guardians[0]?.membershipId || "";
-  const chosenStudent = studentId || students[0]?.membershipId || "";
+  const detail = (member: MemberMatch) =>
+    [member.email, member.documentNumber && format(text.search.document, { number: member.documentNumber })]
+      .filter(Boolean)
+      .join(" · ");
+  const picker = {
+    placeholder: text.search.placeholder,
+    getKey: (member: MemberMatch) => member.membershipId,
+    getLabel: fullName,
+    getDetail: detail,
+    messages: text.search,
+  };
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!guardian || !student) {
+      return;
+    }
     const linked = await linking.submit({
-      guardianMembershipId: chosenGuardian,
-      studentMembershipId: chosenStudent,
+      guardianMembershipId: guardian.membershipId,
+      studentMembershipId: student.membershipId,
       relationship,
     });
     if (linked) {
+      setGuardian(null);
+      setStudent(null);
       links.reload();
     }
   }
@@ -86,7 +100,6 @@ export function GuardianLinks({ institutionId, members }: GuardianLinksProps) {
       ),
     },
   ];
-  const canLink = guardians.length > 0 && students.length > 0;
 
   return (
     <div className="flex flex-col gap-4">
@@ -98,37 +111,29 @@ export function GuardianLinks({ institutionId, members }: GuardianLinksProps) {
         getKey={(row) => row.id}
         emptyText={text.empty}
       />
-      {canLink ? (
-        <form
-          onSubmit={handleSubmit}
-          aria-label={text.linkTitle}
-          className="grid max-w-3xl items-end gap-3 rounded-2xl border border-line bg-surface p-5 shadow-card sm:grid-cols-[1fr_1fr_1fr_auto]"
+      <form
+        onSubmit={handleSubmit}
+        aria-label={text.linkTitle}
+        className="grid max-w-4xl items-end gap-3 rounded-2xl border border-line bg-surface p-5 shadow-card sm:grid-cols-2 lg:grid-cols-[1fr_1fr_12rem_auto]"
+      >
+        <Autocomplete<MemberMatch> {...picker} label={text.guardian} value={guardian} onChange={setGuardian} search={findGuardians} />
+        <Autocomplete<MemberMatch> {...picker} label={text.student} value={student} onChange={setStudent} search={findStudents} />
+        <SelectField
+          label={text.relationship}
+          value={relationship}
+          onChange={(event) => setRelationship(event.target.value as GuardianRelationship)}
+          options={GUARDIAN_RELATIONSHIPS.map((value) => ({ value, label: text.relationships[value] }))}
+        />
+        <Button
+          type="submit"
+          size="sm"
+          className="h-11"
+          disabled={!guardian || !student}
+          isLoading={linking.isSubmitting}
         >
-          <SelectField
-            label={text.guardian}
-            value={chosenGuardian}
-            onChange={(event) => setGuardianId(event.target.value)}
-            options={guardians.map((member) => ({ value: member.membershipId, label: fullName(member) }))}
-          />
-          <SelectField
-            label={text.student}
-            value={chosenStudent}
-            onChange={(event) => setStudentId(event.target.value)}
-            options={students.map((member) => ({ value: member.membershipId, label: fullName(member) }))}
-          />
-          <SelectField
-            label={text.relationship}
-            value={relationship}
-            onChange={(event) => setRelationship(event.target.value as GuardianRelationship)}
-            options={GUARDIAN_RELATIONSHIPS.map((value) => ({ value, label: text.relationships[value] }))}
-          />
-          <Button type="submit" size="sm" className="h-11" isLoading={linking.isSubmitting}>
-            {text.link}
-          </Button>
-        </form>
-      ) : (
-        <p className="text-sm text-muted">{text.needsBoth}</p>
-      )}
+          {text.link}
+        </Button>
+      </form>
     </div>
   );
 }

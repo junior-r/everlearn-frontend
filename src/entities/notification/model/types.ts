@@ -4,6 +4,10 @@ export const NOTIFICATION_TYPES = [
   "EVALUATION_DUE",
   "CLASS_STARTING",
   "DIRECT_MESSAGE",
+  "GRADE_POSTED",
+  "WARD_EVALUATION_PUBLISHED",
+  "WARD_GRADE_POSTED",
+  "WARD_ATTENDANCE",
 ] as const;
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
 
@@ -28,7 +32,12 @@ export function notificationPath(notification: AppNotification): string {
   switch (notification.type) {
     case "EVALUATION_PUBLISHED":
     case "EVALUATION_DUE":
+    case "GRADE_POSTED":
       return "/progress";
+    case "WARD_EVALUATION_PUBLISHED":
+    case "WARD_GRADE_POSTED":
+    case "WARD_ATTENDANCE":
+      return "/guardian";
     case "DIRECT_MESSAGE": {
       const { senderId } = notification.data;
       return typeof senderId === "string" ? `/messages?with=${encodeURIComponent(senderId)}` : "/messages";

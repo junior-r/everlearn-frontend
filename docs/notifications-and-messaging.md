@@ -30,7 +30,13 @@ A bell on every signed-in screen, a `/messages` page with live conversations, an
 - **Gradebook:** "Exportar a CSV" in `GradebookTable` calls `downloadGradebook` with the active locale (Spanish files use `;` and decimal commas, as spreadsheets set to Spanish expect).
 - **E2E:** `e2e/communication.spec.ts` (two browsers for the live parts).
 
+## Guardians and grades
+
+The bell words four more notices: a Student's own grade (`GRADE_POSTED`, opens `/progress`) and, for a Guardian, a ward's new evaluation, grade or absence (`WARD_…`, open `/guardian`). The backend sends the facts (`studentName`, `score`, `status`); the wording, including how an absence or a late arrival reads, is in `notifications.types` and `notifications.attendance`.
+
 ## Known gaps
+
+- A notice about a ward opens the Guardian's portal, not that ward's tab.
 
 - A notice from another institution than the one entered opens in the current one; it does not switch institution.
 - The messages link shows no unread count; unread messages show through the bell and inside the page.

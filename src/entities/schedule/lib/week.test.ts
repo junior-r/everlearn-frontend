@@ -1,12 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { groupByDay, type ScheduledClass } from "./types";
+import { groupByDay, type WeekClass } from "./week";
 
 const DAYS = ["MONDAY", "TUESDAY", "WEDNESDAY"] as const;
-const lesson = (dayOfWeek: string, startMinute: number, subjectName: string): ScheduledClass => ({
+const lesson = (dayOfWeek: string, startMinute: number, subjectName: string): WeekClass => ({
   dayOfWeek,
   startMinute,
   endMinute: startMinute + 45,
-  groupName: "1ro A",
   subjectName,
   teacherName: null,
   room: null,

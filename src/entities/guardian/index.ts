@@ -1,7 +1,7 @@
 import { apiClient, forInstitution } from "@/shared/api";
 import type { GuardianLink, GuardianRelationship, Ward, WardOverview } from "./model/types";
 
-export { GUARDIAN_RELATIONSHIPS, groupByDay } from "./model/types";
+export { GUARDIAN_RELATIONSHIPS } from "./model/types";
 export type {
   AttendanceEntry,
   GuardianLink,

@@ -13,6 +13,9 @@ export {
   windowsFromCells,
 } from "./lib/grid";
 export type { DayOfWeek, TimeRange } from "./lib/grid";
+export { groupByDay } from "./lib/week";
+export type { WeekClass } from "./lib/week";
+export { WeekTimetable } from "./ui/WeekTimetable";
 
 /** One weekly class of a group. */
 export interface ScheduledSlot extends TimeRange {

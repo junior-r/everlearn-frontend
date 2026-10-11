@@ -304,6 +304,22 @@
         "name": "Nombre",
         "subjects": "Materias",
         "activeGroups": "Grupos activos"
+      },
+      "group": {
+        "title": "Grupo",
+        "subtitle": "Los docentes asignados y el horario semanal del grupo.",
+        "back": "Volver al panel académico",
+        "open": "Ver los docentes y el horario de {group}",
+        "summary": "{pensum} · {period} · {students} estudiantes",
+        "coursesTitle": "Materias y docentes",
+        "coursesEmpty": "El pensum de este grupo todavía no tiene materias.",
+        "subject": "Materia",
+        "teacher": "Docente",
+        "weeklyHours": "Horas semanales",
+        "noTeacher": "Sin docente asignado",
+        "scheduleTitle": "Horario semanal",
+        "scheduleEmpty": "Este grupo todavía no tiene horario.",
+        "room": "Aula {room}"
       }
     },
     "platform": {
@@ -414,7 +430,27 @@
       "DIRECT_MESSAGE": {
         "title": "Nuevo mensaje de {senderName}",
         "body": "Abre la conversación para leerlo."
+      },
+      "GRADE_POSTED": {
+        "title": "Nueva nota: {evaluationTitle}",
+        "body": "{subjectName} · {score} sobre {maxScore}"
+      },
+      "WARD_EVALUATION_PUBLISHED": {
+        "title": "Nueva evaluación para {studentName}",
+        "body": "{evaluationTitle} · {subjectName}"
+      },
+      "WARD_GRADE_POSTED": {
+        "title": "Nueva nota de {studentName}",
+        "body": "{evaluationTitle} · {subjectName}: {score} sobre {maxScore}"
+      },
+      "WARD_ATTENDANCE": {
+        "title": "{studentName} {status}",
+        "body": "{subjectName} · {date}"
       }
+    },
+    "attendance": {
+      "ABSENT": "no asistió a clase",
+      "LATE": "llegó tarde a clase"
     }
   },
   "messages": {
@@ -573,7 +609,6 @@
       "link": "Vincular",
       "unlink": "Desvincular",
       "unlinkFor": "Desvincular a {guardian} de {student}",
-      "needsBoth": "Registra al menos un representante y un estudiante para poder vincularlos.",
       "relationships": {
         "MOTHER": "Madre",
         "FATHER": "Padre",
@@ -581,6 +616,14 @@
         "GRANDPARENT": "Abuelo o abuela",
         "SIBLING": "Hermano o hermana",
         "OTHER": "Otro"
+      },
+      "search": {
+        "placeholder": "Nombre o número de documento",
+        "hint": "Escribe al menos 2 letras del nombre o del número de documento.",
+        "searching": "Buscando…",
+        "empty": "Nadie coincide con la búsqueda.",
+        "failed": "No se pudo buscar. Inténtalo de nuevo.",
+        "document": "Documento {number}"
       }
     },
     "institutions": {

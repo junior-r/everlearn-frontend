@@ -7,6 +7,7 @@ import {
   UsersFourIcon,
   WarningIcon,
 } from "@phosphor-icons/react/dist/ssr";
+import Link from "next/link";
 import { useCallback } from "react";
 import {
   fetchAcademicOverview,
@@ -14,7 +15,7 @@ import {
   type GroupOverview,
   type PensumOverview,
 } from "@/entities/dashboard";
-import { errorMessage, format, useDictionary, useLocale } from "@/shared/i18n";
+import { errorMessage, format, localizedPath, useDictionary, useLocale } from "@/shared/i18n";
 import { TONES } from "@/shared/lib/tone";
 import { useResource } from "@/shared/lib/use-resource";
 import { Badge, BarChart, DataTable, ErrorNotice, Section, StatCard, StatGrid, type Column } from "@/shared/ui";
@@ -54,7 +55,18 @@ export function AcademicDashboard({ institutionId }: { institutionId: string }) 
   const busiest = [...teachers].sort((a, b) => b.weeklyHours - a.weeklyHours).slice(0, BUSIEST_TEACHERS);
 
   const groupColumns: Array<Column<GroupOverview>> = [
-    { header: text.groups.name, cell: (row) => <span className="font-medium">{row.name}</span> },
+    {
+      header: text.groups.name,
+      cell: (row) => (
+        <Link
+          href={localizedPath(locale, `/principal/groups/${row.id}`)}
+          title={format(text.group.open, { group: row.name })}
+          className="rounded-lg font-medium text-brand underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-brand"
+        >
+          {row.name}
+        </Link>
+      ),
+    },
     { header: text.groups.pensum, cell: (row) => row.pensumName },
     { header: text.groups.students, cell: (row) => count(row.students) },
     { header: text.groups.courses, cell: (row) => count(row.courses) },

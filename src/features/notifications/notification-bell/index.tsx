@@ -3,8 +3,10 @@
 import {
   BellIcon,
   CalendarCheckIcon,
+  CalendarXIcon,
   ChatCircleDotsIcon,
   ConfettiIcon,
+  ExamIcon,
   HourglassMediumIcon,
   NotePencilIcon,
 } from "@phosphor-icons/react/dist/ssr";
@@ -31,6 +33,10 @@ const LOOK: Record<NotificationType, { icon: Icon; tone: Tone }> = {
   EVALUATION_DUE: { icon: HourglassMediumIcon, tone: "sun" },
   CLASS_STARTING: { icon: CalendarCheckIcon, tone: "grape" },
   DIRECT_MESSAGE: { icon: ChatCircleDotsIcon, tone: "pink" },
+  GRADE_POSTED: { icon: ExamIcon, tone: "mint" },
+  WARD_EVALUATION_PUBLISHED: { icon: NotePencilIcon, tone: "sky" },
+  WARD_GRADE_POSTED: { icon: ExamIcon, tone: "mint" },
+  WARD_ATTENDANCE: { icon: CalendarXIcon, tone: "coral" },
 };
 
 /** Above this, the badge stops counting: the exact figure no longer matters. */
@@ -104,7 +110,11 @@ export function NotificationBell({ variant = "default", align = "right" }: Notif
     const facts = Object.fromEntries(
       Object.entries(notification.data).map(([key, value]) => [key, value === null ? "" : String(value)]),
     );
-    for (const key of ["dueAt", "startsAt"]) {
+    // The backend sends what happened; how an absence reads is worded here, like the rest
+    if (facts.status && Object.hasOwn(text.attendance, facts.status)) {
+      facts.status = text.attendance[facts.status as keyof typeof text.attendance];
+    }
+    for (const key of ["dueAt", "startsAt", "date"]) {
       if (facts[key]) {
         facts[key] = new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(
           new Date(facts[key]),

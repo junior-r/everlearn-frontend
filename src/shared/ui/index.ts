@@ -1,3 +1,4 @@
+export { Autocomplete } from "./Autocomplete";
 export { Avatar, Badge } from "./Badge";
 export type { BadgeTone } from "./Badge";
 export { Button, buttonBase, buttonClass, buttonStyles } from "./Button";

@@ -247,5 +247,5 @@ export async function createCourse(playwright: Playwright) {
     teacherMembershipId: teacher.membershipId,
   });
   await institution.api(`/groups/${group.id}/students`, { membershipId: student.membershipId });
-  return { institution, teacher, student, outsider, groupId: group.id, subjectId: subject.id };
+  return { institution, teacher, student, outsider, groupId: group.id, subjectId: subject.id, periodId: period.id };
 }

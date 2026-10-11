@@ -304,6 +304,22 @@
         "name": "Name",
         "subjects": "Subjects",
         "activeGroups": "Active groups"
+      },
+      "group": {
+        "title": "Group",
+        "subtitle": "The assigned teachers and the weekly timetable of the group.",
+        "back": "Back to the academic dashboard",
+        "open": "See the teachers and timetable of {group}",
+        "summary": "{pensum} · {period} · {students} students",
+        "coursesTitle": "Subjects and teachers",
+        "coursesEmpty": "This group's pensum has no subjects yet.",
+        "subject": "Subject",
+        "teacher": "Teacher",
+        "weeklyHours": "Weekly hours",
+        "noTeacher": "No teacher assigned",
+        "scheduleTitle": "Weekly timetable",
+        "scheduleEmpty": "This group has no timetable yet.",
+        "room": "Room {room}"
       }
     },
     "platform": {
@@ -414,7 +430,27 @@
       "DIRECT_MESSAGE": {
         "title": "New message from {senderName}",
         "body": "Open the conversation to read it."
+      },
+      "GRADE_POSTED": {
+        "title": "New grade: {evaluationTitle}",
+        "body": "{subjectName} · {score} out of {maxScore}"
+      },
+      "WARD_EVALUATION_PUBLISHED": {
+        "title": "New evaluation for {studentName}",
+        "body": "{evaluationTitle} · {subjectName}"
+      },
+      "WARD_GRADE_POSTED": {
+        "title": "New grade for {studentName}",
+        "body": "{evaluationTitle} · {subjectName}: {score} out of {maxScore}"
+      },
+      "WARD_ATTENDANCE": {
+        "title": "{studentName} {status}",
+        "body": "{subjectName} · {date}"
       }
+    },
+    "attendance": {
+      "ABSENT": "missed class",
+      "LATE": "was late to class"
     }
   },
   "messages": {
@@ -573,7 +609,6 @@
       "link": "Link",
       "unlink": "Unlink",
       "unlinkFor": "Unlink {guardian} from {student}",
-      "needsBoth": "Register at least one guardian and one student to link them.",
       "relationships": {
         "MOTHER": "Mother",
         "FATHER": "Father",
@@ -581,6 +616,14 @@
         "GRANDPARENT": "Grandparent",
         "SIBLING": "Sibling",
         "OTHER": "Other"
+      },
+      "search": {
+        "placeholder": "Name or document number",
+        "hint": "Type at least 2 letters of the name or the document number.",
+        "searching": "Searching…",
+        "empty": "Nobody matches the search.",
+        "failed": "The search failed. Try again.",
+        "document": "Document {number}"
       }
     },
     "institutions": {

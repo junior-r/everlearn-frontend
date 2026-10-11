@@ -31,8 +31,14 @@ test("a Student is welcomed, and hears of a new evaluation the moment it is publ
   browser,
   playwright,
 }) => {
-  test.setTimeout(90_000);
+  test.setTimeout(120_000);
   const { institution, teacher, student } = await createCourse(playwright);
+  const guardian = await institution.registerActive("GUARDIAN", { firstName: "Gina", lastName: "Rometty" });
+  await institution.apiPut("/guardian-links", {
+    studentMembershipId: student.membershipId,
+    guardianMembershipId: guardian.membershipId,
+    relationship: "MOTHER",
+  });
 
   // Approved during setup: the welcome is waiting when they first sign in
   await signIn(page, student.email, student.password);
@@ -63,8 +69,18 @@ test("a Student is welcomed, and hears of a new evaluation the moment it is publ
   await expect(bell(page)).toHaveAccessibleName("Abrir notificaciones");
   await expect(notices(page).getByRole("listitem")).toHaveCount(2);
 
+  // Her Guardian was told too, about her by name, and the notice opens the Guardian's portal
+  const guardianPage = await openAs(browser, guardian.email, guardian.password);
+  await bell(guardianPage).click();
+  const forWard = notices(guardianPage).getByRole("button", { name: /Nueva evaluación para Grace Hopper/ });
+  await expect(forWard).toContainText("Examen parcial · Matemática");
+  await forWard.click();
+  await expect(guardianPage).toHaveURL("/es/guardian");
+  await guardianPage.context().close();
+
   // The Teacher who published is told nothing about their own evaluation
   await teacherPage.getByRole("link", { name: "Volver al inicio" }).click();
+  await expect(teacherPage.getByRole("region", { name: "Mis clases" })).toBeVisible();
   await bell(teacherPage).click();
   await expect(notices(teacherPage)).not.toContainText("Nueva evaluación");
   await teacherPage.context().close();

@@ -14,8 +14,15 @@ describe("notificationPath", () => {
   it("leads to what the notice is about", () => {
     expect(notificationPath(notice("EVALUATION_PUBLISHED"))).toBe("/progress");
     expect(notificationPath(notice("EVALUATION_DUE"))).toBe("/progress");
+    expect(notificationPath(notice("GRADE_POSTED"))).toBe("/progress");
     expect(notificationPath(notice("WELCOME"))).toBe("/");
     expect(notificationPath(notice("CLASS_STARTING"))).toBe("/");
+  });
+
+  it("takes a Guardian to their portal for anything about a ward", () => {
+    for (const type of ["WARD_EVALUATION_PUBLISHED", "WARD_GRADE_POSTED", "WARD_ATTENDANCE"] as const) {
+      expect(notificationPath(notice(type, { studentName: "Grace Hopper" }))).toBe("/guardian");
+    }
   });
 
   it("opens the conversation with whoever wrote", () => {

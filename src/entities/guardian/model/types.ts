@@ -63,18 +63,3 @@ export interface WardOverview {
     recent: AttendanceEntry[];
   };
 }
-
-/** A week's classes as a timetable reads: one entry per day that has any, in `days` order, earliest first. */
-export function groupByDay<Day extends string>(
-  schedule: readonly ScheduledClass[],
-  days: readonly Day[],
-): Array<{ day: Day; classes: ScheduledClass[] }> {
-  return days
-    .map((day) => ({
-      day,
-      classes: schedule
-        .filter((entry) => entry.dayOfWeek === day)
-        .sort((a, b) => a.startMinute - b.startMinute || a.subjectName.localeCompare(b.subjectName)),
-    }))
-    .filter(({ classes }) => classes.length > 0);
-}

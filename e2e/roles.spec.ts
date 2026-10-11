@@ -29,14 +29,35 @@ test("the office links a Guardian to a Student, and the Guardian then follows th
   await page.getByRole("link", { name: "Miembros" }).click();
   const links = page.getByRole("region", { name: "Representantes y estudiantes" });
   await expect(links).toContainText("Todavía no hay representantes vinculados a estudiantes.");
+  // Nobody is listed until she is searched for: by name with the mouse, by document number with the keyboard
   const form = links.getByRole("form", { name: "Vincular representante" });
-  await form.getByLabel("Representante").selectOption({ label: "Gina Rometty" });
-  await form.getByLabel("Estudiante").selectOption({ label: "Grace Hopper" });
+  await expect(form.getByRole("button", { name: "Vincular" })).toBeDisabled();
+  const guardianField = form.getByRole("combobox", { name: "Representante" });
+  await guardianField.fill("r");
+  await expect(form.getByRole("status").filter({ visible: true })).toHaveText(
+    "Escribe al menos 2 letras del nombre o del número de documento.",
+  );
+  await guardianField.fill("zzz");
+  await expect(form.getByRole("status").filter({ visible: true })).toHaveText("Nadie coincide con la búsqueda.");
+  await guardianField.fill("rometty gi");
+  await form.getByRole("option", { name: /Gina Rometty/ }).click();
+  await expect(guardianField).toHaveValue("Gina Rometty");
+  const studentField = form.getByRole("combobox", { name: "Estudiante" });
+  await studentField.fill("12345678");
+  const students = form.getByRole("listbox", { name: "Estudiante" }).getByRole("option");
+  await expect(students).toHaveText([/Grace Hopper.*Documento 12345678/, /Linus Pauling/]);
+  await studentField.press("ArrowDown");
+  await expect(students.nth(1)).toHaveAttribute("aria-selected", "true");
+  await studentField.press("ArrowUp");
+  await studentField.press("Enter");
+  await expect(studentField).toHaveValue("Grace Hopper");
   await form.getByLabel("Parentesco").selectOption({ label: "Madre" });
   await form.getByRole("button", { name: "Vincular" }).click();
   const row = links.getByRole("row", { name: /Gina Rometty/ });
   await expect(row).toContainText("Grace Hopper");
   await expect(row).toContainText("Madre");
+  // The form is ready for the next pair
+  await expect(guardianField).toHaveValue("");
 
   // Now her portal shows Grace: her group, her subjects, and what has no data yet says so
   await guardianPage.reload();
@@ -87,8 +108,19 @@ test("a Principal lands on the teaching of the institution, to read and not to a
   page,
   playwright,
 }) => {
-  const { institution } = await createCourse(playwright);
+  const { institution, teacher, groupId, subjectId, periodId } = await createCourse(playwright);
   const principal = await institution.registerActive("COORDINATOR", { firstName: "Marie", lastName: "Curie" });
+  await institution.apiPut(`/teachers/${teacher.membershipId}/availability`, {
+    periodId,
+    windows: [{ dayOfWeek: "MONDAY", startMinute: 480, endMinute: 600 }],
+  });
+  await institution.api(`/groups/${groupId}/schedule`, {
+    subjectId,
+    dayOfWeek: "MONDAY",
+    startMinute: 480,
+    endMinute: 540,
+    room: "12",
+  });
   await signIn(page, principal.email, principal.password);
 
   await expect(page).toHaveURL("/es/principal");
@@ -99,13 +131,29 @@ test("a Principal lands on the teaching of the institution, to read and not to a
   await expect(stat(page, "Materias sin docente")).toHaveText("0");
   const group = page.getByRole("table", { name: "Grupos activos" }).getByRole("row", { name: /1ro A/ });
   await expect(group).toContainText("Bachillerato");
-  await expect(group).toContainText("0 h");
+  await expect(group).toContainText("1 h");
   await expect(page.getByRole("table", { name: "Pensums" }).getByRole("row", { name: /BACH/ })).toContainText(
     "Bachillerato",
   );
   await expect(page.getByRole("figure").filter({ hasText: "Carga horaria de los docentes" })).toContainText(
-    "Todavía no hay clases en el horario.",
+    "Alan Turing",
   );
+
+  // A group opens on who teaches it and when
+  await group.getByRole("link", { name: "1ro A" }).click();
+  await expect(page).toHaveURL(`/es/principal/groups/${groupId}`);
+  const detail = page.getByRole("main").filter({ visible: true });
+  await expect(detail.getByRole("heading", { name: "1ro A", level: 2 })).toBeVisible();
+  await expect(detail).toContainText("Bachillerato · 2026-2027 · 1 estudiantes");
+  const course = detail.getByRole("table", { name: "Materias y docentes" }).getByRole("row", { name: /Matemática/ });
+  await expect(course).toContainText("Alan Turing");
+  await expect(course).toContainText("4 h");
+  const monday = detail.getByRole("region", { name: "Lunes" });
+  await expect(monday).toContainText("08:00–09:00");
+  await expect(monday).toContainText("Matemática");
+  await expect(monday).toContainText("Alan Turing · Aula 12");
+  await detail.getByRole("link", { name: "Volver al panel académico" }).click();
+  await expect(page).toHaveURL("/es/principal");
 
   // No administration: the dashboard of the admins sends them back to their own
   await expect(page.getByRole("link", { name: "Miembros" })).toHaveCount(0);

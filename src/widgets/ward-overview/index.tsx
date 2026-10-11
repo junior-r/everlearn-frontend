@@ -5,19 +5,17 @@ import { useCallback, useState } from "react";
 import {
   fetchMyWards,
   fetchWardOverview,
-  groupByDay,
   type AttendanceEntry,
   type Ward,
   type WardOverview as Overview,
 } from "@/entities/guardian";
-import { DAYS, formatTime } from "@/entities/schedule";
+import { WeekTimetable } from "@/entities/schedule";
 import { errorMessage, format, useDictionary, useLocale } from "@/shared/i18n";
 import { cn } from "@/shared/lib/cn";
 import { toneFor } from "@/shared/lib/tone";
 import { useResource } from "@/shared/lib/use-resource";
 import { Avatar, Badge, BarChart, ErrorNotice, Section, StatCard, StatGrid, type BadgeTone } from "@/shared/ui";
 
-const WEEK = [...DAYS, "SUNDAY"] as const;
 const STATUS_TONE: Record<AttendanceEntry["status"], BadgeTone> = {
   PRESENT: "mint",
   LATE: "sun",
@@ -29,13 +27,12 @@ const fullName = (person: { firstName: string; lastName: string }) => `${person.
 const emptyBox = "rounded-2xl border border-dashed border-line bg-surface/60 p-6 text-sm text-muted";
 
 function WardDetails({ overview }: { overview: Overview }) {
-  const { days, guardian: text, evaluations } = useDictionary();
+  const { guardian: text, evaluations } = useDictionary();
   const locale = useLocale();
   const number = (value: number) => new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(value);
   const dateTime = new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" });
   const date = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
   const { attendance } = overview;
-  const week = groupByDay(overview.schedule, WEEK);
   const typeLabel = (type: string) =>
     Object.hasOwn(evaluations.types, type) ? evaluations.types[type as keyof typeof evaluations.types] : type;
 
@@ -73,38 +70,11 @@ function WardDetails({ overview }: { overview: Overview }) {
       />
 
       <Section title={text.scheduleTitle}>
-        {week.length === 0 ? (
-          <p className={emptyBox}>{text.scheduleEmpty}</p>
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {week.map(({ day, classes }) => (
-              <section
-                key={day}
-                aria-label={days[day]}
-                className="rounded-2xl border border-line bg-surface p-4 shadow-card"
-              >
-                <h3 className="font-semibold">{days[day]}</h3>
-                <ul className="mt-3 flex flex-col gap-2.5">
-                  {classes.map((entry) => (
-                    <li key={`${entry.startMinute}:${entry.subjectName}`} className="flex gap-3 text-sm">
-                      <span className="w-24 shrink-0 font-mono text-xs leading-5 text-muted tabular-nums">
-                        {formatTime(entry.startMinute)}–{formatTime(entry.endMinute)}
-                      </span>
-                      <span className="min-w-0">
-                        <span className="block font-medium">{entry.subjectName}</span>
-                        <span className="block text-xs text-muted">
-                          {[entry.teacherName, entry.room && format(text.room, { room: entry.room })]
-                            .filter(Boolean)
-                            .join(" · ") || text.noTeacher}
-                        </span>
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            ))}
-          </div>
-        )}
+        <WeekTimetable
+          schedule={overview.schedule}
+          emptyText={text.scheduleEmpty}
+          labels={{ room: text.room, noTeacher: text.noTeacher }}
+        />
       </Section>
 
       <Section title={text.upcomingTitle}>

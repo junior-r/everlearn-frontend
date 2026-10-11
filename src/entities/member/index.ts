@@ -16,3 +16,25 @@ export interface Member {
 export function fetchMembers(institutionId: string): Promise<Member[]> {
   return apiClient.request<Member[]>("/members", { headers: forInstitution(institutionId) });
 }
+
+/** A member found by a search, with what tells two people of the same name apart. */
+export interface MemberMatch {
+  membershipId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  documentNumber: string | null;
+}
+
+/** A few members holding `role`, by name or document number. For the office (Institution Admin, Staff). */
+export function searchMembers(
+  institutionId: string,
+  role: Role,
+  query: string,
+  signal?: AbortSignal,
+): Promise<MemberMatch[]> {
+  return apiClient.request<MemberMatch[]>(`/members/search?${new URLSearchParams({ role, query })}`, {
+    headers: forInstitution(institutionId),
+    signal,
+  });
+}
