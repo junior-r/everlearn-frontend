@@ -42,7 +42,9 @@
     "institution": "Institution: {name}",
     "settings": "Profile settings",
     "changeInstitution": "Switch institution",
-    "account": "Your account"
+    "account": "Your account",
+    "progress": "My grades",
+    "calendar": "Evaluation calendar"
   },
   "classroom": {
     "myClasses": {
@@ -55,7 +57,9 @@
       "start": "Start class",
       "startFor": "Start the {subject} class",
       "enter": "Enter the class",
-      "enterFor": "Enter the {subject} class"
+      "enterFor": "Enter the {subject} class",
+      "evaluations": "Evaluations",
+      "evaluationsFor": "Evaluations of {subject}"
     },
     "heading": "{subject} · {group}",
     "preparing": "Preparing the class…",
@@ -95,6 +99,108 @@
     "captions": {
       "title": "Live captions",
       "empty": "Captions will appear when someone speaks."
+    }
+  },
+  "evaluations": {
+    "types": {
+      "EXAM": "Exam",
+      "QUIZ": "Quiz",
+      "ASSIGNMENT": "Assignment",
+      "PROJECT": "Project",
+      "PARTICIPATION": "Participation"
+    },
+    "backHome": "Back to home",
+    "noAccess": "This section is not available for your role in this institution.",
+    "course": {
+      "title": "Evaluations of {subject}",
+      "subtitle": "Group {group}. Create the subject's evaluations, publish them and record the grades."
+    },
+    "manage": {
+      "title": "Evaluations",
+      "empty": "This subject has no evaluations yet.",
+      "weightUsed": "Weight assigned: {used}% of 100%",
+      "new": "New evaluation",
+      "edit": "Edit",
+      "editing": "Edit evaluation",
+      "editFor": "Edit {title}",
+      "fields": {
+        "title": "Title",
+        "type": "Type",
+        "weight": "Weight (%)",
+        "maxScore": "Maximum score",
+        "dueAt": "Due date (optional)"
+      },
+      "create": "Create evaluation",
+      "save": "Save changes",
+      "cancel": "Cancel",
+      "publish": "Publish",
+      "publishFor": "Publish {title}",
+      "delete": "Delete",
+      "deleteFor": "Delete {title}",
+      "confirmDelete": "Delete “{title}”? This cannot be undone.",
+      "confirmDeleteYes": "Yes, delete",
+      "draft": "Draft",
+      "published": "Published",
+      "weight": "{weight}% of the subject",
+      "maxScore": "Maximum score: {maxScore}",
+      "due": "Due: {date}",
+      "noDue": "No due date",
+      "draftHint": "Students only see published evaluations."
+    },
+    "gradebook": {
+      "title": "Gradebook",
+      "caption": "Grades of {subject}, group {group}",
+      "student": "Student",
+      "average": "Average",
+      "noAverage": "No grades",
+      "columnHint": "{weight}% · out of {maxScore}",
+      "scoreFor": "Score of {student} in {evaluation}",
+      "feedbackFor": "Feedback for {student} in {evaluation}",
+      "feedbackPlaceholder": "Write a comment (optional)",
+      "feedbackHint": "The student will see this comment next to their grade. It is saved with “Save grades”.",
+      "feedbackNeedsScore": "A cell needs a score before it can have a comment.",
+      "closeFeedback": "Close",
+      "noEvaluations": "Publish an evaluation to start recording grades.",
+      "noStudents": "This group has no enrolled students yet.",
+      "save": "Save grades",
+      "saved": "Grades saved.",
+      "unsavedOne": "1 unsaved change",
+      "unsavedMany": "{count} unsaved changes",
+      "invalid": "Check the marked scores: they go from 0 to the maximum score, with two decimals at most."
+    },
+    "progress": {
+      "title": "My grades",
+      "subtitle": "Your subjects, their evaluations and your current average in each.",
+      "empty": "You are not enrolled in any subject yet.",
+      "group": "Group {name}",
+      "teacher": "Teacher: {name}",
+      "average": "Current average",
+      "noAverage": "No grades yet",
+      "gradedWeight": "Graded: {weight}% of the subject",
+      "noEvaluations": "Your teacher has not published any evaluations yet.",
+      "caption": "Evaluations of {subject}",
+      "columns": {
+        "evaluation": "Evaluation",
+        "weight": "Weight",
+        "due": "Due",
+        "score": "Score"
+      },
+      "score": "{score} / {maxScore}",
+      "pending": "Not graded",
+      "noDue": "No date",
+      "feedback": "Feedback: {feedback}"
+    },
+    "calendar": {
+      "title": "Evaluation calendar",
+      "subtitle": "The due dates of all your subjects.",
+      "previous": "Previous month",
+      "next": "Next month",
+      "today": "Today",
+      "caption": "Evaluations of {month}",
+      "agenda": "Due in {month}",
+      "empty": "No evaluations are due this month.",
+      "course": "{subject} · {group}",
+      "draft": "Draft"
     }
   },
   "onboarding": {
@@ -447,8 +553,16 @@
     "CLASS_SESSION_CLOSED": "This class has already ended.",
     "NOT_CLASS_PARTICIPANT": "Only the assigned teacher and the enrolled students may enter this class.",
     "COURSE_NOT_FOUND": "This group's subject was not found.",
-    "NOT_COURSE_TEACHER": "Only the teacher assigned to this subject may start its class.",
+    "NOT_COURSE_TEACHER": "Only the teacher assigned to this subject can do this.",
     "VIDEO_UNAVAILABLE": "Video classes are not available right now.",
-    "CHAT_NOT_SENT": "The message could not be sent. Try again."
+    "CHAT_NOT_SENT": "The message could not be sent. Try again.",
+    "EVALUATION_NOT_FOUND": "The evaluation was not found.",
+    "EVALUATION_WEIGHT_EXCEEDED": "The evaluations of a subject cannot add up to more than 100%. Lower the weight.",
+    "INVALID_EVALUATION": "Check the evaluation's data.",
+    "EVALUATION_HAS_GRADES": "The maximum score cannot change once grades have been recorded.",
+    "EVALUATION_NOT_PUBLISHED": "Publish the evaluation before recording grades.",
+    "EVALUATION_ALREADY_PUBLISHED": "Only a draft evaluation can be deleted.",
+    "SCORE_OUT_OF_RANGE": "A score must be between 0 and the evaluation's maximum score.",
+    "STUDENT_NOT_ENROLLED": "The student is no longer enrolled in this group. Reload the page."
   }
 }

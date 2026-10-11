@@ -24,7 +24,7 @@ A recognisable, colourful identity that also carries meaning: colour tells roles
 - **`shared/ui`:** `Mosaic`, `Logo`, `Badge`, `Avatar`, and the restyled `Button`, `TextField`, `SelectField`, `DataTable`, `ErrorNotice`, `CenteredCard` (card beside the ink brand panel).
 - **Meaning of colour:** `roleTone` and `statusTone` live in `entities/session`. In the timetable a subject's tone is its position in the group, so a group's subjects differ.
 - **Patterns:** `pattern-dots`, `pattern-stripes`, `pattern-ring` (drawn in `currentColor`), `pattern-fine-dots` (ink surfaces) and `pattern-hatch` (free or unavailable hours).
-- **Admin shell:** ink sidebar with icons; each page header carries a mosaic seeded by its title; `Section panel` frames a form as a card.
+- **Page frames:** `PageHeader` (a mosaic seeded by the title) and `Section` (`panel` frames a form as a card) live in `shared/ui`. The admin shell adds an ink sidebar with icons; `PortalShell` is the plain wide frame of Teacher and Student pages.
 
 ## Rules
 
@@ -36,4 +36,4 @@ A recognisable, colourful identity that also carries meaning: colour tells roles
 
 - No manual theme toggle: the theme follows the operating system.
 - The tables are restyled, not redesigned: long tables still scroll horizontally on phones.
-- The home screen of Teachers and Students is a welcome card with their classes; it has no timetable or grades yet.
+- The home screen of Teachers and Students is a welcome card with their classes and links; grades and the evaluation calendar live on their own pages (`PortalShell`), and there is no timetable view yet.

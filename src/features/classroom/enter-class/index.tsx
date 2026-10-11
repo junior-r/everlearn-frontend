@@ -4,6 +4,7 @@ import { ArrowRightIcon, BroadcastIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { useCallback, useEffect, useId } from "react";
 import { fetchMyCourses, startClassSession, type ClassroomCourse } from "@/entities/class-session";
+import { courseEvaluationsPath } from "@/entities/evaluation";
 import { errorMessage, format, localizedPath, useDictionary, useLocale, useLocalizedRouter } from "@/shared/i18n";
 import { useResource } from "@/shared/lib/use-resource";
 import { useSubmit } from "@/shared/lib/use-submit";
@@ -75,6 +76,15 @@ export function MyClasses({ institutionId }: { institutionId: string }) {
                     {course.role === "STUDENT" && teacher && ` · ${format(text.teacher, { name: teacher })}`}
                   </p>
                 </div>
+                {course.role === "TEACHER" && (
+                  <Link
+                    href={localizedPath(locale, courseEvaluationsPath(course.groupId, course.subject.id))}
+                    aria-label={format(text.evaluationsFor, { subject })}
+                    className={buttonClass("secondary", "sm")}
+                  >
+                    {text.evaluations}
+                  </Link>
+                )}
                 {course.openSessionId ? (
                   <Link
                     href={localizedPath(locale, classPath(course.openSessionId))}

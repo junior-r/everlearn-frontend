@@ -219,3 +219,33 @@ export async function completeOnboarding(
   await page.getByRole("button", { name: "Enviar para revisión" }).click();
   await expect(page.getByRole("heading", { name: "Solicitud enviada" })).toBeVisible();
 }
+
+/**
+ * A group ("1ro A") taking Matemática with an active Teacher, and two active
+ * Students: one enrolled in the group, the other (`outsider`) not.
+ */
+export async function createCourse(playwright: Playwright) {
+  const institution = await createInstitution(playwright);
+  const teacher = await institution.registerActive("TEACHER", { firstName: "Alan", lastName: "Turing" });
+  const student = await institution.registerActive("STUDENT", { firstName: "Grace", lastName: "Hopper" });
+  const outsider = await institution.registerActive("STUDENT", { firstName: "Linus", lastName: "Pauling" });
+  const pensum = await institution.api<{ id: string }>("/pensums", { code: "BACH", name: "Bachillerato" });
+  const period = await institution.api<{ id: string }>("/periods", {
+    name: "2026-2027",
+    startDate: "2026-09-15",
+    endDate: "2027-07-15",
+  });
+  const subject = await institution.api<{ id: string }>("/subjects", { code: "MAT-1", name: "Matemática" });
+  await institution.apiPut(`/pensums/${pensum.id}/subjects/${subject.id}`, { level: 1, weeklyHours: 4 });
+  const group = await institution.api<{ id: string }>("/groups", {
+    name: "1ro A",
+    level: 1,
+    pensumId: pensum.id,
+    periodId: period.id,
+  });
+  await institution.apiPut(`/groups/${group.id}/courses/${subject.id}`, {
+    teacherMembershipId: teacher.membershipId,
+  });
+  await institution.api(`/groups/${group.id}/students`, { membershipId: student.membershipId });
+  return { institution, teacher, student, outsider, groupId: group.id, subjectId: subject.id };
+}

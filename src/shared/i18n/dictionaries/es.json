@@ -42,7 +42,9 @@
     "institution": "Institución: {name}",
     "settings": "Configuración de perfil",
     "changeInstitution": "Cambiar de institución",
-    "account": "Tu cuenta"
+    "account": "Tu cuenta",
+    "progress": "Mis notas",
+    "calendar": "Calendario de evaluaciones"
   },
   "classroom": {
     "myClasses": {
@@ -55,7 +57,9 @@
       "start": "Iniciar clase",
       "startFor": "Iniciar clase de {subject}",
       "enter": "Entrar a la clase",
-      "enterFor": "Entrar a la clase de {subject}"
+      "enterFor": "Entrar a la clase de {subject}",
+      "evaluations": "Evaluaciones",
+      "evaluationsFor": "Evaluaciones de {subject}"
     },
     "heading": "{subject} · {group}",
     "preparing": "Preparando la clase…",
@@ -95,6 +99,108 @@
     "captions": {
       "title": "Subtítulos en vivo",
       "empty": "Los subtítulos aparecerán cuando alguien hable."
+    }
+  },
+  "evaluations": {
+    "types": {
+      "EXAM": "Examen",
+      "QUIZ": "Prueba corta",
+      "ASSIGNMENT": "Tarea",
+      "PROJECT": "Proyecto",
+      "PARTICIPATION": "Participación"
+    },
+    "backHome": "Volver al inicio",
+    "noAccess": "Esta sección no está disponible para tu rol en esta institución.",
+    "course": {
+      "title": "Evaluaciones de {subject}",
+      "subtitle": "Grupo {group}. Crea las evaluaciones de la materia, publícalas y registra las notas."
+    },
+    "manage": {
+      "title": "Evaluaciones",
+      "empty": "Todavía no hay evaluaciones en esta materia.",
+      "weightUsed": "Peso asignado: {used}% de 100%",
+      "new": "Nueva evaluación",
+      "edit": "Editar",
+      "editing": "Editar evaluación",
+      "editFor": "Editar {title}",
+      "fields": {
+        "title": "Título",
+        "type": "Tipo",
+        "weight": "Peso (%)",
+        "maxScore": "Nota máxima",
+        "dueAt": "Fecha de entrega (opcional)"
+      },
+      "create": "Crear evaluación",
+      "save": "Guardar cambios",
+      "cancel": "Cancelar",
+      "publish": "Publicar",
+      "publishFor": "Publicar {title}",
+      "delete": "Eliminar",
+      "deleteFor": "Eliminar {title}",
+      "confirmDelete": "¿Eliminar «{title}»? Esta acción no se puede deshacer.",
+      "confirmDeleteYes": "Sí, eliminar",
+      "draft": "Borrador",
+      "published": "Publicada",
+      "weight": "{weight}% de la materia",
+      "maxScore": "Nota máxima: {maxScore}",
+      "due": "Entrega: {date}",
+      "noDue": "Sin fecha de entrega",
+      "draftHint": "Los estudiantes solo ven las evaluaciones publicadas."
+    },
+    "gradebook": {
+      "title": "Libro de notas",
+      "caption": "Notas de {subject}, grupo {group}",
+      "student": "Estudiante",
+      "average": "Promedio",
+      "noAverage": "Sin notas",
+      "columnHint": "{weight}% · sobre {maxScore}",
+      "scoreFor": "Nota de {student} en {evaluation}",
+      "feedbackFor": "Comentario para {student} en {evaluation}",
+      "feedbackPlaceholder": "Escribe un comentario (opcional)",
+      "feedbackHint": "El estudiante verá este comentario junto a su nota. Se guarda con «Guardar notas».",
+      "feedbackNeedsScore": "Para dejar un comentario, la celda debe tener una nota.",
+      "closeFeedback": "Cerrar",
+      "noEvaluations": "Publica una evaluación para empezar a registrar notas.",
+      "noStudents": "Este grupo todavía no tiene estudiantes inscritos.",
+      "save": "Guardar notas",
+      "saved": "Notas guardadas.",
+      "unsavedOne": "1 cambio sin guardar",
+      "unsavedMany": "{count} cambios sin guardar",
+      "invalid": "Revisa las notas marcadas: van de 0 a la nota máxima, con dos decimales como mucho."
+    },
+    "progress": {
+      "title": "Mis notas",
+      "subtitle": "Tus materias, sus evaluaciones y tu promedio actual en cada una.",
+      "empty": "Todavía no estás inscrito en ninguna materia.",
+      "group": "Grupo {name}",
+      "teacher": "Docente: {name}",
+      "average": "Promedio actual",
+      "noAverage": "Aún sin notas",
+      "gradedWeight": "Evaluado: {weight}% de la materia",
+      "noEvaluations": "Tu docente todavía no ha publicado evaluaciones.",
+      "caption": "Evaluaciones de {subject}",
+      "columns": {
+        "evaluation": "Evaluación",
+        "weight": "Peso",
+        "due": "Entrega",
+        "score": "Nota"
+      },
+      "score": "{score} / {maxScore}",
+      "pending": "Sin calificar",
+      "noDue": "Sin fecha",
+      "feedback": "Comentario: {feedback}"
+    },
+    "calendar": {
+      "title": "Calendario de evaluaciones",
+      "subtitle": "Las fechas de entrega de todas tus materias.",
+      "previous": "Mes anterior",
+      "next": "Mes siguiente",
+      "today": "Hoy",
+      "caption": "Evaluaciones de {month}",
+      "agenda": "Entregas de {month}",
+      "empty": "No hay evaluaciones con fecha de entrega este mes.",
+      "course": "{subject} · {group}",
+      "draft": "Borrador"
     }
   },
   "onboarding": {
@@ -447,8 +553,16 @@
     "CLASS_SESSION_CLOSED": "Esta clase ya terminó.",
     "NOT_CLASS_PARTICIPANT": "Solo el docente asignado y los estudiantes inscritos pueden entrar a esta clase.",
     "COURSE_NOT_FOUND": "No se encontró la materia de este grupo.",
-    "NOT_COURSE_TEACHER": "Solo el docente asignado a esta materia puede iniciar su clase.",
+    "NOT_COURSE_TEACHER": "Solo el docente asignado a esta materia puede hacer esto.",
     "VIDEO_UNAVAILABLE": "Las clases por video no están disponibles en este momento.",
-    "CHAT_NOT_SENT": "No se pudo enviar el mensaje. Inténtalo de nuevo."
+    "CHAT_NOT_SENT": "No se pudo enviar el mensaje. Inténtalo de nuevo.",
+    "EVALUATION_NOT_FOUND": "No se encontró la evaluación.",
+    "EVALUATION_WEIGHT_EXCEEDED": "Las evaluaciones de una materia no pueden sumar más de 100%. Reduce el peso.",
+    "INVALID_EVALUATION": "Revisa los datos de la evaluación.",
+    "EVALUATION_HAS_GRADES": "La nota máxima no puede cambiar cuando ya hay notas registradas.",
+    "EVALUATION_NOT_PUBLISHED": "Publica la evaluación antes de registrar notas.",
+    "EVALUATION_ALREADY_PUBLISHED": "Solo se puede eliminar una evaluación en borrador.",
+    "SCORE_OUT_OF_RANGE": "Una nota debe estar entre 0 y la nota máxima de la evaluación.",
+    "STUDENT_NOT_ENROLLED": "El estudiante ya no está inscrito en este grupo. Recarga la página."
   }
 }

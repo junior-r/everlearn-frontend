@@ -7,5 +7,6 @@ export type { Column } from "./DataTable";
 export { ErrorNotice } from "./ErrorNotice";
 export { Logo } from "./Logo";
 export { Mosaic } from "./Mosaic";
+export { PageHeader, Section } from "./Section";
 export { SelectField } from "./SelectField";
 export { TextField } from "./TextField";

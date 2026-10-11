@@ -1,37 +1,8 @@
-import { expect, test, type Browser, type Page, type PlaywrightWorkerArgs } from "@playwright/test";
-import { API_URL, createInstitution, signIn } from "./support";
+import { expect, test, type Browser, type Page } from "@playwright/test";
+import { API_URL, createCourse, signIn } from "./support";
 
 // Needs the whole stack: `docker compose up -d postgres redis livekit ocr-server video-server backend`
 test.describe.configure({ mode: "serial" });
-
-type Institution = Awaited<ReturnType<typeof createInstitution>>;
-
-/** A group taking Matemática with an active Teacher, and two active Students, one of them enrolled. */
-async function createClass(playwright: PlaywrightWorkerArgs["playwright"]) {
-  const institution: Institution = await createInstitution(playwright);
-  const teacher = await institution.registerActive("TEACHER", { firstName: "Alan", lastName: "Turing" });
-  const student = await institution.registerActive("STUDENT", { firstName: "Grace", lastName: "Hopper" });
-  const outsider = await institution.registerActive("STUDENT", { firstName: "Linus", lastName: "Pauling" });
-  const pensum = await institution.api<{ id: string }>("/pensums", { code: "BACH", name: "Bachillerato" });
-  const period = await institution.api<{ id: string }>("/periods", {
-    name: "2026-2027",
-    startDate: "2026-09-15",
-    endDate: "2027-07-15",
-  });
-  const subject = await institution.api<{ id: string }>("/subjects", { code: "MAT-1", name: "Matemática" });
-  await institution.apiPut(`/pensums/${pensum.id}/subjects/${subject.id}`, { level: 1, weeklyHours: 4 });
-  const group = await institution.api<{ id: string }>("/groups", {
-    name: "1ro A",
-    level: 1,
-    pensumId: pensum.id,
-    periodId: period.id,
-  });
-  await institution.apiPut(`/groups/${group.id}/courses/${subject.id}`, {
-    teacherMembershipId: teacher.membershipId,
-  });
-  await institution.api(`/groups/${group.id}/students`, { membershipId: student.membershipId });
-  return { institution, teacher, student, outsider };
-}
 
 /** A second person: their own browser context, so their session and devices are separate. */
 async function openAs(browser: Browser, email: string, password: string): Promise<Page> {
@@ -56,7 +27,7 @@ test("a Teacher starts a class, a Student joins, and they share video, chat and 
   playwright,
 }) => {
   test.setTimeout(120_000);
-  const { institution, teacher, student } = await createClass(playwright);
+  const { institution, teacher, student } = await createCourse(playwright);
 
   // The Student sees the subject, but there is no class to enter yet
   const studentPage = await openAs(browser, student.email, student.password);
@@ -109,7 +80,7 @@ test("a Teacher starts a class, a Student joins, and they share video, chat and 
 
 test("a Student who is not enrolled cannot enter, and the page says why", async ({ page, browser, playwright }) => {
   test.setTimeout(90_000);
-  const { institution, teacher, outsider } = await createClass(playwright);
+  const { institution, teacher, outsider } = await createCourse(playwright);
   const teacherPage = await openAs(browser, teacher.email, teacher.password);
   await teacherPage.getByRole("button", { name: "Iniciar clase de Matemática" }).click();
   await expect(teacherPage).toHaveURL(/\/es\/class\/[0-9a-f-]{36}$/);
@@ -142,7 +113,7 @@ test("a Student who is not enrolled cannot enter, and the page says why", async 
 });
 
 test("a class that does not exist is reported, not left loading", async ({ page, playwright }) => {
-  const { institution, teacher } = await createClass(playwright);
+  const { institution, teacher } = await createCourse(playwright);
   await signIn(page, teacher.email, teacher.password);
   await expect(page.getByRole("region", { name: "Mis clases" })).toBeVisible();
 

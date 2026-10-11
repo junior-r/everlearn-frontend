@@ -1,6 +1,12 @@
 "use client";
 
-import { ArrowRightIcon, BuildingsIcon, GearSixIcon } from "@phosphor-icons/react/dist/ssr";
+import {
+  ArrowRightIcon,
+  BuildingsIcon,
+  CalendarDotsIcon,
+  ChartBarIcon,
+  GearSixIcon,
+} from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
 import { useEffect } from "react";
 import { useActiveInstitution } from "@/entities/institution";
@@ -44,6 +50,8 @@ export function HomePage() {
     return <PageStatus>{common.loading}</PageStatus>;
   }
 
+  const isStudent = institution.roles.includes("STUDENT");
+  const takesClasses = isStudent || institution.roles.includes("TEACHER");
   const linkClass =
     "group flex items-center gap-3 rounded-2xl border border-line bg-surface px-4 py-3.5 text-sm font-medium transition duration-150 hover:border-brand/60 hover:bg-brand-soft active:scale-[0.99] focus-visible:outline-2 focus-visible:outline-brand";
   const arrow = (
@@ -76,10 +84,22 @@ export function HomePage() {
           </p>
         </div>
       )}
-      {institution.active && institution.roles.some((role) => role === "TEACHER" || role === "STUDENT") && (
-        <MyClasses institutionId={institution.active.id} />
-      )}
+      {institution.active && takesClasses && <MyClasses institutionId={institution.active.id} />}
       <nav aria-label={home.account} className="mt-4 flex flex-col gap-2">
+        {isStudent && (
+          <Link href={localizedPath(locale, "/progress")} className={linkClass}>
+            <ChartBarIcon aria-hidden className="size-5 text-muted" />
+            {home.progress}
+            {arrow}
+          </Link>
+        )}
+        {takesClasses && (
+          <Link href={localizedPath(locale, "/calendar")} className={linkClass}>
+            <CalendarDotsIcon aria-hidden className="size-5 text-muted" />
+            {home.calendar}
+            {arrow}
+          </Link>
+        )}
         {institution.institutions.length > 1 && (
           <Link href={localizedPath(locale, "/select-institution")} className={linkClass}>
             <BuildingsIcon aria-hidden className="size-5 text-muted" />
