@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { fetchPeriods } from "@/entities/group";
-import { fetchMembers } from "@/entities/member";
+import { MemberPicker, type MemberMatch } from "@/entities/member";
 import { AvailabilityEditor } from "@/features/scheduling/edit-availability";
 import { errorMessage, useDictionary } from "@/shared/i18n";
 import { useResource } from "@/shared/lib/use-resource";
@@ -12,42 +12,35 @@ import { AdminPage, WithActiveInstitution } from "@/widgets/admin-shell";
 function Availability({ institutionId }: { institutionId: string }) {
   const { admin, common, errors } = useDictionary();
   const text = admin.availability;
-  const members = useResource(useCallback(() => fetchMembers(institutionId), [institutionId]));
   const periods = useResource(useCallback(() => fetchPeriods(institutionId), [institutionId]));
-  const [teacherId, setTeacherId] = useState("");
+  // No Teacher is chosen for the admin: an institution has too many to list, so one is searched for
+  const [teacher, setTeacher] = useState<MemberMatch | null>(null);
   const [periodId, setPeriodId] = useState("");
 
-  if (members.data === null || periods.data === null) {
-    const error = members.error ?? periods.error;
-    return error ? (
-      <ErrorNotice message={errorMessage(errors, error)} />
+  if (periods.data === null) {
+    return periods.error ? (
+      <ErrorNotice message={errorMessage(errors, periods.error)} />
     ) : (
       <p className="text-sm text-muted">{common.loading}</p>
     );
   }
 
-  const teachers = members.data.filter(
-    (member) => member.role === "TEACHER" && member.isActive && member.status === "ACTIVE",
-  );
-  // Fall back to the first choice, so each select and the editor always agree
-  const teacher = teachers.find((member) => member.membershipId === teacherId) ?? teachers[0];
+  // Fall back to the first period, so the select and the editor always agree
   const period = periods.data.find((candidate) => candidate.id === periodId) ?? periods.data[0];
-  if (!teacher || !period) {
+  if (!period) {
     return <p className="text-sm text-muted">{text.needsSetup}</p>;
   }
 
-  const teacherName = `${teacher.firstName} ${teacher.lastName}`;
   return (
     <>
       <div className="grid max-w-2xl gap-4 sm:grid-cols-2">
-        <SelectField
+        <MemberPicker
+          institutionId={institutionId}
+          role="TEACHER"
+          activeOnly
           label={text.teacher}
-          value={teacher.membershipId}
-          onChange={(event) => setTeacherId(event.target.value)}
-          options={teachers.map((member) => ({
-            value: member.membershipId,
-            label: `${member.firstName} ${member.lastName}`,
-          }))}
+          value={teacher}
+          onChange={setTeacher}
         />
         <SelectField
           label={text.period}
@@ -56,13 +49,17 @@ function Availability({ institutionId }: { institutionId: string }) {
           options={periods.data.map((candidate) => ({ value: candidate.id, label: candidate.name }))}
         />
       </div>
-      <AvailabilityEditor
-        // Unsaved changes belong to one teacher and period, so switching starts afresh
-        key={`${teacher.membershipId}:${period.id}`}
-        institutionId={institutionId}
-        teacher={{ membershipId: teacher.membershipId, name: teacherName }}
-        periodId={period.id}
-      />
+      {teacher ? (
+        <AvailabilityEditor
+          // Unsaved changes belong to one teacher and period, so switching starts afresh
+          key={`${teacher.membershipId}:${period.id}`}
+          institutionId={institutionId}
+          teacher={{ membershipId: teacher.membershipId, name: `${teacher.firstName} ${teacher.lastName}` }}
+          periodId={period.id}
+        />
+      ) : (
+        <p className="text-sm text-muted">{text.pickTeacher}</p>
+      )}
     </>
   );
 }

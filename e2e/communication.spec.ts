@@ -282,3 +282,61 @@ test("on a phone nothing covers the field to write a message", async ({ browser,
   await context.close();
   await institution.dispose();
 });
+
+test("a Teacher takes the roll of a class given without video, and the Guardian hears of the absence", async ({
+  page,
+  browser,
+  playwright,
+}) => {
+  const { institution, teacher, student } = await createCourse(playwright);
+  const guardian = await institution.registerActive("GUARDIAN", { firstName: "Gina", lastName: "Rometty" });
+  await institution.apiPut("/guardian-links", {
+    studentMembershipId: student.membershipId,
+    guardianMembershipId: guardian.membershipId,
+    relationship: "MOTHER",
+  });
+
+  await signIn(page, teacher.email, teacher.password);
+  await page.getByRole("link", { name: "Asistencia de Matemática" }).click();
+  await expect(page).toHaveURL(/\/es\/courses\/[0-9a-f-]{36}\/[0-9a-f-]{36}\/attendance$/);
+  await expect(page.getByRole("heading", { name: "Asistencia de Matemática" })).toBeVisible();
+  const classes = page.getByRole("region", { name: "Clases" });
+  await expect(classes).toContainText("Todavía no hay clases en esta materia.");
+
+  // The class was given in the classroom: it is recorded, and its roll opens
+  await page.getByRole("form", { name: "Registrar una clase sin video" }).getByRole("button", { name: "Registrar clase" }).click();
+  const recorded = classes.getByRole("button", { name: /^Clase del / });
+  await expect(recorded).toHaveCount(1);
+  await expect(recorded).toHaveAttribute("aria-pressed", "true");
+  await expect(recorded).toContainText("Sin asistencia");
+  const roll = page.getByRole("form", { name: /^Lista del / });
+  const grace = roll.getByRole("radiogroup", { name: "Grace Hopper" });
+  const save = roll.getByRole("button", { name: "Guardar asistencia" });
+  await expect(grace.getByRole("radio", { checked: true })).toHaveCount(0);
+  await expect(save).toBeDisabled();
+
+  await roll.getByRole("button", { name: "Marcar al resto como presentes" }).click();
+  await expect(grace.getByRole("radio", { name: "Presente" })).toBeChecked();
+  await grace.getByRole("radio", { name: "Ausente" }).check();
+  await save.click();
+  await expect(roll.getByRole("status")).toHaveText("Asistencia guardada.");
+  await expect(recorded).toContainText("1 con asistencia");
+  await expect(save).toBeDisabled();
+
+  // It was stored, not just drawn
+  await page.reload();
+  await expect(
+    page.getByRole("form", { name: /^Lista del / }).getByRole("radiogroup", { name: "Grace Hopper" }).getByRole("radio", { name: "Ausente" }),
+  ).toBeChecked();
+
+  // Her Guardian is told, and the notice opens the portal on her
+  const guardianPage = await openAs(browser, guardian.email, guardian.password);
+  await expect(guardianPage.getByRole("tab", { name: /Grace Hopper/ })).toBeVisible();
+  await bell(guardianPage).click();
+  const notice = notices(guardianPage).getByRole("button", { name: /Grace Hopper no asistió a clase/ });
+  await expect(notice).toContainText("Matemática");
+  await notice.click();
+  await expect(guardianPage).toHaveURL(`/es/guardian?ward=${student.membershipId}`);
+  await guardianPage.context().close();
+  await institution.dispose();
+});

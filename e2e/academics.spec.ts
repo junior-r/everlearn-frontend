@@ -103,29 +103,51 @@ test("an Institution Admin creates a group, assigns a Teacher to a subject and e
 
   // The new group opens with the subjects of its pensum level, none assigned
   const courses = page.getByRole("region", { name: "Materias y docentes de 1ro A" });
-  const teacherSelect = courses.getByRole("combobox", { name: "Docente de Matemática" });
-  await expect(teacherSelect).toHaveValue("");
-  // Only active Teachers are offered
-  await expect(teacherSelect.locator("option")).toHaveText(["Sin asignar", "Alan Turing"]);
-  await teacherSelect.selectOption({ label: "Alan Turing" });
-  await expect(teacherSelect).toHaveValue(teacher.membershipId);
+  const mathRow = courses.getByRole("row", { name: /Matemática/ });
+  await expect(mathRow).toContainText("Sin asignar");
+  // Nobody is listed until a Teacher is searched for, and only active Teachers are found
+  const assign = courses.getByRole("form", { name: "Asignar docente" });
+  await expect(assign.getByRole("button", { name: "Asignar" })).toBeDisabled();
+  const teacherField = assign.getByRole("combobox", { name: "Docente", exact: true });
+  await teacherField.fill("todavia");
+  await expect(assign.getByRole("status").filter({ visible: true })).toHaveText("Nadie coincide con la búsqueda.");
+  await teacherField.fill("turing");
+  // The subject select has options of its own, so the matches are read from the Teacher's list
+  await expect(assign.getByRole("listbox", { name: "Docente" }).getByRole("option")).toHaveText([
+    new RegExp(`Alan Turing.*${teacher.email}`),
+  ]);
+  await assign.getByRole("option", { name: /Alan Turing/ }).click();
+  await expect(teacherField).toHaveValue("Alan Turing");
+  await assign.getByRole("button", { name: "Asignar" }).click();
+  await expect(mathRow).toContainText("Alan Turing");
+  await expect(teacherField).toHaveValue("");
 
   const students = page.getByRole("region", { name: "Estudiantes de 1ro A" });
   await expect(students.getByText("Aún no hay estudiantes inscritos.")).toBeVisible();
   const enroll = students.getByRole("form", { name: "Inscribir estudiante" });
-  // The pending Student is not offered; only the approved one
-  await expect(enroll.getByLabel("Estudiante").locator("option")).toHaveText([
-    `Grace Hopper · ${student.email}`,
-  ]);
+  const studentField = enroll.getByRole("combobox", { name: "Estudiante" });
+  // The pending Student is not found; only the approved one
+  await studentField.fill("pendiente");
+  await expect(enroll.getByRole("status").filter({ visible: true })).toHaveText("Nadie coincide con la búsqueda.");
+  await studentField.fill("hopper");
+  await enroll.getByRole("option", { name: /Grace Hopper/ }).click();
   await enroll.getByRole("button", { name: "Inscribir" }).click();
   await expect(students.getByRole("row", { name: /Grace Hopper/ })).toContainText(student.email);
   await expect(groupRow).toContainText("1 / 1");
+  // Whoever is already in the group is not offered again
+  await studentField.fill("hopper");
+  await expect(enroll.getByRole("status").filter({ visible: true })).toHaveText("Nadie coincide con la búsqueda.");
 
   // Everything was saved: a reload shows the same teacher and student
   await page.reload();
   await page.getByRole("row", { name: /1ro A/ }).getByRole("button", { name: /Gestionar/ }).click();
-  await expect(page.getByRole("combobox", { name: "Docente de Matemática" })).toHaveValue(teacher.membershipId);
+  const savedRow = page.getByRole("region", { name: "Materias y docentes de 1ro A" }).getByRole("row", { name: /Matemática/ });
+  await expect(savedRow).toContainText("Alan Turing");
   await expect(page.getByRole("region", { name: "Estudiantes de 1ro A" }).getByRole("row", { name: /Grace Hopper/ })).toBeVisible();
+
+  // The Teacher can be taken off the subject again
+  await savedRow.getByRole("button", { name: "Quitar docente de Matemática" }).click();
+  await expect(savedRow).toContainText("Sin asignar");
 
   await page.getByRole("region", { name: "Estudiantes de 1ro A" }).getByRole("button", { name: /Retirar/ }).click();
   await expect(page.getByRole("region", { name: "Estudiantes de 1ro A" }).getByText("Aún no hay estudiantes inscritos.")).toBeVisible();

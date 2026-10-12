@@ -10,11 +10,11 @@ import {
   type GuardianLink,
   type GuardianRelationship,
 } from "@/entities/guardian";
-import { searchMembers, type MemberMatch } from "@/entities/member";
+import { MemberPicker, type MemberMatch } from "@/entities/member";
 import { errorMessage, format, useDictionary } from "@/shared/i18n";
 import { useResource } from "@/shared/lib/use-resource";
 import { useSubmit } from "@/shared/lib/use-submit";
-import { Autocomplete, Button, DataTable, ErrorNotice, SelectField, type Column } from "@/shared/ui";
+import { Button, DataTable, ErrorNotice, SelectField, type Column } from "@/shared/ui";
 
 const fullName = (person: { firstName: string; lastName: string }) => `${person.firstName} ${person.lastName}`;
 
@@ -31,14 +31,6 @@ export function GuardianLinks({ institutionId }: { institutionId: string }) {
   const [guardian, setGuardian] = useState<MemberMatch | null>(null);
   const [student, setStudent] = useState<MemberMatch | null>(null);
   const [relationship, setRelationship] = useState<GuardianRelationship>("MOTHER");
-  const findGuardians = useCallback(
-    (query: string, signal: AbortSignal) => searchMembers(institutionId, "GUARDIAN", query, signal),
-    [institutionId],
-  );
-  const findStudents = useCallback(
-    (query: string, signal: AbortSignal) => searchMembers(institutionId, "STUDENT", query, signal),
-    [institutionId],
-  );
   const save = useCallback(
     (body: Parameters<typeof linkGuardian>[1]) => linkGuardian(institutionId, body),
     [institutionId],
@@ -46,17 +38,6 @@ export function GuardianLinks({ institutionId }: { institutionId: string }) {
   const linking = useSubmit(save);
   const remove = useCallback((id: string) => unlinkGuardian(institutionId, id).then(() => true), [institutionId]);
   const unlinking = useSubmit(remove);
-  const detail = (member: MemberMatch) =>
-    [member.email, member.documentNumber && format(text.search.document, { number: member.documentNumber })]
-      .filter(Boolean)
-      .join(" · ");
-  const picker = {
-    placeholder: text.search.placeholder,
-    getKey: (member: MemberMatch) => member.membershipId,
-    getLabel: fullName,
-    getDetail: detail,
-    messages: text.search,
-  };
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -116,8 +97,8 @@ export function GuardianLinks({ institutionId }: { institutionId: string }) {
         aria-label={text.linkTitle}
         className="grid max-w-4xl items-end gap-3 rounded-2xl border border-line bg-surface p-5 shadow-card sm:grid-cols-2 lg:grid-cols-[1fr_1fr_12rem_auto]"
       >
-        <Autocomplete<MemberMatch> {...picker} label={text.guardian} value={guardian} onChange={setGuardian} search={findGuardians} />
-        <Autocomplete<MemberMatch> {...picker} label={text.student} value={student} onChange={setStudent} search={findStudents} />
+        <MemberPicker institutionId={institutionId} role="GUARDIAN" label={text.guardian} value={guardian} onChange={setGuardian} />
+        <MemberPicker institutionId={institutionId} role="STUDENT" label={text.student} value={student} onChange={setStudent} />
         <SelectField
           label={text.relationship}
           value={relationship}

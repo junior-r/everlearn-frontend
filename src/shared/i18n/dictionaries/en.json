@@ -78,7 +78,9 @@
       "enter": "Enter the class",
       "enterFor": "Enter the {subject} class",
       "evaluations": "Evaluations",
-      "evaluationsFor": "Evaluations of {subject}"
+      "evaluationsFor": "Evaluations of {subject}",
+      "attendance": "Attendance",
+      "attendanceFor": "Attendance of {subject}"
     },
     "heading": "{subject} · {group}",
     "preparing": "Preparing the class…",
@@ -118,6 +120,33 @@
     "captions": {
       "title": "Live captions",
       "empty": "Captions will appear when someone speaks."
+    },
+    "attendance": {
+      "fallbackTitle": "Attendance",
+      "title": "Attendance of {subject}",
+      "subtitle": "Group {group}. Take the roll of each class; guardians are told about absences and late arrivals.",
+      "sessionsTitle": "Classes",
+      "noSessions": "This subject has no classes yet. Record one to take its roll.",
+      "sessionFor": "Class of {date}",
+      "marked": "{count} with attendance",
+      "unmarked": "No attendance",
+      "open": "In progress",
+      "heldTitle": "Record a class without video",
+      "heldHint": "If you gave the class in the classroom, record it here to take its roll.",
+      "heldAt": "Date and time of the class",
+      "record": "Record class",
+      "sheetTitle": "Roll of {date}",
+      "noStudents": "This group has no enrolled students.",
+      "statuses": {
+        "PRESENT": "Present",
+        "LATE": "Late",
+        "ABSENT": "Absent",
+        "EXCUSED": "Excused"
+      },
+      "automatic": "Automatic",
+      "markRest": "Mark the rest as present",
+      "save": "Save attendance",
+      "saved": "Attendance saved."
     }
   },
   "evaluations": {
@@ -616,14 +645,6 @@
         "GRANDPARENT": "Grandparent",
         "SIBLING": "Sibling",
         "OTHER": "Other"
-      },
-      "search": {
-        "placeholder": "Name or document number",
-        "hint": "Type at least 2 letters of the name or the document number.",
-        "searching": "Searching…",
-        "empty": "Nobody matches the search.",
-        "failed": "The search failed. Try again.",
-        "document": "Document {number}"
       }
     },
     "institutions": {
@@ -751,7 +772,6 @@
       "subject": "Subject",
       "weeklyHours": "Weekly hours",
       "teacher": "Teacher",
-      "teacherFor": "Teacher of {subject}",
       "unassigned": "Unassigned",
       "studentsTitle": "Students of {name}",
       "noStudents": "No students are enrolled yet.",
@@ -759,7 +779,11 @@
       "enroll": "Enroll",
       "enrollTitle": "Enroll a student",
       "remove": "Remove",
-      "noCapacity": "No limit"
+      "noCapacity": "No limit",
+      "assignTitle": "Assign a teacher",
+      "assign": "Assign",
+      "unassign": "Remove",
+      "unassignFor": "Remove the teacher of {subject}"
     },
     "platform": {
       "mode": "Platform",
@@ -773,14 +797,15 @@
       "subtitle": "Set the hours each teacher can teach during a period.",
       "teacher": "Teacher",
       "period": "Period",
-      "needsSetup": "You need at least one active teacher and one academic period.",
+      "needsSetup": "Create at least one academic period to set availability.",
       "caption": "Availability of {name}",
       "hint": "Click the hours they can teach. They are saved when you press the button.",
       "hour": "Time",
       "available": "available",
       "unavailable": "not available",
       "save": "Save availability",
-      "saved": "Availability saved."
+      "saved": "Availability saved.",
+      "pickTeacher": "Search for a teacher to see and edit their availability."
     },
     "schedule": {
       "title": "Timetables",
@@ -801,6 +826,14 @@
       "cancel": "Cancel",
       "remove": "Remove",
       "noCourses": "Assign teachers to the group's subjects before scheduling classes."
+    },
+    "memberSearch": {
+      "placeholder": "Name or document number",
+      "hint": "Type at least 2 letters of the name or the document number.",
+      "searching": "Searching…",
+      "empty": "Nobody matches the search.",
+      "failed": "The search failed. Try again.",
+      "document": "Document {number}"
     }
   },
   "institutionSelector": {
@@ -922,6 +955,8 @@
     "ASSISTANT_UNAVAILABLE": "The assistant is not available right now. Try again later.",
     "INVALID_CONVERSATION": "The question could not be sent. Start a new conversation.",
     "SCORE_OUT_OF_RANGE": "A score must be between 0 and the evaluation's maximum score.",
-    "STUDENT_NOT_ENROLLED": "The student is no longer enrolled in this group. Reload the page."
+    "STUDENT_NOT_ENROLLED": "The student is no longer enrolled in this group. Reload the page.",
+    "CLASS_NOT_HELD_YET": "You can only record a class that has already been held.",
+    "STUDENT_NOT_IN_CLASS": "The roll can only be taken for students enrolled in the class."
   }
 }

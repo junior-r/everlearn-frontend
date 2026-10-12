@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useState, type FormEvent } from "react";
+import { useCallback, useMemo, useState, type FormEvent } from "react";
 import type { AcademicPeriod, Group, GroupCourse } from "@/entities/group";
-import type { Member } from "@/entities/member";
+import { MemberPicker, type MemberMatch } from "@/entities/member";
 import type { Pensum } from "@/entities/pensum";
 import { apiClient, forInstitution } from "@/shared/api";
 import { errorMessage, format, useDictionary } from "@/shared/i18n";
@@ -177,21 +177,23 @@ export function CreateGroupForm({ institutionId, pensums, periods, onCreated }: 
 
 interface GroupEditorProps {
   group: Group;
-  /** Every member of the institution; only active Teachers and Students are offered. */
-  members: Member[];
   onChanged(): void;
 }
 
-const isActive = (member: Member) => member.isActive && member.status === "ACTIVE";
-
-/** The group's subjects, each with a select to choose which Teacher gives it. */
-export function GroupCoursesEditor({ group, members, onChanged }: GroupEditorProps) {
+/**
+ * The group's subjects with the Teacher who gives each, and the form to assign
+ * one. The Teacher is found by searching; only active Teachers are offered.
+ */
+export function GroupCoursesEditor({ group, onChanged }: GroupEditorProps) {
   const { admin, errors } = useDictionary();
   const text = admin.groups;
-  const teachers = members.filter((member) => member.role === "TEACHER" && isActive(member));
+  const [subjectId, setSubjectId] = useState("");
+  const [teacher, setTeacher] = useState<MemberMatch | null>(null);
+  // Fall back to the first subject, so the select and the request always agree
+  const chosenSubject = group.courses.find((course) => course.subjectId === subjectId) ?? group.courses[0];
   const assign = useCallback(
-    (subjectId: string, teacherMembershipId: string | null) =>
-      apiClient.request<Group>(`/groups/${group.id}/courses/${subjectId}`, {
+    (subject: string, teacherMembershipId: string | null) =>
+      apiClient.request<Group>(`/groups/${group.id}/courses/${subject}`, {
         method: "PUT",
         body: { teacherMembershipId },
         headers: forInstitution(group.institutionId),
@@ -200,8 +202,16 @@ export function GroupCoursesEditor({ group, members, onChanged }: GroupEditorPro
   );
   const { submit, isSubmitting, error } = useSubmit(assign);
 
-  async function handleChange(subjectId: string, value: string) {
-    if (await submit(subjectId, value === "" ? null : value)) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (chosenSubject && teacher && (await submit(chosenSubject.subjectId, teacher.membershipId))) {
+      setTeacher(null);
+      onChanged();
+    }
+  }
+
+  async function handleUnassign(subject: string) {
+    if (await submit(subject, null)) {
       onChanged();
     }
   }
@@ -211,28 +221,28 @@ export function GroupCoursesEditor({ group, members, onChanged }: GroupEditorPro
     { header: text.weeklyHours, cell: (row) => row.weeklyHours },
     {
       header: text.teacher,
-      cell: (row) => (
-        <select
-          aria-label={format(text.teacherFor, { subject: row.name })}
-          className="h-9 rounded-lg border border-line bg-surface px-2 text-sm"
-          value={row.teacher?.membershipId ?? ""}
-          disabled={isSubmitting}
-          onChange={(event) => handleChange(row.subjectId, event.target.value)}
-        >
-          <option value="">{text.unassigned}</option>
-          {teachers.map((teacher) => (
-            <option key={teacher.membershipId} value={teacher.membershipId}>
-              {fullName(teacher)}
-            </option>
-          ))}
-        </select>
-      ),
+      cell: (row) =>
+        row.teacher ? fullName(row.teacher) : <span className="text-muted">{text.unassigned}</span>,
+    },
+    {
+      header: admin.common.actions,
+      cell: (row) =>
+        row.teacher && (
+          <Button
+            size="sm"
+            variant="danger"
+            disabled={isSubmitting}
+            onClick={() => handleUnassign(row.subjectId)}
+            aria-label={format(text.unassignFor, { subject: row.name })}
+          >
+            {text.unassign}
+          </Button>
+        ),
     },
   ];
 
   return (
-    <div className="flex flex-col gap-4">
-      <ErrorNotice message={errorMessage(errors, error)} />
+    <div className="flex flex-col gap-5">
       <DataTable
         caption={format(text.coursesTitle, { name: group.name })}
         columns={columns}
@@ -240,24 +250,39 @@ export function GroupCoursesEditor({ group, members, onChanged }: GroupEditorPro
         getKey={(row) => row.subjectId}
         emptyText={text.noCourses}
       />
+      {chosenSubject && (
+        <form onSubmit={handleSubmit} className="flex max-w-md flex-col gap-4" aria-label={text.assignTitle}>
+          <h3 className="font-semibold">{text.assignTitle}</h3>
+          <ErrorNotice message={errorMessage(errors, error)} />
+          <SelectField
+            label={text.subject}
+            value={chosenSubject.subjectId}
+            onChange={(event) => setSubjectId(event.target.value)}
+            options={group.courses.map((course) => ({ value: course.subjectId, label: course.name }))}
+          />
+          <MemberPicker
+            institutionId={group.institutionId}
+            role="TEACHER"
+            activeOnly
+            label={text.teacher}
+            value={teacher}
+            onChange={setTeacher}
+          />
+          <Button type="submit" disabled={!teacher} isLoading={isSubmitting}>
+            {text.assign}
+          </Button>
+        </form>
+      )}
     </div>
   );
 }
 
-/** The students enrolled in the group, with the form to enroll another active Student. */
-export function GroupStudentsEditor({ group, members, onChanged }: GroupEditorProps) {
+/** The students enrolled in the group, with the form to find and enroll another active Student. */
+export function GroupStudentsEditor({ group, onChanged }: GroupEditorProps) {
   const { admin, errors } = useDictionary();
   const text = admin.groups;
-  const available = members.filter(
-    (member) =>
-      member.role === "STUDENT" &&
-      isActive(member) &&
-      !group.students.some((student) => student.membershipId === member.membershipId),
-  );
-  const [studentId, setStudentId] = useState("");
-  const chosenId = available.some((member) => member.membershipId === studentId)
-    ? studentId
-    : (available[0]?.membershipId ?? "");
+  const [student, setStudent] = useState<MemberMatch | null>(null);
+  const enrolledIds = useMemo(() => group.students.map((enrolled) => enrolled.membershipId), [group.students]);
   const enroll = useCallback(
     (membershipId: string) =>
       apiClient.request<Group>(`/groups/${group.id}/students`, {
@@ -280,7 +305,8 @@ export function GroupStudentsEditor({ group, members, onChanged }: GroupEditorPr
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (await enrolling.submit(chosenId)) {
+    if (student && (await enrolling.submit(student.membershipId))) {
+      setStudent(null);
       onChanged();
     }
   }
@@ -320,28 +346,22 @@ export function GroupStudentsEditor({ group, members, onChanged }: GroupEditorPr
         getKey={(row) => row.membershipId}
         emptyText={text.noStudents}
       />
-      {available.length > 0 && (
-        <form
-          onSubmit={handleSubmit}
-          className="flex max-w-md flex-col gap-4"
-          aria-label={text.enrollTitle}
-        >
-          <h3 className="font-semibold">{text.enrollTitle}</h3>
-          <ErrorNotice message={errorMessage(errors, enrolling.error)} />
-          <SelectField
-            label={text.student}
-            value={chosenId}
-            onChange={(event) => setStudentId(event.target.value)}
-            options={available.map((member) => ({
-              value: member.membershipId,
-              label: `${fullName(member)} · ${member.email}`,
-            }))}
-          />
-          <Button type="submit" isLoading={enrolling.isSubmitting}>
-            {text.enroll}
-          </Button>
-        </form>
-      )}
+      <form onSubmit={handleSubmit} className="flex max-w-md flex-col gap-4" aria-label={text.enrollTitle}>
+        <h3 className="font-semibold">{text.enrollTitle}</h3>
+        <ErrorNotice message={errorMessage(errors, enrolling.error)} />
+        <MemberPicker
+          institutionId={group.institutionId}
+          role="STUDENT"
+          activeOnly
+          exclude={enrolledIds}
+          label={text.student}
+          value={student}
+          onChange={setStudent}
+        />
+        <Button type="submit" disabled={!student} isLoading={enrolling.isSubmitting}>
+          {text.enroll}
+        </Button>
+      </form>
     </div>
   );
 }

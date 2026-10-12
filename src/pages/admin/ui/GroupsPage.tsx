@@ -8,7 +8,6 @@ import {
   type AcademicPeriod,
   type GroupSummary,
 } from "@/entities/group";
-import { fetchMembers } from "@/entities/member";
 import { fetchPensums } from "@/entities/pensum";
 import {
   CreateGroupForm,
@@ -26,7 +25,6 @@ function Groups({ institutionId }: { institutionId: string }) {
   const text = admin.groups;
   const periods = useResource(useCallback(() => fetchPeriods(institutionId), [institutionId]));
   const pensums = useResource(useCallback(() => fetchPensums(institutionId), [institutionId]));
-  const members = useResource(useCallback(() => fetchMembers(institutionId), [institutionId]));
   const groups = useResource(useCallback(() => fetchGroups(institutionId), [institutionId]));
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const loadSelected = useMemo(
@@ -71,7 +69,7 @@ function Groups({ institutionId }: { institutionId: string }) {
     },
   ];
 
-  const loadError = periods.error ?? pensums.error ?? members.error ?? groups.error ?? selected.error;
+  const loadError = periods.error ?? pensums.error ?? groups.error ?? selected.error;
   return (
     <>
       <ErrorNotice message={errorMessage(errors, loadError)} />
@@ -90,18 +88,10 @@ function Groups({ institutionId }: { institutionId: string }) {
       {selected.data && (
         <>
           <Section title={format(text.coursesTitle, { name: selected.data.name })}>
-            <GroupCoursesEditor
-              group={selected.data}
-              members={members.data ?? []}
-              onChanged={refresh}
-            />
+            <GroupCoursesEditor group={selected.data} onChanged={refresh} />
           </Section>
           <Section title={format(text.studentsTitle, { name: selected.data.name })}>
-            <GroupStudentsEditor
-              group={selected.data}
-              members={members.data ?? []}
-              onChanged={refresh}
-            />
+            <GroupStudentsEditor group={selected.data} onChanged={refresh} />
           </Section>
         </>
       )}

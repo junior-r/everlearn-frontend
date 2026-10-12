@@ -39,3 +39,34 @@ export interface Caption {
   speakerName: string;
   text: string;
 }
+
+/** The marks a Teacher may give, in the order they are offered. */
+export const ATTENDANCE_STATUSES = ["PRESENT", "LATE", "ABSENT", "EXCUSED"] as const;
+export type AttendanceStatus = (typeof ATTENDANCE_STATUSES)[number];
+
+/** One class of a course, as the Teacher who takes its attendance sees it. */
+export interface CourseSession {
+  id: string;
+  /** ISO date-time. */
+  startsAt: string;
+  status: "SCHEDULED" | "LIVE" | "COMPLETED" | "CANCELLED";
+  /** Students who already have a mark for this class. */
+  marked: number;
+}
+
+export interface CourseSessions {
+  subjectName: string;
+  groupName: string;
+  sessions: CourseSession[];
+}
+
+/** One enrolled Student on the attendance sheet of a class. */
+export interface AttendanceEntry {
+  enrollmentId: string;
+  membershipId: string;
+  firstName: string;
+  lastName: string;
+  status: AttendanceStatus | null;
+  /** False when the mark came from the time the Student spent connected to a video class. */
+  takenByHand: boolean;
+}

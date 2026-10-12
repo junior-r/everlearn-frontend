@@ -25,9 +25,17 @@ Teachers and Students need a screen to hold a class: see each other, write in a 
 - **Config:** `NEXT_PUBLIC_LIVEKIT_URL`, `NEXT_PUBLIC_VIDEO_SERVER_URL`.
 - **E2E:** `e2e/classroom.spec.ts` needs the whole stack (`livekit`, `video-server`, `redis`, `backend`) and uses Chromium's fake camera and microphone.
 
+## Attendance by hand
+
+- **Need:** a Teacher takes the roll of a class, given by video or in the classroom.
+- **Goal:** `/courses/:groupId/:subjectId/attendance`, reached from "Asistencia" in "Mis clases": the course's classes, the roll of the one chosen (the latest by default), and a form to record a class given without video.
+- **Reason:** the backend already told Guardians of an absence taken by hand; without a screen no Teacher could take one.
+- **Implementation:** `pages/classroom/CourseAttendancePage` with `features/classroom/take-attendance` (`AttendanceSheet`, `RecordHeldClassForm`) over `entities/class-session`. The roll is a radio group per Student (`PRESENT`, `LATE`, `ABSENT`, `EXCUSED`); only marks that changed are sent, so a mark taken automatically stays automatic until the Teacher changes it. E2E: `e2e/communication.spec.ts`.
+
 ## Known gaps
 
 - No screen sharing, hand raising, or device picker.
+- The roll has no field for the note the backend accepts with a mark, and the class it shows is not kept in the address.
 - Chat and captions start when you enter: earlier messages are not loaded.
 - No pre-join screen to check camera and microphone.
 - On small screens the chat sits under the video at a fixed height.

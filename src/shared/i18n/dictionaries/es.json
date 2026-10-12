@@ -78,7 +78,9 @@
       "enter": "Entrar a la clase",
       "enterFor": "Entrar a la clase de {subject}",
       "evaluations": "Evaluaciones",
-      "evaluationsFor": "Evaluaciones de {subject}"
+      "evaluationsFor": "Evaluaciones de {subject}",
+      "attendance": "Asistencia",
+      "attendanceFor": "Asistencia de {subject}"
     },
     "heading": "{subject} · {group}",
     "preparing": "Preparando la clase…",
@@ -118,6 +120,33 @@
     "captions": {
       "title": "Subtítulos en vivo",
       "empty": "Los subtítulos aparecerán cuando alguien hable."
+    },
+    "attendance": {
+      "fallbackTitle": "Asistencia",
+      "title": "Asistencia de {subject}",
+      "subtitle": "Grupo {group}. Pasa la lista de cada clase; los representantes reciben un aviso de las ausencias y los retrasos.",
+      "sessionsTitle": "Clases",
+      "noSessions": "Todavía no hay clases en esta materia. Registra una para pasar la lista.",
+      "sessionFor": "Clase del {date}",
+      "marked": "{count} con asistencia",
+      "unmarked": "Sin asistencia",
+      "open": "En curso",
+      "heldTitle": "Registrar una clase sin video",
+      "heldHint": "Si diste la clase en el aula, regístrala aquí para pasar su lista.",
+      "heldAt": "Fecha y hora de la clase",
+      "record": "Registrar clase",
+      "sheetTitle": "Lista del {date}",
+      "noStudents": "Este grupo no tiene estudiantes inscritos.",
+      "statuses": {
+        "PRESENT": "Presente",
+        "LATE": "Tarde",
+        "ABSENT": "Ausente",
+        "EXCUSED": "Justificada"
+      },
+      "automatic": "Automática",
+      "markRest": "Marcar al resto como presentes",
+      "save": "Guardar asistencia",
+      "saved": "Asistencia guardada."
     }
   },
   "evaluations": {
@@ -616,14 +645,6 @@
         "GRANDPARENT": "Abuelo o abuela",
         "SIBLING": "Hermano o hermana",
         "OTHER": "Otro"
-      },
-      "search": {
-        "placeholder": "Nombre o número de documento",
-        "hint": "Escribe al menos 2 letras del nombre o del número de documento.",
-        "searching": "Buscando…",
-        "empty": "Nadie coincide con la búsqueda.",
-        "failed": "No se pudo buscar. Inténtalo de nuevo.",
-        "document": "Documento {number}"
       }
     },
     "institutions": {
@@ -751,7 +772,6 @@
       "subject": "Materia",
       "weeklyHours": "Horas semanales",
       "teacher": "Docente",
-      "teacherFor": "Docente de {subject}",
       "unassigned": "Sin asignar",
       "studentsTitle": "Estudiantes de {name}",
       "noStudents": "Aún no hay estudiantes inscritos.",
@@ -759,7 +779,11 @@
       "enroll": "Inscribir",
       "enrollTitle": "Inscribir estudiante",
       "remove": "Retirar",
-      "noCapacity": "Sin límite"
+      "noCapacity": "Sin límite",
+      "assignTitle": "Asignar docente",
+      "assign": "Asignar",
+      "unassign": "Quitar",
+      "unassignFor": "Quitar docente de {subject}"
     },
     "platform": {
       "mode": "Plataforma",
@@ -773,14 +797,15 @@
       "subtitle": "Define en qué horas puede dar clases cada docente durante un período.",
       "teacher": "Docente",
       "period": "Período",
-      "needsSetup": "Necesitas al menos un docente activo y un período académico.",
+      "needsSetup": "Crea al menos un período académico para definir la disponibilidad.",
       "caption": "Disponibilidad de {name}",
       "hint": "Haz clic en las horas en que puede dar clases. Se guardan al pulsar el botón.",
       "hour": "Hora",
       "available": "disponible",
       "unavailable": "no disponible",
       "save": "Guardar disponibilidad",
-      "saved": "Disponibilidad guardada."
+      "saved": "Disponibilidad guardada.",
+      "pickTeacher": "Busca un docente para ver y editar su disponibilidad."
     },
     "schedule": {
       "title": "Horarios",
@@ -801,6 +826,14 @@
       "cancel": "Cancelar",
       "remove": "Quitar",
       "noCourses": "Asigna docentes a las materias del grupo antes de programar clases."
+    },
+    "memberSearch": {
+      "placeholder": "Nombre o número de documento",
+      "hint": "Escribe al menos 2 letras del nombre o del número de documento.",
+      "searching": "Buscando…",
+      "empty": "Nadie coincide con la búsqueda.",
+      "failed": "No se pudo buscar. Inténtalo de nuevo.",
+      "document": "Documento {number}"
     }
   },
   "institutionSelector": {
@@ -922,6 +955,8 @@
     "ASSISTANT_UNAVAILABLE": "El asistente no está disponible en este momento. Inténtalo más tarde.",
     "INVALID_CONVERSATION": "No se pudo enviar la pregunta. Empieza una nueva conversación.",
     "SCORE_OUT_OF_RANGE": "Una nota debe estar entre 0 y la nota máxima de la evaluación.",
-    "STUDENT_NOT_ENROLLED": "El estudiante ya no está inscrito en este grupo. Recarga la página."
+    "STUDENT_NOT_ENROLLED": "El estudiante ya no está inscrito en este grupo. Recarga la página.",
+    "CLASS_NOT_HELD_YET": "Solo puedes registrar una clase que ya se dio.",
+    "STUDENT_NOT_IN_CLASS": "Solo se puede pasar la lista a los estudiantes inscritos en la clase."
   }
 }

@@ -1,4 +1,4 @@
-import { expect, test, type PlaywrightWorkerArgs } from "@playwright/test";
+import { expect, test, type Page, type PlaywrightWorkerArgs } from "@playwright/test";
 import { createInstitution, signIn } from "./support";
 
 type Institution = Awaited<ReturnType<typeof createInstitution>>;
@@ -34,13 +34,24 @@ async function createGroupWithTeacher(playwright: PlaywrightWorkerArgs["playwrig
   return { institution, teacher, period, group, subjects };
 }
 
+/** No Teacher is listed on the availability page: the admin searches for one. */
+async function pickTeacher(page: Page) {
+  const field = page.getByRole("combobox", { name: "Docente", exact: true });
+  await field.fill("turing");
+  await page.getByRole("option", { name: /Alan Turing/ }).click();
+  await expect(field).toHaveValue("Alan Turing");
+}
+
 test("an Institution Admin sets a Teacher's weekly availability on the grid", async ({ page, playwright }) => {
   const { institution } = await createGroupWithTeacher(playwright);
   await signIn(page, institution.admin.email, institution.admin.password);
   await page.getByRole("link", { name: "Disponibilidad docente" }).click();
   await expect(page).toHaveURL("/es/admin/availability");
-  await expect(page.getByLabel("Docente")).toContainText("Alan Turing");
   await expect(page.getByLabel("Período")).toContainText("2026-2027");
+  // Nothing is shown until a Teacher is found
+  await expect(page.getByText("Busca un docente para ver y editar su disponibilidad.")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Guardar disponibilidad" })).toHaveCount(0);
+  await pickTeacher(page);
 
   const save = page.getByRole("button", { name: "Guardar disponibilidad" });
   // Nothing to save until something changes
@@ -54,6 +65,7 @@ test("an Institution Admin sets a Teacher's weekly availability on the grid", as
 
   // It was stored, not just drawn
   await page.reload();
+  await pickTeacher(page);
   await expect(page.getByRole("button", { name: "Lunes 08:00, disponible" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Lunes 09:00, disponible" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Miércoles 14:00, disponible" })).toBeVisible();
@@ -64,6 +76,7 @@ test("an Institution Admin sets a Teacher's weekly availability on the grid", as
   await save.click();
   await expect(page.getByRole("status")).toHaveText("Disponibilidad guardada.");
   await page.reload();
+  await pickTeacher(page);
   await expect(page.getByRole("button", { name: /, disponible$/ })).toHaveCount(2);
   await institution.dispose();
 });
@@ -150,11 +163,13 @@ test("a Teacher's availability cannot be cut from under a class already schedule
 
   await signIn(page, institution.admin.email, institution.admin.password);
   await page.getByRole("link", { name: "Disponibilidad docente" }).click();
+  await pickTeacher(page);
   await page.getByRole("button", { name: "Lunes 08:00, disponible" }).click();
   await page.getByRole("button", { name: "Guardar disponibilidad" }).click();
 
   await expect(page.getByRole("main").getByRole("alert")).toContainText("clases");
   await page.reload();
+  await pickTeacher(page);
   await expect(page.getByRole("button", { name: "Lunes 08:00, disponible" })).toBeVisible();
   await institution.dispose();
 });

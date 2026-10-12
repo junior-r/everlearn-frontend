@@ -19,7 +19,8 @@ Each lands on a screen of their own: a Guardian on the Students they answer for 
 ## The Implementation
 
 - **`entities/guardian`:** types, the API calls, `groupByDay` (a week's classes in timetable order). **`entities/dashboard`:** `fetchAcademicOverview`.
-- **`features/guardians/link-guardian`:** `GuardianLinks`, on the admin Members page: the table of links and the form to add one. The Guardian and the Student are each found with `Autocomplete` (`shared/ui`), which asks `GET /members/search` as the user types, by name or document number, so the form never loads the members of the institution. Staff see it too.
+- **`features/guardians/link-guardian`:** `GuardianLinks`, on the admin Members page: the table of links and the form to add one. The Guardian and the Student are each found with `MemberPicker`, so the form never loads the members of the institution. Staff see it too.
+- **`entities/member/MemberPicker`:** the one way to choose a member: `Autocomplete` (`shared/ui`) over `GET /members/search`, by name or document number, with the email and document shown to tell namesakes apart. `activeOnly` leaves out who cannot be chosen yet; `exclude` hides ids already taken. The admin Groups page (assign a Teacher, enroll a Student) and Availability page (which Teacher) use it; neither loads a member list, and Availability shows no grid until a Teacher is found.
 - **`shared/ui/Autocomplete`:** an ARIA combobox for lists too long to load: it waits 250 ms after typing, aborts the request it replaces, ignores an answer to an older query, and is driven by arrow keys and Enter (which picks a match instead of submitting the form). Its wording comes in as `messages`, so it holds no text.
 - **`widgets/ward-overview`:** `GuardianPortal`: ward tabs, summary cards, average per subject, weekly schedule by day, upcoming evaluations, recent attendance.
 - **The Members table** (`pages/admin/MembersPage`) never loads the institution: it asks `GET /members/page` for 20 rows, again when the search (debounced), the role filter or the page (`Pagination`, `shared/ui`) changes.
@@ -34,6 +35,5 @@ Each lands on a screen of their own: a Guardian on the Students they answer for 
 
 - A Guardian's portal shows averages per subject, not each evaluation and its feedback.
 - A Principal can open a group, but not a single Teacher's week across groups.
-- The Teacher and Student pickers of the admin Groups and Availability pages still load the member list (`GET /members`); they are the last screens that do.
-- Teachers have no screen to take attendance by hand; the backend endpoint exists.
+- The Availability page forgets the Teacher on a reload: the choice is not kept in the address.
 - Neither portal has a phone-specific layout beyond the shared responsive grid.
