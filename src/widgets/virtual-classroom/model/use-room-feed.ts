@@ -6,9 +6,12 @@ import { useCallback, useState } from "react";
 import {
   appendUnique,
   CAPTIONS_TOPIC,
+  CHAT_DELETED_TOPIC,
   CHAT_TOPIC,
   parseCaption,
+  parseChatDeletion,
   parseChatMessage,
+  withDeleted,
   type Caption,
   type ChatMessage,
 } from "@/entities/class-session";
@@ -24,8 +27,8 @@ interface DataPacket {
 
 /**
  * Collects the chat messages and captions that arrive while the viewer is in
- * the room. Only the video-server publishes them, so a packet sent by a
- * participant is ignored.
+ * the room, and blanks the messages taken down. Only the video-server
+ * publishes them, so a packet sent by a participant is ignored.
  */
 export function useRoomFeed(): { messages: ChatMessage[]; captions: Caption[] } {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -37,6 +40,12 @@ export function useRoomFeed(): { messages: ChatMessage[]; captions: Caption[] } 
       setMessages((current) => appendUnique(current, message, MAX_MESSAGES));
     }
   }, []);
+  const onChatDeleted = useCallback((packet: DataPacket) => {
+    const id = packet.from ? null : parseChatDeletion(packet.payload);
+    if (id) {
+      setMessages((current) => withDeleted(current, id));
+    }
+  }, []);
   const onCaption = useCallback((packet: DataPacket) => {
     const caption = packet.from ? null : parseCaption(packet.payload);
     if (caption) {
@@ -45,6 +54,7 @@ export function useRoomFeed(): { messages: ChatMessage[]; captions: Caption[] } 
   }, []);
 
   useDataChannel(CHAT_TOPIC, onChat);
+  useDataChannel(CHAT_DELETED_TOPIC, onChatDeleted);
   useDataChannel(CAPTIONS_TOPIC, onCaption);
   return { messages, captions };
 }

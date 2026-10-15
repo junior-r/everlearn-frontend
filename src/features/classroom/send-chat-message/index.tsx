@@ -1,12 +1,12 @@
 "use client";
 
-import { PaperPlaneRightIcon } from "@phosphor-icons/react/dist/ssr";
+import { PaperPlaneRightIcon, XIcon } from "@phosphor-icons/react/dist/ssr";
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type FormEvent } from "react";
 import { MAX_CHAT_LENGTH, sendChatMessage, type ChatMessage } from "@/entities/class-session";
 import { errorMessage, useDictionary, useLocale } from "@/shared/i18n";
-import { cn } from "@/shared/lib/cn";
 import { useSubmit } from "@/shared/lib/use-submit";
 import { Button, ErrorNotice } from "@/shared/ui";
+import { MessageRow } from "./MessageRow";
 
 interface ChatPanelProps {
   /** Everything the room has received so far, oldest first. */
@@ -14,18 +14,24 @@ interface ChatPanelProps {
   /** The viewer's identity in the room, to tell their own messages apart. */
   selfId: string;
   roomToken: string;
+  /** The viewer is the Teacher of the class, who may take down anyone's message. */
+  canModerate: boolean;
+  /** Takes a message down for everyone; the room then delivers the removal like a message. */
+  onDelete(message: ChatMessage): void;
+  onClose(): void;
 }
 
 /**
  * The class chat: the messages of the room and the form to send one. A sent
  * message is not added here; it shows up when the room delivers it, like everyone else's.
  */
-export function ChatPanel({ messages, selfId, roomToken }: ChatPanelProps) {
+export function ChatPanel({ messages, selfId, roomToken, canModerate, onDelete, onClose }: ChatPanelProps) {
   const { classroom, errors } = useDictionary();
   const text = classroom.chat;
   const locale = useLocale();
   const fieldId = useId();
   const logRef = useRef<HTMLDivElement>(null);
+  const fieldRef = useRef<HTMLInputElement>(null);
   const [draft, setDraft] = useState("");
   const send = useCallback(
     async (content: string) => {
@@ -55,35 +61,40 @@ export function ChatPanel({ messages, selfId, roomToken }: ChatPanelProps) {
     return Number.isNaN(sentAt.getTime()) ? "" : clock.format(sentAt);
   }
 
+  const reply = useCallback((message: ChatMessage) => {
+    setDraft((current) => (current.trim() ? current : `@${message.senderName} `));
+    fieldRef.current?.focus();
+  }, []);
+
   return (
     <section className="flex min-h-0 flex-1 flex-col">
-      <h2 className="border-b border-line px-4 py-3 text-sm font-semibold">{text.title}</h2>
+      <div className="flex items-center justify-between gap-2 border-b border-line py-2 pr-2 pl-4">
+        <h2 className="text-sm font-semibold">{text.title}</h2>
+        <button
+          type="button"
+          aria-label={classroom.controls.chatClose}
+          onClick={onClose}
+          className="flex size-8 items-center justify-center rounded-lg text-muted transition duration-150 hover:bg-surface-muted hover:text-foreground active:scale-[0.96] focus-visible:outline-2 focus-visible:outline-brand"
+        >
+          <XIcon aria-hidden weight="bold" className="size-4" />
+        </button>
+      </div>
       <div ref={logRef} role="log" aria-label={text.title} className="min-h-0 flex-1 overflow-y-auto px-4 py-3">
         {messages.length === 0 ? (
           <p className="text-sm text-muted">{text.empty}</p>
         ) : (
           <ol className="flex flex-col gap-3">
-            {messages.map((message) => {
-              const isOwn = message.senderId === selfId;
-              return (
-                <li key={message.id} className={cn("flex flex-col gap-1", isOwn && "items-end")}>
-                  <p className="text-xs text-muted">
-                    <span className="font-medium text-foreground">{isOwn ? text.you : message.senderName}</span>{" "}
-                    <time dateTime={message.sentAt} className="font-mono">
-                      {timeOf(message)}
-                    </time>
-                  </p>
-                  <p
-                    className={cn(
-                      "max-w-full rounded-2xl px-3 py-2 text-sm break-words whitespace-pre-wrap",
-                      isOwn ? "bg-brand-soft" : "bg-surface-muted",
-                    )}
-                  >
-                    {message.content}
-                  </p>
-                </li>
-              );
-            })}
+            {messages.map((message) => (
+              <MessageRow
+                key={message.id}
+                message={message}
+                isOwn={message.senderId === selfId}
+                canModerate={canModerate}
+                time={timeOf(message)}
+                onReply={reply}
+                onDelete={onDelete}
+              />
+            ))}
           </ol>
         )}
       </div>
@@ -98,6 +109,7 @@ export function ChatPanel({ messages, selfId, roomToken }: ChatPanelProps) {
             {text.message}
           </label>
           <input
+            ref={fieldRef}
             id={fieldId}
             value={draft}
             onChange={(event) => setDraft(event.target.value)}

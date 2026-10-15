@@ -3,6 +3,7 @@ import { env } from "@/shared/config/env";
 import type {
   AttendanceEntry,
   AttendanceStatus,
+  ChatMessage,
   ClassroomAccess,
   ClassroomCourse,
   CourseSessions,
@@ -11,10 +12,15 @@ import type {
 export {
   appendUnique,
   CAPTIONS_TOPIC,
+  CHAT_DELETED_TOPIC,
   CHAT_TOPIC,
+  HAND_ATTRIBUTE,
   MAX_CHAT_LENGTH,
   parseCaption,
+  parseChatDeletion,
   parseChatMessage,
+  ROLE_ATTRIBUTE,
+  withDeleted,
 } from "./lib/room-messages";
 export { ATTENDANCE_STATUSES } from "./model/types";
 export type {
@@ -60,18 +66,49 @@ export function requestClassroomAccess(institutionId: string, sessionId: string)
 }
 
 /**
- * Sends a chat message to the class. It goes to the video-server, which knows
- * the sender from the room access token and shows the message to everyone.
+ * Asks the video-server for something in the class. It knows who asks, and
+ * whether they are the Teacher, from the room access token alone.
  */
-export async function sendChatMessage(roomToken: string, content: string): Promise<void> {
-  const response = await fetch(`${env.videoServerUrl}/chat`, {
+async function askVideoServer(roomToken: string, path: string, body: object, failure: string): Promise<void> {
+  const response = await fetch(`${env.videoServerUrl}${path}`, {
     method: "POST",
     headers: { Authorization: `Bearer ${roomToken}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ content }),
+    body: JSON.stringify(body),
   }).catch(() => null);
   if (!response?.ok) {
-    throw new ApiError(response?.status ?? 0, "CHAT_NOT_SENT", "The message could not be sent");
+    throw new ApiError(response?.status ?? 0, failure, `The video-server refused ${path}`);
   }
+}
+
+/** Sends a chat message to the class; it shows up when the room delivers it to everyone. */
+export function sendChatMessage(roomToken: string, content: string): Promise<void> {
+  return askVideoServer(roomToken, "/chat", { content }, "CHAT_NOT_SENT");
+}
+
+/** Takes a chat message down for everyone. Only its author and the Teacher of the class may. */
+export function deleteChatMessage(roomToken: string, message: ChatMessage): Promise<void> {
+  const { id, senderId, signature } = message;
+  return askVideoServer(roomToken, "/chat/delete", { id, senderId, signature }, "CLASS_ACTION_FAILED");
+}
+
+/** Raises or lowers the member's own hand, which the whole class sees. */
+export function setHandRaised(roomToken: string, raised: boolean): Promise<void> {
+  return askVideoServer(roomToken, "/hand", { raised }, "CLASS_ACTION_FAILED");
+}
+
+/** Lowers a participant's hand. Only the Teacher of the class may. */
+export function lowerParticipantHand(roomToken: string, identity: string): Promise<void> {
+  return askVideoServer(roomToken, "/participants/lower-hand", { identity }, "CLASS_ACTION_FAILED");
+}
+
+/** Silences a participant's microphone; they can open it again. Only the Teacher of the class may. */
+export function muteParticipant(roomToken: string, identity: string): Promise<void> {
+  return askVideoServer(roomToken, "/participants/mute", { identity }, "CLASS_ACTION_FAILED");
+}
+
+/** Ends the class for everyone, which also takes its attendance. Only the Teacher of the class may. */
+export function endClass(roomToken: string): Promise<void> {
+  return askVideoServer(roomToken, "/class/end", {}, "CLASS_ACTION_FAILED");
 }
 
 const sessionsPath = (groupId: string, subjectId: string) => `/groups/${groupId}/courses/${subjectId}/sessions`;

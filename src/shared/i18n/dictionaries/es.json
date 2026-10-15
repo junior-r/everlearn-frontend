@@ -99,7 +99,19 @@
       "micOff": "Silenciar micrófono",
       "cameraOn": "Encender cámara",
       "cameraOff": "Apagar cámara",
-      "startAudio": "Activar el sonido de la clase"
+      "startAudio": "Activar el sonido de la clase",
+      "shareOn": "Compartir pantalla",
+      "shareOff": "Dejar de compartir",
+      "handUp": "Levantar la mano",
+      "handDown": "Bajar la mano",
+      "chatOpen": "Abrir el chat",
+      "chatClose": "Cerrar el chat",
+      "unreadOne": "1 mensaje sin leer",
+      "unreadMany": "{count} mensajes sin leer",
+      "micPicker": "Elegir micrófono",
+      "cameraPicker": "Elegir cámara",
+      "micUnnamed": "Micrófono {number}",
+      "cameraUnnamed": "Cámara {number}"
     },
     "deviceError": "No pudimos usar tu cámara o micrófono. Revisa los permisos del navegador.",
     "closed": {
@@ -115,7 +127,13 @@
       "message": "Mensaje",
       "placeholder": "Escribe un mensaje…",
       "send": "Enviar",
-      "you": "Tú"
+      "you": "Tú",
+      "options": "Opciones del mensaje de {name}",
+      "ownOptions": "Opciones de tu mensaje",
+      "copy": "Copiar texto",
+      "reply": "Responder",
+      "delete": "Eliminar para todos",
+      "deleted": "Mensaje eliminado"
     },
     "captions": {
       "title": "Subtítulos en vivo",
@@ -147,7 +165,29 @@
       "markRest": "Marcar al resto como presentes",
       "save": "Guardar asistencia",
       "saved": "Asistencia guardada."
-    }
+    },
+    "leaveDialog": {
+      "title": "¿Salir de la clase?",
+      "body": "Puedes volver a entrar mientras la clase siga abierta.",
+      "teacherTitle": "¿Salir o finalizar la clase?",
+      "teacherBody": "Si la finalizas, la clase se cierra para todos y se toma la asistencia. Si solo sales, sigue abierta para el grupo.",
+      "cancel": "Cancelar",
+      "confirm": "Salir",
+      "leaveOnly": "Solo salir",
+      "end": "Finalizar para todos"
+    },
+    "tile": {
+      "options": "Opciones de {name}",
+      "pin": "Fijar en pantalla",
+      "unpin": "Quitar de la pantalla principal",
+      "mute": "Silenciar a {name}",
+      "lowerHand": "Bajar la mano de {name}",
+      "handRaised": "mano levantada",
+      "screenOf": "Pantalla de {name}"
+    },
+    "stage": "Pantalla principal",
+    "handsRaisedOne": "1 mano levantada",
+    "handsRaisedMany": "{count} manos levantadas"
   },
   "evaluations": {
     "types": {
@@ -957,6 +997,7 @@
     "SCORE_OUT_OF_RANGE": "Una nota debe estar entre 0 y la nota máxima de la evaluación.",
     "STUDENT_NOT_ENROLLED": "El estudiante ya no está inscrito en este grupo. Recarga la página.",
     "CLASS_NOT_HELD_YET": "Solo puedes registrar una clase que ya se dio.",
-    "STUDENT_NOT_IN_CLASS": "Solo se puede pasar la lista a los estudiantes inscritos en la clase."
+    "STUDENT_NOT_IN_CLASS": "Solo se puede pasar la lista a los estudiantes inscritos en la clase.",
+    "CLASS_ACTION_FAILED": "No se pudo completar la acción. Inténtalo de nuevo."
   }
 }

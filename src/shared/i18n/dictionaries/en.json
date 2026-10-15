@@ -99,7 +99,19 @@
       "micOff": "Mute microphone",
       "cameraOn": "Turn camera on",
       "cameraOff": "Turn camera off",
-      "startAudio": "Turn on the class sound"
+      "startAudio": "Turn on the class sound",
+      "shareOn": "Share screen",
+      "shareOff": "Stop sharing",
+      "handUp": "Raise hand",
+      "handDown": "Lower hand",
+      "chatOpen": "Open chat",
+      "chatClose": "Close chat",
+      "unreadOne": "1 unread message",
+      "unreadMany": "{count} unread messages",
+      "micPicker": "Choose microphone",
+      "cameraPicker": "Choose camera",
+      "micUnnamed": "Microphone {number}",
+      "cameraUnnamed": "Camera {number}"
     },
     "deviceError": "We could not use your camera or microphone. Check your browser permissions.",
     "closed": {
@@ -115,7 +127,13 @@
       "message": "Message",
       "placeholder": "Write a message…",
       "send": "Send",
-      "you": "You"
+      "you": "You",
+      "options": "Options for {name}'s message",
+      "ownOptions": "Options for your message",
+      "copy": "Copy text",
+      "reply": "Reply",
+      "delete": "Delete for everyone",
+      "deleted": "Message deleted"
     },
     "captions": {
       "title": "Live captions",
@@ -147,7 +165,29 @@
       "markRest": "Mark the rest as present",
       "save": "Save attendance",
       "saved": "Attendance saved."
-    }
+    },
+    "leaveDialog": {
+      "title": "Leave the class?",
+      "body": "You can come back in while the class is still open.",
+      "teacherTitle": "Leave or end the class?",
+      "teacherBody": "Ending it closes the class for everyone and takes attendance. If you only leave, it stays open for the group.",
+      "cancel": "Cancel",
+      "confirm": "Leave",
+      "leaveOnly": "Just leave",
+      "end": "End for everyone"
+    },
+    "tile": {
+      "options": "Options for {name}",
+      "pin": "Pin to the stage",
+      "unpin": "Remove from the stage",
+      "mute": "Mute {name}",
+      "lowerHand": "Lower {name}'s hand",
+      "handRaised": "hand raised",
+      "screenOf": "{name}'s screen"
+    },
+    "stage": "Stage",
+    "handsRaisedOne": "1 hand raised",
+    "handsRaisedMany": "{count} hands raised"
   },
   "evaluations": {
     "types": {
@@ -957,6 +997,7 @@
     "SCORE_OUT_OF_RANGE": "A score must be between 0 and the evaluation's maximum score.",
     "STUDENT_NOT_ENROLLED": "The student is no longer enrolled in this group. Reload the page.",
     "CLASS_NOT_HELD_YET": "You can only record a class that has already been held.",
-    "STUDENT_NOT_IN_CLASS": "The roll can only be taken for students enrolled in the class."
+    "STUDENT_NOT_IN_CLASS": "The roll can only be taken for students enrolled in the class.",
+    "CLASS_ACTION_FAILED": "The action could not be completed. Try again."
   }
 }
