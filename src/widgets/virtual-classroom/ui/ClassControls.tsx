@@ -198,7 +198,7 @@ function ShareMenu({ labels, lab, offersScreen }: { labels: { on: string; off: s
     <>
       <ControlButton
         label={text.share}
-        icon={isSharing ? MonitorArrowUpIcon : FlaskIcon}
+        icon={MonitorArrowUpIcon}
         look={isSharing ? "sharing" : "idle"}
         isPressed={isSharing}
         hasMenu
