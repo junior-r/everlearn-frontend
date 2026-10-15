@@ -61,3 +61,6 @@ export function startedScreen(before: string[], now: string[]): string | null {
 export function unreadCount(total: number, readUpTo: number, isChatOpen: boolean): number {
   return isChatOpen ? 0 : Math.max(0, total - readUpTo);
 }
+
+/** The stage key of a shared lab, beside the tiles of participants and screens. */
+export const LAB_STAGE_KEY = "lab";

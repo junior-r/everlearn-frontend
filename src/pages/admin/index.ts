@@ -7,3 +7,4 @@ export { PensumsPage } from "./ui/PensumsPage";
 export { ReviewsPage } from "./ui/ReviewsPage";
 export { SchedulePage } from "./ui/SchedulePage";
 export { SubjectsPage } from "./ui/SubjectsPage";
+export { LabsAdminPage } from "./ui/LabsAdminPage";

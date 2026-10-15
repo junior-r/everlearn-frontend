@@ -63,7 +63,8 @@
     "teacherDashboard": "Teacher dashboard",
     "wards": "My students",
     "progress": "My grades",
-    "calendar": "Evaluation calendar"
+    "calendar": "Evaluation calendar",
+    "labs": "Labs"
   },
   "classroom": {
     "myClasses": {
@@ -80,7 +81,9 @@
       "evaluations": "Evaluations",
       "evaluationsFor": "Evaluations of {subject}",
       "attendance": "Attendance",
-      "attendanceFor": "Attendance of {subject}"
+      "attendanceFor": "Attendance of {subject}",
+      "labs": "Labs",
+      "labsFor": "{subject} labs"
     },
     "heading": "{subject} · {group}",
     "preparing": "Preparing the class…",
@@ -111,7 +114,10 @@
       "micPicker": "Choose microphone",
       "cameraPicker": "Choose camera",
       "micUnnamed": "Microphone {number}",
-      "cameraUnnamed": "Camera {number}"
+      "cameraUnnamed": "Camera {number}",
+      "share": "Share",
+      "labShare": "Share a lab",
+      "labStop": "Stop sharing the lab"
     },
     "deviceError": "We could not use your camera or microphone. Check your browser permissions.",
     "closed": {
@@ -187,7 +193,18 @@
     },
     "stage": "Stage",
     "handsRaisedOne": "1 hand raised",
-    "handsRaisedMany": "{count} hands raised"
+    "handsRaisedMany": "{count} hands raised",
+    "lab": {
+      "pickTitle": "Share a lab",
+      "pickBody": "The class will see the lab and every change you make. It is not shared as video: it looks sharp on any screen.",
+      "noneShareable": "Your institution has no labs switched on to share.",
+      "cancel": "Cancel",
+      "youShare": "You are sharing it",
+      "teacherShares": "Shared by your teacher",
+      "stop": "Stop sharing",
+      "openOwn": "Open in my labs",
+      "tile": "Shared lab"
+    }
   },
   "evaluations": {
     "types": {
@@ -515,6 +532,10 @@
       "WARD_ATTENDANCE": {
         "title": "{studentName} {status}",
         "body": "{subjectName} · {date}"
+      },
+      "LAB_ASSIGNED": {
+        "title": "New activity: {title}",
+        "body": "{subjectName} lab · Group {groupName}"
       }
     },
     "attendance": {
@@ -653,7 +674,8 @@
       "groups": "Groups",
       "settings": "Profile settings",
       "availability": "Teacher availability",
-      "schedule": "Timetables"
+      "schedule": "Timetables",
+      "labs": "Labs"
     },
     "institutionSwitcher": {
       "label": "Institution",
@@ -874,6 +896,18 @@
       "empty": "Nobody matches the search.",
       "failed": "The search failed. Try again.",
       "document": "Document {number}"
+    },
+    "labs": {
+      "title": "Labs",
+      "subtitle": "Switch on or off the labs the platform granted to your institution.",
+      "subtitlePlatform": "Grant labs to this institution. Its administration then decides which stay on.",
+      "noneGranted": "The platform has not granted labs to this institution yet.",
+      "granted": "Granted",
+      "enabled": "On",
+      "grantNamed": "Grant {lab} to the institution",
+      "enableNamed": "Switch on {lab}",
+      "available": "Available",
+      "unavailable": "Not available"
     }
   },
   "institutionSelector": {
@@ -998,6 +1032,303 @@
     "STUDENT_NOT_ENROLLED": "The student is no longer enrolled in this group. Reload the page.",
     "CLASS_NOT_HELD_YET": "You can only record a class that has already been held.",
     "STUDENT_NOT_IN_CLASS": "The roll can only be taken for students enrolled in the class.",
-    "CLASS_ACTION_FAILED": "The action could not be completed. Try again."
+    "CLASS_ACTION_FAILED": "The action could not be completed. Try again.",
+    "LAB_NOT_FOUND": "This lab is not available in your institution.",
+    "LAB_ASSIGNMENT_NOT_FOUND": "The activity was not found.",
+    "LAB_ATTEMPT_ALREADY_SUBMITTED": "You already handed in this activity.",
+    "INVALID_LAB_ASSIGNMENT": "Check the activity: an exercise is not valid or something is missing.",
+    "INVALID_EXERCISE": "The exercise is not valid. Check the sentence and the answers.",
+    "EXERCISE_NOT_FOUND": "The exercise was not found.",
+    "TEACHER_ONLY": "Only a teacher of the institution can do this.",
+    "LAB_SHARE_FAILED": "The lab could not be shared with the class. Try again."
+  },
+  "labs": {
+    "catalog": {
+      "title": "Labs",
+      "subtitle": "Physics simulations, maths tools and language exercises to learn by trying.",
+      "none": "Your institution has no labs switched on yet.",
+      "unavailable": "This lab is not available in your institution.",
+      "back": "Back to the labs",
+      "fromClass": "You opened the lab as it was in class. Change it as you like: your teacher does not see these changes.",
+      "startOver": "Start over"
+    },
+    "categories": {
+      "PHYSICS": "Physics",
+      "MATHS": "Maths",
+      "LANGUAGE": "Language"
+    },
+    "categoryDescriptions": {
+      "PHYSICS": "Gravity, forces, speeds and trajectories, with numbers you can check.",
+      "MATHS": "Function graphs, a scientific calculator and formulas solved for any variable.",
+      "LANGUAGE": "Sentences to complete and definitions to find the word for."
+    },
+    "names": {
+      "gravity": "Free fall",
+      "forces": "Forces on a ramp",
+      "kinematics": "Speed and acceleration",
+      "projectile": "Projectile motion",
+      "function-grapher": "Function grapher",
+      "scientific-calculator": "Scientific calculator",
+      "equation-solver": "Variable solver",
+      "completions": "Complete the sentence",
+      "definitions": "Definitions"
+    },
+    "descriptions": {
+      "gravity": "Drop an object on Earth, the Moon, Mars or Jupiter and compare how long it takes.",
+      "forces": "Push a block on a ramp with friction and see whether it goes up, down or stays put.",
+      "kinematics": "Two movers on the same line: where each one is and when they meet.",
+      "projectile": "Launch an object at a speed and an angle: its path, its range and its highest point.",
+      "function-grapher": "Draw up to three functions of x and read their values anywhere.",
+      "scientific-calculator": "Trigonometry in degrees or radians, powers, roots, logarithms and factorials.",
+      "equation-solver": "Write a formula and solve it for any of its variables from the others.",
+      "completions": "Type the word missing from each sentence.",
+      "definitions": "Read the definition and type the word it defines."
+    },
+    "common": {
+      "readings": "Results",
+      "reset": "Reset",
+      "cancel": "Cancel"
+    },
+    "units": {
+      "metre": "m",
+      "second": "s",
+      "speed": "m/s",
+      "acceleration": "m/s²",
+      "kilogram": "kg",
+      "newton": "N",
+      "degree": "°"
+    },
+    "bodies": {
+      "earth": "Earth",
+      "moon": "Moon",
+      "mars": "Mars",
+      "jupiter": "Jupiter"
+    },
+    "gravity": {
+      "height": "Height",
+      "first": "First place",
+      "second": "Second place",
+      "drop": "Drop",
+      "time": "Fall time on {body}",
+      "speed": "Speed when it hits the ground on {body}",
+      "drawing": "Two objects falling from {height}, on {first} and on {second}"
+    },
+    "projectile": {
+      "speed": "Launch speed",
+      "angle": "Launch angle",
+      "height": "Launch height",
+      "body": "Place",
+      "launch": "Launch",
+      "flightTime": "Flight time",
+      "range": "Range",
+      "maxHeight": "Highest point",
+      "drawing": "Path of a launch at {speed} with an angle of {angle}"
+    },
+    "kinematics": {
+      "first": "Mover A",
+      "second": "Mover B",
+      "position": "Starting position",
+      "velocity": "Starting speed",
+      "acceleration": "Acceleration",
+      "start": "Start",
+      "finalPosition": "Position of {mover} after {seconds} s",
+      "finalVelocity": "Speed of {mover} after {seconds} s",
+      "meeting": "They meet after",
+      "never": "They never meet",
+      "drawing": "Two movers on a line and their position over {seconds} seconds"
+    },
+    "forces": {
+      "mass": "Block mass",
+      "force": "Applied force",
+      "friction": "Friction coefficient",
+      "angle": "Ramp angle",
+      "release": "Release the block",
+      "weight": "Weight",
+      "normal": "Normal force",
+      "downSlope": "Weight along the ramp",
+      "frictionForce": "Friction",
+      "net": "Net force",
+      "acceleration": "Acceleration",
+      "motion": "The block",
+      "motions": {
+        "up": "Goes up the ramp",
+        "down": "Slides down the ramp",
+        "rest": "Stays put"
+      },
+      "drawing": "A block on a {angle} ramp with the forces acting on it"
+    },
+    "grapher": {
+      "functions": "Functions",
+      "name": "f{number}(x) =",
+      "remove": "Remove function {number}",
+      "add": "Add a function",
+      "help": "Use x as the variable. Examples: 2x^2 - 3, sin(x), sqrt(x), ln(x), abs(x - 1).",
+      "probe": "Read the values at",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "home": "Centre",
+      "drawing": "Graph of the functions on the Cartesian plane",
+      "valueAt": "f{number}({x})"
+    },
+    "expressionErrors": {
+      "empty": "Type an expression.",
+      "syntax": "The expression is not well written. Check the brackets and the signs.",
+      "unknownName": "I do not know “{name}”.",
+      "tooLong": "The expression is too long.",
+      "noEquals": "An equation has a single = sign."
+    },
+    "calculator": {
+      "expression": "Expression",
+      "undefined": "Undefined",
+      "angle": "Angles in",
+      "angles": {
+        "deg": "Degrees",
+        "rad": "Radians"
+      },
+      "keypad": "Calculator keypad",
+      "clear": "Clear all",
+      "backspace": "Delete the last character",
+      "history": "Latest calculations",
+      "noHistory": "Your calculations will show here when you press =.",
+      "help": "You can also type with the keyboard: sin(30) + 2^3, sqrt(2), 5!."
+    },
+    "solver": {
+      "preset": "Formula",
+      "presets": {
+        "speed": "Speed",
+        "force": "Newton's second law",
+        "energy": "Potential energy",
+        "circle": "Area of a circle",
+        "pythagoras": "Pythagorean theorem",
+        "ohm": "Ohm's law"
+      },
+      "custom": "Write my own formula",
+      "equation": "Equation",
+      "help": "For example v = d / t. Each letter is a variable; pi and e are constants.",
+      "unknown": "I want to find",
+      "valueOf": "Value of {name}",
+      "result": "Result",
+      "waiting": "Type an equation to begin.",
+      "missing": "The value of {names} is missing.",
+      "noSolution": "There is no solution with these values.",
+      "knownValues": "Known values"
+    },
+    "language": {
+      "completeTheSentence": "Complete the sentence with the missing word.",
+      "whichWord": "Which word matches this definition?",
+      "yourAnswer": "Your answer",
+      "check": "Check",
+      "next": "Next",
+      "skip": "Skip",
+      "counter": "Exercise {number} of {total}",
+      "noPractice": "This lab has no practice exercises yet.",
+      "score": "Right answers",
+      "scoreValue": "{right} of {tried}",
+      "practiceNote": "Practice is not stored and counts for no grade.",
+      "nothingShown": "Your teacher has not picked an exercise yet.",
+      "answerIs": "Answer:",
+      "revealAnswer": "Show the answer",
+      "hideAnswer": "Hide the answer",
+      "pickExercise": "Pick the exercise the class will see",
+      "mine": "Mine"
+    },
+    "verdicts": {
+      "CORRECT": "Correct",
+      "ACCENTS": "Check the accents",
+      "INCORRECT": "Incorrect"
+    },
+    "exercises": {
+      "title": "My exercises",
+      "newTitle": "New exercise",
+      "editTitle": "Edit exercise",
+      "sentence": "Sentence",
+      "sentenceHelp": "Type ___ (three underscores) where the missing word goes.",
+      "definition": "Definition",
+      "definitionHelp": "Type the definition; the answer is the word it defines.",
+      "needsBlank": "The sentence needs exactly one ___.",
+      "insertBlank": "Insert ___",
+      "answers": "Accepted answers",
+      "answersHelp": "Separate the answers you accept with commas (up to {max}). The first one is the one shown.",
+      "hint": "Hint (optional)",
+      "preview": "How your students will see it",
+      "create": "Add exercise",
+      "save": "Save changes",
+      "empty": "You have not written exercises of your own yet. Meanwhile you can use the {count} in the platform's bank.",
+      "editNamed": "Edit the exercise “{prompt}”",
+      "removeNamed": "Remove the exercise “{prompt}”"
+    },
+    "assign": {
+      "title": "New lab activity",
+      "lab": "Lab",
+      "activityTitle": "Activity title",
+      "instructions": "Instructions",
+      "instructionsLab": "Say what to try and what to write down; your students write it when they hand in.",
+      "instructionsLanguage": "The exercises are marked automatically when handed in.",
+      "dueAt": "Due date (optional)",
+      "exercises": "Exercises ({count} of {max})",
+      "noExercises": "There are no exercises for this lab.",
+      "submit": "Give to the group"
+    },
+    "follow": {
+      "empty": "You have not given this group any lab activities yet.",
+      "handedIn": "Handed in",
+      "handedInCount": "{count} of {total} handed in",
+      "due": "Due",
+      "noDue": "No due date",
+      "viewResults": "See hand-ins",
+      "delete": "Delete",
+      "deleteNamed": "Delete the activity “{title}”",
+      "deleteTitle": "Delete the activity?",
+      "deleteBody": "“{title}” and everything your students handed in will be deleted. This cannot be undone.",
+      "cancel": "Cancel",
+      "resultsOf": "Hand-ins of “{title}”",
+      "student": "Student",
+      "status": "Status",
+      "submitted": "Handed in",
+      "pending": "Pending",
+      "late": "Late",
+      "submittedAt": "Handed in on",
+      "score": "Right answers",
+      "scoreValue": "{score} of {total}",
+      "note": "Student's note",
+      "noStudents": "The group has no enrolled students.",
+      "answerKey": "Answers to the exercises"
+    },
+    "course": {
+      "title": "{subject} labs",
+      "subtitle": "Group {group}",
+      "newActivity": "Give an activity",
+      "activities": "Activities of the group",
+      "resultsOf": "Hand-ins of “{title}”"
+    },
+    "activities": {
+      "title": "My activities",
+      "empty": "You have no lab activities for now.",
+      "from": "{lab} · {subject}",
+      "pending": "Pending",
+      "handedIn": "Handed in",
+      "scored": "{score} of {total}",
+      "late": "Handed in late",
+      "dueOn": "Due: {date}",
+      "noDue": "No due date",
+      "noInstructions": "Your teacher left no instructions.",
+      "answerSheet": "Answers to the activity",
+      "questionNumber": "Question {number} of {total}",
+      "missingWord": "Missing word",
+      "word": "Word",
+      "yourAnswer": "Your answer:",
+      "blankAnswer": "(no answer)",
+      "accepted": "Answer: {answers}",
+      "handIn": "Hand in",
+      "handInTitle": "Hand in the activity",
+      "note": "What did you find?",
+      "noteHelp": "Write down the values you found or your conclusion. Your teacher will see it with your hand-in.",
+      "yourNote": "Your note",
+      "confirmTitle": "Hand in the activity?",
+      "confirmBody": "You can hand it in only once. Then you will see your results.",
+      "keepWorking": "Keep working",
+      "handedInOn": "You handed in this activity on {date}.",
+      "scoreSentence": "You got {score} of {total} right."
+    }
   }
 }

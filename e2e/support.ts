@@ -169,6 +169,16 @@ export async function createInstitution(playwright: Playwright) {
       expect(response.ok(), "PUT " + path + ": " + response.status()).toBe(true);
       return (await response.json()) as T;
     },
+    /** Grants labs to this institution as the Platform Admin; a granted lab starts switched on. */
+    async grantLabs(labKeys: string[]) {
+      for (const labKey of labKeys) {
+        const response = await api.put(`${API_URL}/institutions/${institutionId}/labs/${labKey}`, {
+          headers: bearer(platformToken),
+          data: { granted: true },
+        });
+        expect(response.status(), `grant ${labKey}`).toBe(204);
+      }
+    },
     dispose: () => api.dispose(),
   };
 }

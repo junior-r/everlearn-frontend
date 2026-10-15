@@ -1,6 +1,6 @@
 import { DisconnectReason } from "livekit-client";
 import { describe, expect, it } from "vitest";
-import { closureFor, gridColumns, stageKey, startedScreen, unreadCount } from "./room-state";
+import { closureFor, gridColumns, LAB_STAGE_KEY, stageKey, startedScreen, unreadCount } from "./room-state";
 
 describe("closureFor", () => {
   it("says nothing when the viewer left on purpose", () => {
@@ -76,5 +76,19 @@ describe("unreadCount", () => {
 
   it("never goes below zero when old messages were dropped", () => {
     expect(unreadCount(300, 320, false)).toBe(0);
+  });
+});
+
+describe("a shared lab on the stage", () => {
+  it("takes the stage when it starts being shown, like a new screen", () => {
+    const tiles = ["teacher:camera", "grace:camera"];
+    expect(startedScreen([], [LAB_STAGE_KEY])).toBe(LAB_STAGE_KEY);
+    expect(stageKey([LAB_STAGE_KEY, ...tiles], [LAB_STAGE_KEY], undefined)).toBe(LAB_STAGE_KEY);
+  });
+
+  it("leaves the stage to whatever the viewer pinned afterwards, and goes when it is taken off", () => {
+    const tiles = ["teacher:camera", "grace:camera"];
+    expect(stageKey([LAB_STAGE_KEY, ...tiles], [LAB_STAGE_KEY], "grace:camera")).toBe("grace:camera");
+    expect(stageKey(tiles, [], LAB_STAGE_KEY)).toBeNull();
   });
 });
