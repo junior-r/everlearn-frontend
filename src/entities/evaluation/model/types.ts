@@ -63,6 +63,8 @@ export interface Gradebook {
   /** Drafts included. */
   evaluations: Evaluation[];
   totalWeight: number;
+  /** What is left of the 100% for new evaluations, as the backend counts it. */
+  availableWeight: number;
   students: GradebookStudent[];
 }
 

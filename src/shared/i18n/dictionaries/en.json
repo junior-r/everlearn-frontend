@@ -193,7 +193,9 @@
       "maxScore": "Maximum score: {maxScore}",
       "due": "Due: {date}",
       "noDue": "No due date",
-      "draftHint": "Students only see published evaluations."
+      "draftHint": "Students only see published evaluations.",
+      "weightLeft": "{left}% of the subject's weight is left for new evaluations.",
+      "full": "The evaluations of this subject already add up to 100% of its weight. To plan another one, edit an existing one and lower its weight, or delete a draft."
     },
     "gradebook": {
       "title": "Gradebook",

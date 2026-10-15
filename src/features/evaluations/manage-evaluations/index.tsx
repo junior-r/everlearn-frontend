@@ -32,6 +32,8 @@ interface EvaluationFormProps {
   editing: Evaluation | null;
   /** Grades were given against the maximum score, so it is fixed once any exist. */
   lockMaxScore: boolean;
+  /** What is left of the 100% for a new evaluation, as the backend counts it; null while editing. */
+  availableWeight: number | null;
   onSaved(): void;
   onCancel(): void;
 }
@@ -42,10 +44,12 @@ function EvaluationForm({
   subjectId,
   editing,
   lockMaxScore,
+  availableWeight,
   onSaved,
   onCancel,
 }: EvaluationFormProps) {
   const { evaluations, errors } = useDictionary();
+  const locale = useLocale();
   const text = evaluations.manage;
   const [title, setTitle] = useState(editing?.title ?? "");
   const [type, setType] = useState<EvaluationType>(editing?.type ?? "EXAM");
@@ -105,7 +109,7 @@ function EvaluationForm({
           inputMode="decimal"
           required
           min={0.01}
-          max={MAX_TOTAL_WEIGHT}
+          max={availableWeight ?? MAX_TOTAL_WEIGHT}
           step={0.01}
           value={weight}
           onChange={(event) => setWeight(event.target.value)}
@@ -123,6 +127,11 @@ function EvaluationForm({
           onChange={(event) => setMaxScore(event.target.value)}
         />
       </div>
+      {availableWeight !== null && (
+        <p className="-mt-2 text-xs text-muted">
+          {format(text.weightLeft, { left: formatNumber(availableWeight, locale) })}
+        </p>
+      )}
       <TextField
         label={text.fields.dueAt}
         type="datetime-local"
@@ -275,21 +284,33 @@ export function ManageEvaluations({ institutionId, gradebook, onChanged }: Manag
           ))}
         </ul>
       </div>
-      <EvaluationForm
-        // A new form per evaluation and after each save, so its fields start from the right values
-        key={`${editing?.id ?? "new"}:${savedCount}`}
-        institutionId={institutionId}
-        groupId={gradebook.groupId}
-        subjectId={gradebook.subject.id}
-        editing={editing}
-        lockMaxScore={editing !== null && graded.has(editing.id)}
-        onSaved={() => {
-          setEditing(null);
-          setSavedCount((count) => count + 1);
-          onChanged();
-        }}
-        onCancel={() => setEditing(null)}
-      />
+      {!editing && gradebook.availableWeight <= 0 ? (
+        // Nothing new fits: say so, and how to make room, instead of a form the backend would refuse
+        <section
+          aria-label={text.new}
+          className="flex flex-col gap-2 rounded-2xl border border-line bg-surface p-5 shadow-card"
+        >
+          <h3 className="font-semibold">{text.new}</h3>
+          <p className="text-sm text-muted">{text.full}</p>
+        </section>
+      ) : (
+        <EvaluationForm
+          // A new form per evaluation and after each save, so its fields start from the right values
+          key={`${editing?.id ?? "new"}:${savedCount}`}
+          institutionId={institutionId}
+          groupId={gradebook.groupId}
+          subjectId={gradebook.subject.id}
+          editing={editing}
+          lockMaxScore={editing !== null && graded.has(editing.id)}
+          availableWeight={editing ? null : gradebook.availableWeight}
+          onSaved={() => {
+            setEditing(null);
+            setSavedCount((count) => count + 1);
+            onChanged();
+          }}
+          onCancel={() => setEditing(null)}
+        />
+      )}
     </div>
   );
 }
