@@ -1,10 +1,10 @@
 "use client";
 
 import { useRoomInfo } from "@livekit/components-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { shareLab, stopSharingLab } from "@/entities/class-session";
 import { parseSharedLab, type LabKey, type LabLookup, type LabState } from "@/entities/lab";
-import { createLatestSender } from "@/shared/lib/latest-sender";
+import { createLatestSender, type LatestSender } from "@/shared/lib/latest-sender";
 
 /** The lab on the class's stage, and how this viewer takes part in it. */
 export interface ClassLab {
@@ -38,15 +38,23 @@ export function useSharedLab({ token, identity, isTeacher, findLab, onError }: S
   const [presented, setPresented] = useState<{ labKey: LabKey; state: LabState } | null>(null);
   // Once the Teacher has acted, the room metadata no longer decides what they present
   const [hasTakenOver, setHasTakenOver] = useState(false);
-  const sender = useMemo(
-    () =>
-      createLatestSender<Broadcast>(
-        (broadcast) => (broadcast ? shareLab(token, broadcast.labKey, broadcast.state) : stopSharingLab(token)),
-        { minInterval: SEND_INTERVAL_MS, onError },
-      ),
-    [token, onError],
-  );
-  useEffect(() => () => sender.dispose(), [sender]);
+  // Made by the effect, not memoized: React may clean an effect up and run it again (Strict Mode
+  // does in development), and a sender disposed by that cleanup must never be the one used after
+  const sender = useRef<LatestSender<Broadcast> | null>(null);
+  useEffect(() => {
+    const created = createLatestSender<Broadcast>(
+      (broadcast) => (broadcast ? shareLab(token, broadcast.labKey, broadcast.state) : stopSharingLab(token)),
+      { minInterval: SEND_INTERVAL_MS, onError },
+    );
+    sender.current = created;
+    return () => {
+      created.dispose();
+      if (sender.current === created) {
+        sender.current = null;
+      }
+    };
+  }, [token, onError]);
+  const broadcast = useCallback((value: Broadcast) => sender.current?.push(value), []);
 
   // A Teacher back in a class where they were sharing takes the lab up where it was
   if (isTeacher && !hasTakenOver && presented === null && remote?.sharedBy === identity) {
@@ -59,9 +67,9 @@ export function useSharedLab({ token, identity, isTeacher, findLab, onError }: S
       const state = findLab(labKey).initial();
       setHasTakenOver(true);
       setPresented({ labKey, state });
-      sender.push({ labKey, state });
+      broadcast({ labKey, state });
     },
-    [findLab, sender],
+    [findLab, broadcast],
   );
   const update = useCallback(
     (state: LabState) => {
@@ -69,15 +77,15 @@ export function useSharedLab({ token, identity, isTeacher, findLab, onError }: S
         return;
       }
       setPresented({ labKey: presented.labKey, state });
-      sender.push({ labKey: presented.labKey, state });
+      broadcast({ labKey: presented.labKey, state });
     },
-    [presented, sender],
+    [presented, broadcast],
   );
   const stop = useCallback(() => {
     setHasTakenOver(true);
     setPresented(null);
-    sender.push(null);
-  }, [sender]);
+    broadcast(null);
+  }, [broadcast]);
 
   const followed = useMemo<ClassLab | null>(
     () => remote && { labKey: remote.labKey, state: findLab(remote.labKey).parse(remote.state), mode: "follower" },
