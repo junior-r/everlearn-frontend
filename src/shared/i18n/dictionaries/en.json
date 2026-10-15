@@ -1075,7 +1075,7 @@
     },
     "descriptions": {
       "gravity": "Drop an object on Earth, the Moon, Mars or Jupiter and compare how long it takes.",
-      "forces": "Push a block on a ramp with friction and see whether it goes up, down or stays put.",
+      "forces": "Release a block on a ramp with friction and see whether it slides down or stays put; push it and it can also go up.",
       "kinematics": "Two movers on the same line: where each one is and when they meet.",
       "projectile": "Launch an object at a speed and an angle: its path, its range and its highest point.",
       "function-grapher": "Draw up to three functions of x and read their values anywhere.",
@@ -1139,7 +1139,7 @@
     },
     "forces": {
       "mass": "Block mass",
-      "force": "Applied force",
+      "force": "Push up the ramp",
       "friction": "Friction coefficient",
       "angle": "Ramp angle",
       "release": "Release the block",

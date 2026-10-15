@@ -1075,7 +1075,7 @@
     },
     "descriptions": {
       "gravity": "Deja caer un objeto en la Tierra, la Luna, Marte o Júpiter y compara cuánto tarda.",
-      "forces": "Empuja un bloque sobre una rampa con rozamiento y mira si sube, baja o se queda quieto.",
+      "forces": "Suelta un bloque en una rampa con rozamiento y mira si baja o se queda quieto; si lo empujas, también puede subir.",
       "kinematics": "Dos móviles en la misma recta: dónde está cada uno y cuándo se encuentran.",
       "projectile": "Lanza un objeto con una velocidad y un ángulo: su trayectoria, su alcance y su altura máxima.",
       "function-grapher": "Dibuja hasta tres funciones de x y lee sus valores en cualquier punto.",
@@ -1139,7 +1139,7 @@
     },
     "forces": {
       "mass": "Masa del bloque",
-      "force": "Fuerza aplicada",
+      "force": "Empuje hacia arriba de la rampa",
       "friction": "Coeficiente de rozamiento",
       "angle": "Inclinación de la rampa",
       "release": "Soltar el bloque",

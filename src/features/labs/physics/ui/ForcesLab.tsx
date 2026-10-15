@@ -26,7 +26,8 @@ export interface ForcesState {
 }
 
 const WIDTH = 480;
-const HEIGHT = 300;
+// Room under the ground for the weight arrow of a block at the foot of the ramp
+const HEIGHT = 360;
 const BASE = { x: 40, y: 262 };
 /** The longest the ramp is drawn; a steep one is drawn shorter so it stays inside the frame. */
 const LONGEST_SLOPE = 380;
@@ -217,14 +218,15 @@ function ForcesView({ state, onChange, mode }: LabViewProps<ForcesState>) {
 /** A block on a ramp: the forces on it, and whether it moves (Newton's second law with friction). */
 export const forcesLab: LabModule<ForcesState> = {
   key: "forces",
-  initial: () => ({ mass: 10, force: 80, friction: 0.3, angle: 20, run: 0 }),
+  // Released with no push it slides down, as a block on a ramp does; pushing it up is a choice
+  initial: () => ({ mass: 10, force: 0, friction: 0.3, angle: 30, run: 0 }),
   parse(value) {
     const fields = isFields(value) ? value : {};
     return {
       mass: numberIn(fields.mass, 1, 50, 10),
-      force: numberIn(fields.force, 0, 500, 80),
+      force: numberIn(fields.force, 0, 500, 0),
       friction: numberIn(fields.friction, 0, 1, 0.3),
-      angle: numberIn(fields.angle, 0, 60, 20),
+      angle: numberIn(fields.angle, 0, 60, 30),
       run: runOf(fields.run),
     };
   },
