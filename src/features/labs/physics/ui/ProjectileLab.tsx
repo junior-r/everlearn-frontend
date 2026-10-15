@@ -5,9 +5,11 @@ import {
   formatQuantity,
   isFields,
   LabStage,
+  nextRun,
   numberIn,
   oneOf,
   runOf,
+  stoppedRun,
   type LabModule,
   type LabViewProps,
 } from "@/entities/lab";
@@ -47,9 +49,9 @@ function ProjectileView({ state, onChange, mode }: LabViewProps<ProjectileState>
   const path = Array.from({ length: PATH_STEPS + 1 }, (_, step) => toScreen(projectileAt(launch, (flight.time * step) / PATH_STEPS)))
     .map(({ x, y }, index) => `${index === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`)
     .join(" ");
-  const ball = toScreen(projectileAt(launch, state.run === 0 ? 0 : elapsed));
+  const ball = toScreen(projectileAt(launch, elapsed));
   const quantity = (value: number, unit: string, digits?: number) => formatQuantity(locale, value, unit, digits);
-  const change = (patch: Partial<ProjectileState>) => onChange({ ...state, ...patch, run: 0 });
+  const change = (patch: Partial<ProjectileState>) => onChange({ ...state, ...patch, run: stoppedRun(state.run) });
 
   return (
     <LabStage
@@ -101,7 +103,7 @@ function ProjectileView({ state, onChange, mode }: LabViewProps<ProjectileState>
       }
       actions={
         <>
-          <Button size="sm" disabled={isFollowing} onClick={() => onChange({ ...state, run: state.run + 1 })}>
+          <Button size="sm" disabled={isFollowing} onClick={() => onChange({ ...state, run: nextRun(state.run) })}>
             <PlayIcon aria-hidden weight="fill" className="size-4" />
             {text.launch}
           </Button>

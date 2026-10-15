@@ -20,5 +20,14 @@ export function textOf(value: unknown, maxLength: number, fallback = ""): string
   return typeof value === "string" ? value.slice(0, maxLength) : fallback;
 }
 
-/** A whole number of runs: how many times a simulation was started. */
-export const runOf = (value: unknown) => numberIn(value, 0, Number.MAX_SAFE_INTEGER, 0);
+/**
+ * Which run of a simulation is shown: above 0 it plays, 0 or below it waits at
+ * its start. A number is never used twice, so a new run never shows an old run's time.
+ */
+export const runOf = (value: unknown) => numberIn(value, -Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, 0);
+
+/** The run that plays next. */
+export const nextRun = (run: number) => Math.abs(run) + 1;
+
+/** Back at the start, waiting, under a number of its own. */
+export const stoppedRun = (run: number) => -(Math.abs(run) + 1);

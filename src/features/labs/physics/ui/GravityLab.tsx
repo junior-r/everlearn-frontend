@@ -5,9 +5,11 @@ import {
   formatQuantity,
   isFields,
   LabStage,
+  nextRun,
   numberIn,
   oneOf,
   runOf,
+  stoppedRun,
   type LabModule,
   type LabViewProps,
 } from "@/entities/lab";
@@ -44,7 +46,7 @@ function GravityView({ state, onChange, mode }: LabViewProps<GravityState>) {
   const setBody = (index: 0 | 1, body: Body) => {
     const bodies: [Body, Body] = [...state.bodies];
     bodies[index] = body;
-    onChange({ ...state, bodies, run: 0 });
+    onChange({ ...state, bodies, run: stoppedRun(state.run) });
   };
   const bodyOptions = BODIES.map((body) => ({
     value: body,
@@ -69,7 +71,7 @@ function GravityView({ state, onChange, mode }: LabViewProps<GravityState>) {
             step={1}
             display={quantity(state.height, labs.units.metre)}
             disabled={isFollowing}
-            onChange={(height) => onChange({ ...state, height, run: 0 })}
+            onChange={(height) => onChange({ ...state, height, run: stoppedRun(state.run) })}
           />
           <SelectField
             label={text.first}
@@ -89,11 +91,11 @@ function GravityView({ state, onChange, mode }: LabViewProps<GravityState>) {
       }
       actions={
         <>
-          <Button size="sm" disabled={isFollowing} onClick={() => onChange({ ...state, run: state.run + 1 })}>
+          <Button size="sm" disabled={isFollowing} onClick={() => onChange({ ...state, run: nextRun(state.run) })}>
             <PlayIcon aria-hidden weight="fill" className="size-4" />
             {text.drop}
           </Button>
-          <Button size="sm" variant="secondary" disabled={isFollowing} onClick={() => onChange({ ...state, run: 0 })}>
+          <Button size="sm" variant="secondary" disabled={isFollowing} onClick={() => onChange({ ...state, run: stoppedRun(state.run) })}>
             <ArrowCounterClockwiseIcon aria-hidden weight="bold" className="size-4" />
             {labs.common.reset}
           </Button>

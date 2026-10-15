@@ -5,8 +5,10 @@ import {
   formatQuantity,
   isFields,
   LabStage,
+  nextRun,
   numberIn,
   runOf,
+  stoppedRun,
   type LabModule,
   type LabViewProps,
 } from "@/entities/lab";
@@ -46,7 +48,7 @@ function KinematicsView({ state, onChange, mode }: LabViewProps<KinematicsState>
   const text = labs.kinematics;
   const isFollowing = mode === "follower";
   const elapsed = usePlayback(state.run, DURATION);
-  const time = state.run === 0 ? 0 : elapsed;
+  const time = elapsed;
   const samples = state.movers.map((mover) =>
     Array.from({ length: SAMPLES + 1 }, (_, step) => positionAt(mover, (DURATION * step) / SAMPLES)),
   );
@@ -64,7 +66,7 @@ function KinematicsView({ state, onChange, mode }: LabViewProps<KinematicsState>
   const setMover = (index: 0 | 1, patch: Partial<Mover>) => {
     const movers: [Mover, Mover] = [...state.movers];
     movers[index] = { ...movers[index], ...patch };
-    onChange({ movers, run: 0 });
+    onChange({ movers, run: stoppedRun(state.run) });
   };
 
   return (
@@ -102,11 +104,11 @@ function KinematicsView({ state, onChange, mode }: LabViewProps<KinematicsState>
       ))}
       actions={
         <>
-          <Button size="sm" disabled={isFollowing} onClick={() => onChange({ ...state, run: state.run + 1 })}>
+          <Button size="sm" disabled={isFollowing} onClick={() => onChange({ ...state, run: nextRun(state.run) })}>
             <PlayIcon aria-hidden weight="fill" className="size-4" />
             {text.start}
           </Button>
-          <Button size="sm" variant="secondary" disabled={isFollowing} onClick={() => onChange({ ...state, run: 0 })}>
+          <Button size="sm" variant="secondary" disabled={isFollowing} onClick={() => onChange({ ...state, run: stoppedRun(state.run) })}>
             <ArrowCounterClockwiseIcon aria-hidden weight="bold" className="size-4" />
             {labs.common.reset}
           </Button>

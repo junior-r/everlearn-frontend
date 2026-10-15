@@ -7,14 +7,14 @@ const prefersReducedMotion = () =>
 
 /**
  * Plays a simulation of `duration` seconds each time `run` changes, and
- * returns how far it has got. `run` 0 means it was never started (time 0).
+ * returns how far it has got. A `run` of 0 or below has not started (time 0).
  * With reduced motion the end is shown at once.
  */
 export function usePlayback(run: number, duration: number): number {
   // Which run the time belongs to, so a new run starts from zero in the same render
   const [frame, setFrame] = useState({ run: 0, elapsed: 0 });
   const [isReduced] = useState(prefersReducedMotion);
-  const plays = run !== 0 && !isReduced && duration > 0;
+  const plays = run > 0 && !isReduced && duration > 0;
 
   useEffect(() => {
     if (!plays) {
@@ -33,7 +33,7 @@ export function usePlayback(run: number, duration: number): number {
     return () => cancelAnimationFrame(request);
   }, [plays, run, duration]);
 
-  if (run === 0) {
+  if (run <= 0) {
     return 0;
   }
   if (!plays) {

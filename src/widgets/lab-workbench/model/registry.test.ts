@@ -28,7 +28,7 @@ describe("the lab registry", () => {
   });
 
   it("keeps values in range", () => {
-    expect(LAB_RUNNERS.gravity.parse({ height: 5000, bodies: ["pluto", "mars"], run: -3 })).toEqual({
+    expect(LAB_RUNNERS.gravity.parse({ height: 5000, bodies: ["pluto", "mars"], run: "fast" })).toEqual({
       height: 20,
       bodies: ["earth", "mars"],
       run: 0,

@@ -5,15 +5,17 @@ import {
   formatQuantity,
   isFields,
   LabStage,
+  nextRun,
   numberIn,
   runOf,
+  stoppedRun,
   type LabModule,
   type LabViewProps,
 } from "@/entities/lab";
 import { format, useDictionary, useLocale } from "@/shared/i18n";
 import { usePlayback } from "@/shared/lib/use-playback";
 import { Button, RangeField } from "@/shared/ui";
-import { balanceOf, GRAVITY } from "../lib/physics";
+import { balanceOf, GRAVITY, RAMP_LENGTH, rampPositionAt, slideOf } from "../lib/physics";
 
 export interface ForcesState {
   mass: number;
@@ -23,15 +25,14 @@ export interface ForcesState {
   run: number;
 }
 
-/** How long a run lasts, in seconds. */
-const DURATION = 3;
 const WIDTH = 480;
 const HEIGHT = 300;
 const BASE = { x: 40, y: 262 };
-const SLOPE = 330;
+/** The longest the ramp is drawn; a steep one is drawn shorter so it stays inside the frame. */
+const LONGEST_SLOPE = 380;
+/** Room kept above the top of the ramp, for the block and its arrows. */
+const TOP_ROOM = 64;
 const BLOCK = 34;
-/** Pixels per metre the block slides. */
-const PIXELS_PER_METRE = 24;
 const LONGEST_ARROW = 90;
 
 const radians = (degrees: number) => (degrees * Math.PI) / 180;
@@ -68,18 +69,19 @@ function ForcesView({ state, onChange, mode }: LabViewProps<ForcesState>) {
   const text = labs.forces;
   const isFollowing = mode === "follower";
   const balance = balanceOf({ ...state, gravity: GRAVITY.earth });
-  const elapsed = usePlayback(state.run, DURATION);
-  const time = state.run === 0 ? 0 : elapsed;
+  const slide = slideOf(balance);
+  const elapsed = usePlayback(state.run, slide.duration);
+  const hasRun = state.run > 0;
   const angle = radians(state.angle);
   const along = { x: Math.cos(angle), y: -Math.sin(angle) };
   const outward = { x: -Math.sin(angle), y: -Math.cos(angle) };
-  const travelled = (balance.acceleration * time * time) / 2;
-  const distance = Math.min(SLOPE * 0.88, Math.max(SLOPE * 0.12, SLOPE / 2 + travelled * PIXELS_PER_METRE));
+  const slopeLength = Math.min(LONGEST_SLOPE, (BASE.y - TOP_ROOM) / Math.max(Math.sin(angle), 1e-6), WIDTH - BASE.x - 30);
+  const distance = (rampPositionAt(slide, elapsed) / RAMP_LENGTH) * slopeLength;
   const center = {
     x: BASE.x + along.x * distance + outward.x * (BLOCK / 2),
     y: BASE.y + along.y * distance + outward.y * (BLOCK / 2),
   };
-  const top = { x: BASE.x + along.x * SLOPE, y: BASE.y + along.y * SLOPE };
+  const top = { x: BASE.x + along.x * slopeLength, y: BASE.y + along.y * slopeLength };
   const biggest = Math.max(balance.weight, state.force, balance.normal, 1);
   const length = (force: number) => (force / biggest) * LONGEST_ARROW;
   const toward = (direction: Point, force: number): Point => ({
@@ -87,7 +89,7 @@ function ForcesView({ state, onChange, mode }: LabViewProps<ForcesState>) {
     y: center.y + direction.y * length(force),
   });
   const quantity = (value: number, unit: string, digits?: number) => formatQuantity(locale, value, unit, digits);
-  const change = (patch: Partial<ForcesState>) => onChange({ ...state, ...patch, run: 0 });
+  const change = (patch: Partial<ForcesState>) => onChange({ ...state, ...patch, run: stoppedRun(state.run) });
 
   return (
     <LabStage
@@ -139,7 +141,7 @@ function ForcesView({ state, onChange, mode }: LabViewProps<ForcesState>) {
       }
       actions={
         <>
-          <Button size="sm" disabled={isFollowing} onClick={() => onChange({ ...state, run: state.run + 1 })}>
+          <Button size="sm" disabled={isFollowing} onClick={() => onChange({ ...state, run: nextRun(state.run) })}>
             <PlayIcon aria-hidden weight="fill" className="size-4" />
             {text.release}
           </Button>
@@ -185,6 +187,18 @@ function ForcesView({ state, onChange, mode }: LabViewProps<ForcesState>) {
               </li>
             ))}
           </ul>
+          <p role="status" className="border-t border-line bg-surface px-3 py-2 text-sm font-medium">
+            {!hasRun
+              ? text.ready
+              : balance.motion === "rest"
+                ? text.heldByFriction
+                : elapsed < slide.duration
+                  ? text.motions[balance.motion]
+                  : format(text.travelled, {
+                      distance: quantity(Math.abs(rampPositionAt(slide, slide.duration) - slide.start), labs.units.metre),
+                      time: quantity(slide.duration, labs.units.second),
+                    })}
+          </p>
         </div>
       }
       readings={[

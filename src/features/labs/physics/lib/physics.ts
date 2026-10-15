@@ -144,3 +144,41 @@ export function balanceOf({ mass, force, friction, angle, gravity }: Incline): F
     motion: direction > 0 ? "up" : "down",
   };
 }
+
+/** The ramp of the forces lab, in metres. */
+export const RAMP_LENGTH = 10;
+/** Room left between the block and each end of the ramp. */
+const RAMP_MARGIN = 1;
+/** A slide slower than this is shown only this long: the block is still moving when it ends. */
+const LONGEST_SLIDE = 8;
+
+export interface Slide {
+  /** Where the block starts, in metres from the foot of the ramp. */
+  start: number;
+  /** Positive up the ramp. */
+  acceleration: number;
+  /** How long the slide is shown: until the block reaches the far end, or `LONGEST_SLIDE`. */
+  duration: number;
+}
+
+/**
+ * How a block released on the ramp moves: from the end it moves away from,
+ * until it reaches the other end. A block at rest stays in the middle.
+ */
+export function slideOf({ acceleration, motion }: Pick<ForceBalance, "acceleration" | "motion">): Slide {
+  if (motion === "rest" || acceleration === 0) {
+    return { start: RAMP_LENGTH / 2, acceleration: 0, duration: 0 };
+  }
+  const distance = RAMP_LENGTH - 2 * RAMP_MARGIN;
+  return {
+    start: motion === "up" ? RAMP_MARGIN : RAMP_LENGTH - RAMP_MARGIN,
+    acceleration,
+    duration: Math.min(LONGEST_SLIDE, Math.sqrt((2 * distance) / Math.abs(acceleration))),
+  };
+}
+
+/** Where the block is `time` seconds into its slide, in metres from the foot of the ramp. */
+export function rampPositionAt({ start, acceleration, duration }: Slide, time: number): number {
+  const elapsed = Math.min(Math.max(time, 0), duration);
+  return start + (acceleration * elapsed * elapsed) / 2;
+}

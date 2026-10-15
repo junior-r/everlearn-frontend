@@ -71,7 +71,7 @@ export type {
   Verdict,
 } from "./model/types";
 export { formatQuantity } from "./lib/format";
-export { isFields, numberIn, oneOf, runOf, textOf } from "./lib/state-fields";
+export { isFields, nextRun, numberIn, oneOf, runOf, stoppedRun, textOf } from "./lib/state-fields";
 export type { Fields } from "./lib/state-fields";
 export type {
   LabLookup,

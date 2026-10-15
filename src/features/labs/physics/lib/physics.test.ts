@@ -9,6 +9,9 @@ import {
   meetingTime,
   positionAt,
   projectileAt,
+  RAMP_LENGTH,
+  rampPositionAt,
+  slideOf,
   velocityAt,
 } from "./physics";
 
@@ -95,5 +98,30 @@ describe("forces on an incline", () => {
     const balance = balanceOf({ mass: 1, force: 20, friction: 0.2, angle: 30, gravity: 10 });
     expect(balance.motion).toBe("up");
     expect(balance.acceleration).toBeCloseTo(20 - 5 - 1.732, 2);
+  });
+});
+
+describe("a block sliding on the ramp", () => {
+  it("starts at the foot when it goes up, and stops at the far end", () => {
+    const slide = slideOf({ acceleration: 2, motion: "up" });
+    expect(slide.start).toBe(1);
+    expect(slide.duration).toBeCloseTo(Math.sqrt(8));
+    expect(rampPositionAt(slide, 0)).toBe(1);
+    expect(rampPositionAt(slide, slide.duration)).toBeCloseTo(RAMP_LENGTH - 1);
+    // It never runs past the end, however long it is watched
+    expect(rampPositionAt(slide, 60)).toBeCloseTo(RAMP_LENGTH - 1);
+  });
+
+  it("starts at the top when it slides down", () => {
+    const slide = slideOf({ acceleration: -4, motion: "down" });
+    expect(slide.start).toBe(RAMP_LENGTH - 1);
+    expect(rampPositionAt(slide, slide.duration)).toBeCloseTo(1);
+  });
+
+  it("does not move at rest, and a very slow slide is shown for a limited time", () => {
+    expect(slideOf({ acceleration: 0, motion: "rest" })).toEqual({ start: RAMP_LENGTH / 2, acceleration: 0, duration: 0 });
+    const slow = slideOf({ acceleration: 0.01, motion: "up" });
+    expect(slow.duration).toBe(8);
+    expect(rampPositionAt(slow, 8)).toBeLessThan(RAMP_LENGTH - 1);
   });
 });

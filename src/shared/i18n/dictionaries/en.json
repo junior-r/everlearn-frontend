@@ -1155,7 +1155,10 @@
         "down": "Slides down the ramp",
         "rest": "Stays put"
       },
-      "drawing": "A block on a {angle} ramp with the forces acting on it"
+      "drawing": "A block on a {angle} ramp with the forces acting on it",
+      "ready": "Press “Release the block” to see how it moves on a 10 m ramp.",
+      "heldByFriction": "It does not move: friction balances the other forces.",
+      "travelled": "It travelled {distance} in {time}."
     },
     "grapher": {
       "functions": "Functions",

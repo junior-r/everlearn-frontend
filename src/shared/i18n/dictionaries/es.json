@@ -1155,7 +1155,10 @@
         "down": "Baja por la rampa",
         "rest": "Se queda quieto"
       },
-      "drawing": "Un bloque sobre una rampa de {angle} con las fuerzas que actúan sobre él"
+      "drawing": "Un bloque sobre una rampa de {angle} con las fuerzas que actúan sobre él",
+      "ready": "Pulsa «Soltar el bloque» para ver cómo se mueve en una rampa de 10 m.",
+      "heldByFriction": "No se mueve: el rozamiento compensa las demás fuerzas.",
+      "travelled": "Recorrió {distance} en {time}."
     },
     "grapher": {
       "functions": "Funciones",
