@@ -10,6 +10,7 @@ import {
   type ClassroomCourse,
 } from "@/entities/class-session";
 import { courseEvaluationsPath } from "@/entities/evaluation";
+import { courseLabsPath } from "@/entities/lab";
 import { errorMessage, format, localizedPath, useDictionary, useLocale, useLocalizedRouter } from "@/shared/i18n";
 import { useResource } from "@/shared/lib/use-resource";
 import { useSubmit } from "@/shared/lib/use-submit";
@@ -64,11 +65,12 @@ export function MyClasses({ institutionId }: { institutionId: string }) {
             return (
               <li
                 key={`${course.groupId}:${course.subject.id}`}
-                className="flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-surface px-4 py-3"
+                className="flex flex-wrap items-center gap-x-3 gap-y-2.5 rounded-2xl border border-line bg-surface px-4 py-3"
               >
-                <div className="min-w-0 flex-1">
+                {/* A basis, not a zero width: when the actions do not fit beside the name they wrap under it */}
+                <div className="min-w-0 grow basis-48">
                   <p className="flex flex-wrap items-center gap-2 text-sm font-medium">
-                    {subject}
+                    <span className="min-w-0 break-words">{subject}</span>
                     {course.openSessionId && (
                       <Badge tone="coral">
                         <BroadcastIcon aria-hidden weight="bold" className="mr-1 size-3.5" />
@@ -81,45 +83,56 @@ export function MyClasses({ institutionId }: { institutionId: string }) {
                     {course.role === "STUDENT" && teacher && ` · ${format(text.teacher, { name: teacher })}`}
                   </p>
                 </div>
-                {course.role === "TEACHER" && (
-                  <Link
-                    href={localizedPath(locale, courseAttendancePath(course.groupId, course.subject.id))}
-                    aria-label={format(text.attendanceFor, { subject })}
-                    className={buttonClass("secondary", "sm")}
-                  >
-                    {text.attendance}
-                  </Link>
-                )}
-                {course.role === "TEACHER" && (
-                  <Link
-                    href={localizedPath(locale, courseEvaluationsPath(course.groupId, course.subject.id))}
-                    aria-label={format(text.evaluationsFor, { subject })}
-                    className={buttonClass("secondary", "sm")}
-                  >
-                    {text.evaluations}
-                  </Link>
-                )}
-                {course.openSessionId ? (
-                  <Link
-                    href={localizedPath(locale, classPath(course.openSessionId))}
-                    aria-label={format(text.enterFor, { subject })}
-                    className={buttonClass("primary", "sm")}
-                  >
-                    {text.enter}
-                    <ArrowRightIcon aria-hidden weight="bold" className="size-4" />
-                  </Link>
-                ) : course.role === "TEACHER" ? (
-                  <Button
-                    size="sm"
-                    isLoading={isSubmitting}
-                    aria-label={format(text.startFor, { subject })}
-                    onClick={() => submit(course)}
-                  >
-                    {text.start}
-                  </Button>
-                ) : (
-                  <Badge tone="neutral">{text.notLive}</Badge>
-                )}
+                <div className="flex flex-wrap items-center gap-2">
+                  {course.role === "TEACHER" && (
+                    <Link
+                      href={localizedPath(locale, courseAttendancePath(course.groupId, course.subject.id))}
+                      aria-label={format(text.attendanceFor, { subject })}
+                      className={buttonClass("secondary", "sm")}
+                    >
+                      {text.attendance}
+                    </Link>
+                  )}
+                  {course.role === "TEACHER" && (
+                    <Link
+                      href={localizedPath(locale, courseLabsPath(course.groupId, course.subject.id))}
+                      aria-label={format(text.labsFor, { subject })}
+                      className={buttonClass("secondary", "sm")}
+                    >
+                      {text.labs}
+                    </Link>
+                  )}
+                  {course.role === "TEACHER" && (
+                    <Link
+                      href={localizedPath(locale, courseEvaluationsPath(course.groupId, course.subject.id))}
+                      aria-label={format(text.evaluationsFor, { subject })}
+                      className={buttonClass("secondary", "sm")}
+                    >
+                      {text.evaluations}
+                    </Link>
+                  )}
+                  {course.openSessionId ? (
+                    <Link
+                      href={localizedPath(locale, classPath(course.openSessionId))}
+                      aria-label={format(text.enterFor, { subject })}
+                      className={buttonClass("primary", "sm")}
+                    >
+                      {text.enter}
+                      <ArrowRightIcon aria-hidden weight="bold" className="size-4" />
+                    </Link>
+                  ) : course.role === "TEACHER" ? (
+                    <Button
+                      size="sm"
+                      isLoading={isSubmitting}
+                      aria-label={format(text.startFor, { subject })}
+                      onClick={() => submit(course)}
+                    >
+                      {text.start}
+                    </Button>
+                  ) : (
+                    <Badge tone="neutral">{text.notLive}</Badge>
+                  )}
+                </div>
               </li>
             );
           })}

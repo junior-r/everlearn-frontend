@@ -4,46 +4,182 @@ import {
   LiveKitRoom,
   RoomAudioRenderer,
   useConnectionState,
+  useParticipantAttribute,
+  useParticipants,
   useRoomContext,
   useTracks,
+  type TrackReferenceOrPlaceholder,
 } from "@livekit/components-react";
+import { HandIcon } from "@phosphor-icons/react/dist/ssr";
 import { ConnectionState, Track } from "livekit-client";
-import { useState } from "react";
-import type { ClassroomAccess } from "@/entities/class-session";
+import { useCallback, useMemo, useState, type ReactNode } from "react";
+import {
+  deleteChatMessage,
+  endClass,
+  HAND_ATTRIBUTE,
+  lowerParticipantHand,
+  muteParticipant,
+  setHandRaised,
+  type ChatMessage,
+  type ClassroomAccess,
+} from "@/entities/class-session";
+import { LABS_ATTRIBUTE, parseShareableLabs, type LabLookup } from "@/entities/lab";
 import { ChatPanel } from "@/features/classroom/send-chat-message";
+import { errorCode } from "@/shared/api";
 import { env } from "@/shared/config/env";
-import { format, useDictionary } from "@/shared/i18n";
+import { errorMessage, format, useDictionary } from "@/shared/i18n";
 import { cn } from "@/shared/lib/cn";
-import { Badge, Button, ErrorNotice } from "@/shared/ui";
-import { closureFor, gridColumns, type Closure } from "../lib/room-state";
+import { Badge, Button, Dialog, ErrorNotice } from "@/shared/ui";
+import {
+  closureFor,
+  gridColumns,
+  LAB_STAGE_KEY,
+  stageKey,
+  startedScreen,
+  unreadCount,
+  type Closure,
+  type StageChoice,
+} from "../lib/room-state";
+import { ROOM_OPTIONS } from "../lib/room-options";
 import { useRoomFeed } from "../model/use-room-feed";
+import { useSharedLab } from "../model/use-shared-lab";
 import { ClassControls } from "./ClassControls";
+import { LabPicker } from "./LabPicker";
 import { LiveCaptions } from "./LiveCaptions";
-import { ParticipantTile } from "./ParticipantTile";
+import { ParticipantTile, type Moderation } from "./ParticipantTile";
+import { SharedLabPanel } from "./SharedLabPanel";
 
 interface VirtualClassroomProps {
   access: ClassroomAccess;
+  /** The institution the class belongs to, for what a shared lab loads (a Teacher's exercises). */
+  institutionId: string;
+  /** The labs the classroom can show; given by the page, so the classroom does not depend on them. */
+  findLab: LabLookup;
   /** The viewer chose to go, or gave up after losing the class. */
   onLeave(): void;
   /** The viewer wants back in after a lost connection; the page then provides a new access. */
   onRejoin(): void;
 }
 
-const CAMERAS = [{ source: Track.Source.Camera, withPlaceholder: true }];
+// One tile per participant, with or without a camera, and one more per shared screen
+const TILES = [
+  { source: Track.Source.Camera, withPlaceholder: true },
+  { source: Track.Source.ScreenShare, withPlaceholder: false },
+];
 
-function VideoGrid() {
+const keyOf = (trackRef: TrackReferenceOrPlaceholder) => `${trackRef.participant.identity}:${trackRef.source}`;
+
+/** A lab shown to the class: its name, for its tile, and the panel that draws it on the stage. */
+interface StagedLab {
+  name: string;
+  panel: ReactNode;
+}
+
+/**
+ * Everyone in the class. A shared screen, or the tile the viewer pinned, is
+ * shown large with the rest beside it. A screen that starts being shared takes
+ * the stage for everyone, whatever each viewer had pinned.
+ */
+function VideoGrid({ moderation, lab }: { moderation: Moderation | null; lab: StagedLab | null }) {
   const { classroom } = useDictionary();
-  // One tile per participant, with or without a camera
-  const tracks = useTracks(CAMERAS);
+  const tracks = useTracks(TILES);
+  const [choice, setChoice] = useState<StageChoice>(undefined);
+  // A shared lab is one more thing to put on the stage, and it takes it the way a new screen does
+  const labKeys = lab ? [LAB_STAGE_KEY] : [];
+  const keys = [...labKeys, ...tracks.map(keyOf)];
+  const screens = [...labKeys, ...tracks.filter((trackRef) => trackRef.source === Track.Source.ScreenShare).map(keyOf)];
+  const [knownScreens, setKnownScreens] = useState(screens);
+  // Compared while rendering, so the new screen is on the stage in the same paint it appears
+  if (knownScreens.join() !== screens.join()) {
+    setKnownScreens(screens);
+    const started = startedScreen(knownScreens, screens);
+    if (started) {
+      setChoice(started);
+    }
+  }
+  const onStage = stageKey(keys, screens, choice);
+  const tile = (trackRef: TrackReferenceOrPlaceholder, className?: string) => {
+    const key = keyOf(trackRef);
+    return (
+      <ParticipantTile
+        key={key}
+        trackRef={trackRef}
+        isOnStage={key === onStage}
+        onToggleStage={() => setChoice(key === onStage ? null : key)}
+        moderation={moderation}
+        className={className}
+      />
+    );
+  };
+
+  // The lab off the stage keeps a tile, to bring it back
+  const labTile = (className?: string) =>
+    lab && (
+      <li key={LAB_STAGE_KEY} className={cn("flex", className)}>
+        <button
+          type="button"
+          onClick={() => setChoice(LAB_STAGE_KEY)}
+          className="flex flex-1 flex-col items-start justify-end gap-1 rounded-2xl bg-surface p-3 text-left text-foreground transition hover:ring-2 hover:ring-brand focus-visible:outline-2 focus-visible:outline-on-ink"
+        >
+          <span className="text-xs text-muted">{classroom.lab.tile}</span>
+          <span className="font-semibold">{lab.name}</span>
+        </button>
+      </li>
+    );
+
+  if (onStage === null) {
+    return (
+      <ul
+        aria-label={classroom.participants}
+        className={cn(
+          "grid flex-1 auto-rows-[minmax(10rem,1fr)] gap-3 p-0.5 lg:min-h-0 lg:overflow-y-auto",
+          gridColumns(keys.length),
+        )}
+      >
+        {labTile()}
+        {tracks.map((trackRef) => tile(trackRef))}
+      </ul>
+    );
+  }
+  const others = tracks.filter((trackRef) => keyOf(trackRef) !== onStage);
+  const isLabOnStage = onStage === LAB_STAGE_KEY && lab !== null;
   return (
-    <ul
-      aria-label={classroom.participants}
-      className={cn("grid flex-1 auto-rows-[minmax(10rem,1fr)] gap-3 p-0.5 lg:min-h-0 lg:overflow-y-auto", gridColumns(tracks.length))}
-    >
-      {tracks.map((trackRef) => (
-        <ParticipantTile key={trackRef.participant.identity} trackRef={trackRef} />
-      ))}
-    </ul>
+    <div className="flex flex-1 flex-col gap-3 p-0.5 lg:min-h-0 lg:flex-row">
+      {isLabOnStage ? (
+        <div aria-label={classroom.stage} className="flex min-h-64 flex-1 flex-col lg:min-h-0">
+          {lab.panel}
+        </div>
+      ) : (
+        <ul aria-label={classroom.stage} className="flex min-h-64 flex-1 lg:min-h-0">
+          {tracks.filter((trackRef) => keyOf(trackRef) === onStage).map((trackRef) => tile(trackRef, "flex-1"))}
+        </ul>
+      )}
+      {(others.length > 0 || (lab && !isLabOnStage)) && (
+        <ul
+          aria-label={classroom.participants}
+          className="flex shrink-0 gap-3 overflow-x-auto p-0.5 lg:w-52 lg:flex-col lg:overflow-x-visible lg:overflow-y-auto"
+        >
+          {!isLabOnStage && labTile("h-28 w-44 shrink-0 lg:h-32 lg:w-full")}
+          {others.map((trackRef) => tile(trackRef, "h-28 w-44 shrink-0 lg:h-32 lg:w-full"))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+/** How many hands are up, said aloud when it changes: the Teacher may be looking at a shared screen. */
+function RaisedHands() {
+  const { classroom } = useDictionary();
+  const raised = useParticipants().filter((participant) => participant.attributes[HAND_ATTRIBUTE]).length;
+  return (
+    <p role="status" className={cn(raised === 0 && "sr-only")}>
+      {raised > 0 && (
+        <Badge tone="sun">
+          <HandIcon aria-hidden weight="fill" className="mr-1 size-3.5" />
+          {raised === 1 ? classroom.handsRaisedOne : format(classroom.handsRaisedMany, { count: String(raised) })}
+        </Badge>
+      )}
+    </p>
   );
 }
 
@@ -58,31 +194,135 @@ interface ClassroomProps extends VirtualClassroomProps {
   onDeviceError(): void;
 }
 
-function Classroom({ access, closure, hadError, onLeave, onRejoin, onDeviceError }: ClassroomProps) {
-  const { classroom, roles } = useDictionary();
+function Classroom({
+  access,
+  institutionId,
+  findLab,
+  closure,
+  hadError,
+  onLeave,
+  onRejoin,
+  onDeviceError,
+}: ClassroomProps) {
+  const { classroom, errors, labs, roles } = useDictionary();
   const state = useConnectionState();
   const room = useRoomContext();
   const feed = useRoomFeed();
+  const [isChatOpen, setIsChatOpen] = useState(true);
+  const [readUpTo, setReadUpTo] = useState(0);
+  const [isLeaving, setIsLeaving] = useState(false);
+  const [isEnding, setIsEnding] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const isTeacher = access.role === "TEACHER";
+  const { token } = access;
   const isInRoom = state !== ConnectionState.Connecting && state !== ConnectionState.Disconnected;
   const outcome = closure ?? (hadError && state === ConnectionState.Disconnected ? "failed" : null);
+
+  /** Asks the video-server for something and says so when it refuses; resolves to whether it worked. */
+  const attempt = useCallback(async (action: () => Promise<void>) => {
+    setActionError(null);
+    try {
+      await action();
+      return true;
+    } catch (caught) {
+      setActionError(errorCode(caught));
+      return false;
+    }
+  }, []);
+  const reportError = useCallback((caught: unknown) => setActionError(errorCode(caught)), []);
+  const sharedLab = useSharedLab({ token, identity: access.identity, isTeacher, findLab, onError: reportError });
+  const shareableLabs = parseShareableLabs(
+    useParticipantAttribute(LABS_ATTRIBUTE, { participant: room.localParticipant }),
+  );
+  const [isPickingLab, setIsPickingLab] = useState(false);
+  const current = sharedLab.current;
+  const stagedLab = useMemo<StagedLab | null>(
+    () =>
+      current && {
+        name: labs.names[current.labKey],
+        panel: (
+          <SharedLabPanel labKey={current.labKey} state={current.state} mode={current.mode} onStop={sharedLab.stop}>
+            {findLab(current.labKey).render({
+              state: current.state,
+              onChange: sharedLab.update,
+              mode: current.mode,
+              institutionId,
+            })}
+          </SharedLabPanel>
+        ),
+      },
+    [current, labs.names, findLab, institutionId, sharedLab.stop, sharedLab.update],
+  );
+  // The video-server refuses these to anyone but the Teacher; the menus simply do not offer them
+  const moderation = useMemo<Moderation | null>(
+    () =>
+      isTeacher
+        ? {
+            mute: (identity) => void attempt(() => muteParticipant(token, identity)),
+            lowerHand: (identity) => void attempt(() => lowerParticipantHand(token, identity)),
+          }
+        : null,
+    [isTeacher, token, attempt],
+  );
+  const toggleHand = useCallback(
+    async (raised: boolean) => {
+      await attempt(() => setHandRaised(token, raised));
+    },
+    [token, attempt],
+  );
+  const deleteMessage = useCallback(
+    (message: ChatMessage) => void attempt(() => deleteChatMessage(token, message)),
+    [token, attempt],
+  );
+
+  function toggleChat() {
+    setReadUpTo(feed.messages.length);
+    setIsChatOpen((open) => !open);
+  }
 
   function leave() {
     void room.disconnect();
     onLeave();
   }
 
+  /**
+   * The Teacher leaves first and then closes the room: closing it under a live
+   * connection makes the browser report its channels as broken. If the class
+   * could not be closed, the Teacher goes back in as they were, and is told.
+   */
+  async function endForEveryone() {
+    setIsEnding(true);
+    const { isCameraEnabled, isMicrophoneEnabled } = room.localParticipant;
+    await room.disconnect();
+    if (await attempt(() => endClass(token))) {
+      onLeave();
+      return;
+    }
+    setIsEnding(false);
+    setIsLeaving(false);
+    try {
+      await room.connect(env.livekitUrl, token);
+      await room.localParticipant.setCameraEnabled(isCameraEnabled);
+      await room.localParticipant.setMicrophoneEnabled(isMicrophoneEnabled);
+    } catch {
+      onDeviceError();
+    }
+  }
+
+  const leaveText = classroom.leaveDialog;
   return (
     <>
       <header className="flex flex-wrap items-center gap-3 border-b border-on-ink/10 px-4 py-3">
         <h1 className="min-w-0 flex-1 truncate text-lg font-semibold">
           {format(classroom.heading, { subject: access.subjectName, group: access.groupName })}
         </h1>
+        {isInRoom && <RaisedHands />}
         {isInRoom && state !== ConnectionState.Connected && (
           <p role="status" className="rounded-full bg-sun-soft px-2.5 py-0.5 text-xs font-medium text-sun-ink">
             {classroom.reconnecting}
           </p>
         )}
-        <Badge tone={access.role === "TEACHER" ? "sky" : "mint"}>{roles[access.role]}</Badge>
+        <Badge tone={isTeacher ? "sky" : "mint"}>{roles[access.role]}</Badge>
       </header>
       {outcome ? (
         <CenteredMessage>
@@ -108,15 +348,70 @@ function Classroom({ access, closure, hadError, onLeave, onRejoin, onDeviceError
         </CenteredMessage>
       ) : (
         <div className="flex flex-1 flex-col lg:min-h-0 lg:flex-row">
-          <main className="flex flex-1 flex-col gap-3 p-3 sm:p-4 lg:min-h-0">
+          <main className="flex min-w-0 flex-1 flex-col gap-3 p-3 sm:p-4 lg:min-h-0">
             {hadError && <ErrorNotice message={classroom.deviceError} />}
-            <VideoGrid />
+            <ErrorNotice message={errorMessage(errors, actionError)} />
+            <VideoGrid moderation={moderation} lab={stagedLab} />
             <LiveCaptions captions={feed.captions} />
-            <ClassControls onLeave={leave} onDeviceError={onDeviceError} />
+            <ClassControls
+              isChatOpen={isChatOpen}
+              unread={unreadCount(feed.messages.length, readUpTo, isChatOpen)}
+              onToggleChat={toggleChat}
+              onToggleHand={toggleHand}
+              onLeave={() => setIsLeaving(true)}
+              onDeviceError={onDeviceError}
+              lab={
+                isTeacher && shareableLabs.length > 0
+                  ? { isSharing: current !== null, onPick: () => setIsPickingLab(true), onStop: sharedLab.stop }
+                  : null
+              }
+            />
+            <LabPicker
+              isOpen={isPickingLab}
+              labs={shareableLabs}
+              onPick={(labKey) => {
+                setIsPickingLab(false);
+                sharedLab.share(labKey);
+              }}
+              onClose={() => setIsPickingLab(false)}
+            />
           </main>
-          <aside className="flex h-80 shrink-0 flex-col border-t border-line bg-surface text-foreground lg:h-auto lg:w-80 lg:border-t-0 lg:border-l">
-            <ChatPanel messages={feed.messages} selfId={access.identity} roomToken={access.token} />
-          </aside>
+          {isChatOpen && (
+            <aside className="flex h-80 shrink-0 animate-rise flex-col border-t border-line bg-surface text-foreground lg:h-auto lg:w-80 lg:border-t-0 lg:border-l">
+              <ChatPanel
+                messages={feed.messages}
+                selfId={access.identity}
+                roomToken={token}
+                canModerate={isTeacher}
+                onDelete={deleteMessage}
+                onClose={toggleChat}
+              />
+            </aside>
+          )}
+          <Dialog
+            isOpen={isLeaving}
+            title={isTeacher ? leaveText.teacherTitle : leaveText.title}
+            description={isTeacher ? leaveText.teacherBody : leaveText.body}
+            onClose={() => setIsLeaving(false)}
+          >
+            <Button size="sm" variant="secondary" onClick={() => setIsLeaving(false)}>
+              {leaveText.cancel}
+            </Button>
+            {isTeacher ? (
+              <>
+                <Button size="sm" variant="secondary" disabled={isEnding} onClick={leave}>
+                  {leaveText.leaveOnly}
+                </Button>
+                <Button size="sm" variant="danger" isLoading={isEnding} onClick={() => void endForEveryone()}>
+                  {leaveText.end}
+                </Button>
+              </>
+            ) : (
+              <Button size="sm" variant="danger" onClick={leave}>
+                {leaveText.confirm}
+              </Button>
+            )}
+          </Dialog>
         </div>
       )}
       <RoomAudioRenderer />
@@ -129,7 +424,7 @@ function Classroom({ access, closure, hadError, onLeave, onRejoin, onDeviceError
  * chat. It connects with the access the backend issued and explains every
  * way the connection can end. A Teacher enters on air; Students enter muted.
  */
-export function VirtualClassroom({ access, onLeave, onRejoin }: VirtualClassroomProps) {
+export function VirtualClassroom({ access, institutionId, findLab, onLeave, onRejoin }: VirtualClassroomProps) {
   const [closure, setClosure] = useState<Closure | null>(null);
   const [hadError, setHadError] = useState(false);
   const startsOnAir = access.role === "TEACHER";
@@ -138,16 +433,20 @@ export function VirtualClassroom({ access, onLeave, onRejoin }: VirtualClassroom
       serverUrl={env.livekitUrl}
       token={access.token}
       connect={closure === null}
+      options={ROOM_OPTIONS}
       audio={startsOnAir}
       video={startsOnAir}
       onDisconnected={(reason) => setClosure((current) => current ?? closureFor(reason))}
       onError={() => setHadError(true)}
-      onMediaDeviceFailure={() => setHadError(true)}
+      // A screen share that is cancelled comes without a device kind, and is not a failure
+      onMediaDeviceFailure={(_failure, kind) => setHadError((had) => had || kind !== undefined)}
       // A fixed stage beside the chat on large screens; a page that scrolls on small ones
       className="flex min-h-dvh flex-col bg-ink text-on-ink lg:h-dvh"
     >
       <Classroom
         access={access}
+        institutionId={institutionId}
+        findLab={findLab}
         closure={closure}
         hadError={hadError}
         onLeave={onLeave}

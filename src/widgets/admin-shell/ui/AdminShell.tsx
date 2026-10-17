@@ -7,6 +7,7 @@ import {
   CalendarDotsIcon,
   ChalkboardTeacherIcon,
   ChartPieSliceIcon,
+  FlaskIcon,
   GearSixIcon,
   IdentificationCardIcon,
   TreeStructureIcon,
@@ -42,6 +43,7 @@ const sectionIcons: Record<AdminSection, Icon> = {
   groups: ChalkboardTeacherIcon,
   availability: CalendarCheckIcon,
   schedule: CalendarDotsIcon,
+  labs: FlaskIcon,
 };
 
 /**

@@ -6,6 +6,7 @@ import {
   CalendarDotsIcon,
   ChartBarIcon,
   ChartPieSliceIcon,
+  FlaskIcon,
   UsersThreeIcon,
   GearSixIcon,
 } from "@phosphor-icons/react/dist/ssr";
@@ -116,6 +117,13 @@ export function HomePage() {
           <Link href={localizedPath(locale, "/progress")} className={linkClass}>
             <ChartBarIcon aria-hidden className="size-5 text-muted" />
             {home.progress}
+            {arrow}
+          </Link>
+        )}
+        {takesClasses && (
+          <Link href={localizedPath(locale, "/labs")} className={linkClass}>
+            <FlaskIcon aria-hidden className="size-5 text-muted" />
+            {home.labs}
             {arrow}
           </Link>
         )}

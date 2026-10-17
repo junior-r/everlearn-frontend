@@ -196,6 +196,7 @@ test("a Platform Admin creates an institution with its first admin, enters it an
     "Grupos",
     "Disponibilidad docente",
     "Horarios",
+    "Laboratorios",
   ]);
   // The first admin is already there, and needs no identity check
   const adminRow = page.getByRole("row", { name: /Marie Curie/ });

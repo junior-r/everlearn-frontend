@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { appendUnique, parseCaption, parseChatMessage } from "./room-messages";
+import { appendUnique, parseCaption, parseChatDeletion, parseChatMessage, withDeleted } from "./room-messages";
 
 const packet = (value: unknown) => new TextEncoder().encode(typeof value === "string" ? value : JSON.stringify(value));
 
@@ -10,10 +10,14 @@ describe("parseChatMessage", () => {
     senderName: "Grace Hopper",
     content: "¿Puede repetir?",
     sentAt: "2026-10-12T08:03:00Z",
+    signature: "a1b2",
   };
 
   it("reads a message the video-server published, ignoring fields it does not know", () => {
-    expect(parseChatMessage(packet({ ...message, extra: true }))).toEqual(message);
+    expect(parseChatMessage(packet({ ...message, extra: true, isDeleted: true }))).toEqual({
+      ...message,
+      isDeleted: false,
+    });
   });
 
   it("keeps a message whose sender has no name", () => {
@@ -65,5 +69,37 @@ describe("appendUnique", () => {
     );
 
     expect(items).toEqual([item("b"), item("c"), item("d")]);
+  });
+});
+
+describe("chat messages taken down", () => {
+  const message = (id: string) => ({
+    id,
+    senderId: "member-1",
+    senderName: "Grace Hopper",
+    content: "Hola",
+    sentAt: "2026-10-12T08:03:00Z",
+    signature: "a1b2",
+    isDeleted: false,
+  });
+
+  it("reads which message was taken down, and nothing from a packet that names none", () => {
+    expect(parseChatDeletion(packet({ id: "m-1" }))).toBe("m-1");
+    expect(parseChatDeletion(packet({ id: 7 }))).toBeNull();
+    expect(parseChatDeletion(packet("hola"))).toBeNull();
+  });
+
+  it("blanks the message and keeps its place", () => {
+    const messages = [message("m-1"), message("m-2")];
+
+    expect(withDeleted(messages, "m-1")).toEqual([{ ...message("m-1"), content: "", isDeleted: true }, message("m-2")]);
+  });
+
+  it("returns the same list when there is nothing to take down", () => {
+    const messages = [message("m-1")];
+
+    expect(withDeleted(messages, "m-9")).toBe(messages);
+    const once = withDeleted(messages, "m-1");
+    expect(withDeleted(once, "m-1")).toBe(once);
   });
 });

@@ -30,6 +30,10 @@ export interface ChatMessage {
   content: string;
   /** ISO date-time. */
   sentAt: string;
+  /** The video-server's proof of who wrote the message; it asks for it back to take the message down. */
+  signature: string;
+  /** Taken down by its author or the Teacher: it keeps its place, without its text. */
+  isDeleted: boolean;
 }
 
 /** One transcribed stretch of speech, shown as a live caption. */

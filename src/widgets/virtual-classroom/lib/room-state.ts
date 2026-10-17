@@ -33,3 +33,34 @@ export function gridColumns(count: number): string {
   }
   return "grid-cols-2 sm:grid-cols-3 xl:grid-cols-4";
 }
+
+/** What the viewer asked to see large: a tile, nobody (`null`), or no preference yet (`undefined`). */
+export type StageChoice = string | null | undefined;
+
+/**
+ * The tile that takes the stage, by key. The viewer's pin wins while that tile
+ * is still there; with no preference a shared screen takes it; otherwise nobody does.
+ * A screen that starts being shared replaces the pin (see `startedScreen`).
+ */
+export function stageKey(tileKeys: string[], screenKeys: string[], choice: StageChoice): string | null {
+  if (choice === null) {
+    return null;
+  }
+  if (choice !== undefined && tileKeys.includes(choice)) {
+    return choice;
+  }
+  return screenKeys[0] ?? null;
+}
+
+/** The screen that started being shared between two looks at the room, if any. */
+export function startedScreen(before: string[], now: string[]): string | null {
+  return now.find((key) => !before.includes(key)) ?? null;
+}
+
+/** Messages that arrived since the viewer last had the chat open. */
+export function unreadCount(total: number, readUpTo: number, isChatOpen: boolean): number {
+  return isChatOpen ? 0 : Math.max(0, total - readUpTo);
+}
+
+/** The stage key of a shared lab, beside the tiles of participants and screens. */
+export const LAB_STAGE_KEY = "lab";

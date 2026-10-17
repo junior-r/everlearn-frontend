@@ -19,7 +19,8 @@ interface CenteredCardProps {
 export function CenteredCard({ brand, wide = false, children }: CenteredCardProps) {
   const { common } = useDictionary();
   return (
-    <div className="grid min-h-page lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+    // A single column that may shrink: an implicit one grows to its widest row and pushes the card off a phone
+    <div className="grid min-h-page grid-cols-[minmax(0,1fr)] lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
       {/* Sticky, so the panel stays whole while a long form scrolls beside it */}
       <aside className="hidden overflow-hidden bg-ink p-10 text-on-ink lg:sticky lg:top-0 lg:flex lg:h-dvh lg:flex-col lg:justify-between xl:p-14">
         <Logo name={brand} variant="inverse" />

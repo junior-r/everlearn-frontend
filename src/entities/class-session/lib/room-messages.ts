@@ -2,7 +2,12 @@ import type { Caption, ChatMessage } from "../model/types";
 
 /** Topics of the data messages the video-server publishes into a class room. */
 export const CHAT_TOPIC = "chat";
+export const CHAT_DELETED_TOPIC = "chat-deleted";
 export const CAPTIONS_TOPIC = "captions";
+
+/** Participant attributes: the role is signed by the backend, the hand is set only by the video-server. */
+export const ROLE_ATTRIBUTE = "role";
+export const HAND_ATTRIBUTE = "hand";
 
 export const MAX_CHAT_LENGTH = 2000;
 
@@ -34,8 +39,16 @@ export function parseChatMessage(payload: Uint8Array): ChatMessage | null {
     senderName: text(fields, "senderName"),
     content: text(fields, "content"),
     sentAt: text(fields, "sentAt"),
+    signature: text(fields, "signature"),
+    isDeleted: false,
   };
   return message.id && message.senderId && message.content ? message : null;
+}
+
+/** Reads the id of a message that was taken down; null if the packet does not name one. */
+export function parseChatDeletion(payload: Uint8Array): string | null {
+  const fields = decode(payload);
+  return (fields && text(fields, "id")) || null;
 }
 
 /** Reads a live caption from a room data packet; null if the packet is not one. */
@@ -59,4 +72,12 @@ export function appendUnique<Item extends { id: string }>(items: Item[], item: I
     return items;
   }
   return [...items, item].slice(-limit);
+}
+
+/** Blanks a message that was taken down, keeping its place in the conversation. */
+export function withDeleted(messages: ChatMessage[], id: string): ChatMessage[] {
+  if (!messages.some((message) => message.id === id && !message.isDeleted)) {
+    return messages;
+  }
+  return messages.map((message) => (message.id === id ? { ...message, content: "", isDeleted: true } : message));
 }

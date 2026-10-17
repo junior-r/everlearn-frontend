@@ -32,4 +32,9 @@ describe("notificationPath", () => {
     expect(notificationPath(notice("DIRECT_MESSAGE", { senderId: "u 1" }))).toBe("/messages?with=u%201");
     expect(notificationPath(notice("DIRECT_MESSAGE"))).toBe("/messages");
   });
+
+  it("opens the lab activity a Student was given", () => {
+    expect(notificationPath(notice("LAB_ASSIGNED", { assignmentId: "a 1" }))).toBe("/labs/activities/a%201");
+    expect(notificationPath(notice("LAB_ASSIGNED"))).toBe("/labs");
+  });
 });

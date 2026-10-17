@@ -9,6 +9,7 @@ import { hasOwnPassword, useSession } from "@/entities/session";
 import { errorMessage, localizedPath, useDictionary, useLocale, useLocalizedRouter } from "@/shared/i18n";
 import { useResource } from "@/shared/lib/use-resource";
 import { buttonBase, buttonStyles, CenteredCard, ErrorNotice, PageStatus } from "@/shared/ui";
+import { findLab } from "@/widgets/lab-workbench";
 import { VirtualClassroom } from "@/widgets/virtual-classroom";
 
 function Classroom() {
@@ -51,7 +52,16 @@ function Classroom() {
     return <PageStatus>{classroom.preparing}</PageStatus>;
   }
   // Keyed by the token, so a new access always starts a new connection
-  return <VirtualClassroom key={access.data.token} access={access.data} onLeave={goHome} onRejoin={access.reload} />;
+  return (
+    <VirtualClassroom
+      key={access.data.token}
+      access={access.data}
+      institutionId={institutionId ?? ""}
+      findLab={findLab}
+      onLeave={goHome}
+      onRejoin={access.reload}
+    />
+  );
 }
 
 /**
