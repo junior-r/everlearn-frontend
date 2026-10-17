@@ -62,13 +62,19 @@ test("a Teacher sets and grades evaluations, and the Student sees grades, averag
   await expect(exam).toContainText("60% de la materia");
   await expect(page.getByText("Peso asignado: 60% de 100%")).toBeVisible();
 
-  // The subject cannot be worth more than 100%
+  // The subject cannot be worth more than 100%: the form says what is left and holds no more
+  const newEvaluation = page.getByRole("form", { name: "Nueva evaluación" });
+  await expect(newEvaluation).toContainText("Queda 40% del peso de la materia para nuevas evaluaciones.");
   await fillEvaluation(page, { title: "Proyecto final", type: "Proyecto", weight: "50", dueAt: midMonth(16) });
-  await expect(formError(page)).toContainText("no pueden sumar más de 100%");
-  await page.getByRole("form", { name: "Nueva evaluación" }).getByLabel("Peso (%)").fill("40");
+  expect(await newEvaluation.getByLabel("Peso (%)").evaluate((input: HTMLInputElement) => input.validity.rangeOverflow)).toBe(true);
+  await expect(evaluations.getByRole("listitem")).toHaveCount(1);
+  await newEvaluation.getByLabel("Peso (%)").fill("40");
   await page.getByRole("button", { name: "Crear evaluación" }).click();
   await expect(evaluations.getByRole("listitem")).toHaveCount(2);
   await expect(page.getByText("Peso asignado: 100% de 100%")).toBeVisible();
+  // Once full, the page explains how to make room instead of offering a form that would be refused
+  await expect(page.getByRole("region", { name: "Nueva evaluación" })).toContainText("ya suman el 100%");
+  await expect(page.getByRole("form", { name: "Nueva evaluación" })).toHaveCount(0);
 
   // Publishing opens the evaluation to grading: it becomes a column of the gradebook
   await page.getByRole("button", { name: "Publicar Examen parcial" }).click();

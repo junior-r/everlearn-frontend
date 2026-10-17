@@ -193,7 +193,9 @@
       "maxScore": "Nota máxima: {maxScore}",
       "due": "Entrega: {date}",
       "noDue": "Sin fecha de entrega",
-      "draftHint": "Los estudiantes solo ven las evaluaciones publicadas."
+      "draftHint": "Los estudiantes solo ven las evaluaciones publicadas.",
+      "weightLeft": "Queda {left}% del peso de la materia para nuevas evaluaciones.",
+      "full": "Las evaluaciones de esta materia ya suman el 100% de su peso. Para planificar otra, edita una existente y baja su peso, o elimina un borrador."
     },
     "gradebook": {
       "title": "Libro de notas",
