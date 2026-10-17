@@ -10,6 +10,7 @@ import {
   type ClassroomCourse,
 } from "@/entities/class-session";
 import { courseEvaluationsPath } from "@/entities/evaluation";
+import { courseLabsPath } from "@/entities/lab";
 import { errorMessage, format, localizedPath, useDictionary, useLocale, useLocalizedRouter } from "@/shared/i18n";
 import { useResource } from "@/shared/lib/use-resource";
 import { useSubmit } from "@/shared/lib/use-submit";
@@ -90,6 +91,15 @@ export function MyClasses({ institutionId }: { institutionId: string }) {
                       className={buttonClass("secondary", "sm")}
                     >
                       {text.attendance}
+                    </Link>
+                  )}
+                  {course.role === "TEACHER" && (
+                    <Link
+                      href={localizedPath(locale, courseLabsPath(course.groupId, course.subject.id))}
+                      aria-label={format(text.labsFor, { subject })}
+                      className={buttonClass("secondary", "sm")}
+                    >
+                      {text.labs}
                     </Link>
                   )}
                   {course.role === "TEACHER" && (

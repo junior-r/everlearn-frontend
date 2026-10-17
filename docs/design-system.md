@@ -21,7 +21,7 @@ A recognisable, colourful identity that also carries meaning: colour tells roles
 - **Type:** Outfit (`font-display`) for headings and the wordmark; Geist for text; Geist Mono for times.
 - **Shape:** inputs and buttons `rounded-xl`, cards `rounded-2xl`, page shells `rounded-3xl`, labels `rounded-full`.
 - **`shared/lib/tone.ts`:** the tone list and its class maps (`toneSoft`, `toneSolid`, `toneBorder`), and `toneFor(key)` for a stable colour per key.
-- **`shared/ui`:** `Mosaic`, `Logo`, `Badge`, `Avatar`, and the restyled `Button`, `TextField`, `SelectField`, `Autocomplete` (a searched pick for long lists), `DataTable`, `ErrorNotice`, `CenteredCard` (card beside the ink brand panel).
+- **`shared/ui`:** `Mosaic`, `Logo`, `Badge`, `Avatar`, and the restyled `Button`, `TextField`, `SelectField`, `Autocomplete` (a searched pick for long lists), `DataTable`, `ErrorNotice`, `CenteredCard` (card beside the ink brand panel), `RangeField`, `ChoiceGroup` and `Switch` (labs and settings).
 - **Meaning of colour:** `roleTone` and `statusTone` live in `entities/session`. In the timetable a subject's tone is its position in the group, so a group's subjects differ.
 - **Patterns:** `pattern-dots`, `pattern-stripes`, `pattern-ring` (drawn in `currentColor`), `pattern-fine-dots` (ink surfaces) and `pattern-hatch` (free or unavailable hours).
 - **Page frames:** `PageHeader` (a mosaic seeded by the title) and `Section` (`panel` frames a form as a card) live in `shared/ui`. The admin shell adds an ink sidebar with icons; `PortalShell` is the plain wide frame of Teacher and Student pages.

@@ -10,6 +10,7 @@ import {
 import {
   CaretUpIcon,
   ChatCircleDotsIcon,
+  FlaskIcon,
   CheckIcon,
   HandIcon,
   MicrophoneIcon,
@@ -22,7 +23,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import type { Icon } from "@phosphor-icons/react";
 import { Track } from "livekit-client";
-import { useState, type ReactNode } from "react";
+import { useState, type MouseEvent, type ReactNode } from "react";
 import { HAND_ATTRIBUTE } from "@/entities/class-session";
 import { format, useDictionary } from "@/shared/i18n";
 import { cn } from "@/shared/lib/cn";
@@ -47,7 +48,9 @@ interface ControlButtonProps {
   look: Look;
   isPressed: boolean;
   disabled?: boolean;
-  onClick(): void;
+  onClick(event: MouseEvent<HTMLButtonElement>): void;
+  /** The button opens a menu instead of acting. */
+  hasMenu?: boolean;
   className?: string;
   children?: ReactNode;
 }
@@ -57,6 +60,7 @@ function ControlButton({
   icon: ControlIcon,
   look,
   isPressed,
+  hasMenu = false,
   disabled,
   onClick,
   className,
@@ -67,7 +71,8 @@ function ControlButton({
       type="button"
       aria-label={label}
       title={label}
-      aria-pressed={isPressed}
+      aria-pressed={hasMenu ? undefined : isPressed}
+      aria-haspopup={hasMenu ? "menu" : undefined}
       disabled={disabled}
       onClick={onClick}
       className={cn(
@@ -159,6 +164,51 @@ function ScreenShareToggle({ labels }: { labels: { on: string; off: string } }) 
   );
 }
 
+/** What the Teacher can do with a lab from the toolbar; null for anyone else. */
+export interface LabSharing {
+  isSharing: boolean;
+  /** Opens the list of labs to choose from. */
+  onPick(): void;
+  onStop(): void;
+}
+
+/**
+ * The Teacher's share button: a menu with their screen and a lab. A lab is
+ * shared as state, not as video, so it stays sharp and costs no upload.
+ */
+function ShareMenu({ labels, lab, offersScreen }: { labels: { on: string; off: string }; lab: LabSharing; offersScreen: boolean }) {
+  const { classroom } = useDictionary();
+  const text = classroom.controls;
+  const { toggle, enabled } = useTrackToggle({
+    source: Track.Source.ScreenShare,
+    captureOptions: SCREEN_CAPTURE,
+    onDeviceError: () => undefined,
+  });
+  const menu = useContextMenu();
+  const actions: MenuAction[] = [
+    ...(offersScreen
+      ? [{ id: "screen", label: enabled ? labels.off : labels.on, icon: MonitorArrowUpIcon, onSelect: () => void toggle() }]
+      : []),
+    lab.isSharing
+      ? { id: "lab", label: text.labStop, icon: FlaskIcon, isDanger: true, onSelect: lab.onStop }
+      : { id: "lab", label: text.labShare, icon: FlaskIcon, onSelect: lab.onPick },
+  ];
+  const isSharing = enabled || lab.isSharing;
+  return (
+    <>
+      <ControlButton
+        label={text.share}
+        icon={MonitorArrowUpIcon}
+        look={isSharing ? "sharing" : "idle"}
+        isPressed={isSharing}
+        hasMenu
+        onClick={menu.openAbove}
+      />
+      <ContextMenu label={text.share} actions={actions} anchor={menu.anchor} onClose={menu.close} />
+    </>
+  );
+}
+
 const canShareScreen = () =>
   typeof navigator !== "undefined" && typeof navigator.mediaDevices?.getDisplayMedia === "function";
 
@@ -172,10 +222,20 @@ interface ClassControlsProps {
   /** The viewer asked to go; the classroom confirms before anything happens. */
   onLeave(): void;
   onDeviceError(): void;
+  /** Only for the Teacher, and only when the institution has labs to share. */
+  lab: LabSharing | null;
 }
 
-/** The viewer's own controls: microphone and camera (and which ones), screen, hand, chat and leaving the class. */
-export function ClassControls({ isChatOpen, unread, onToggleChat, onToggleHand, onLeave, onDeviceError }: ClassControlsProps) {
+/** The viewer's own controls: microphone and camera (and which ones), screen or lab, hand, chat and leaving the class. */
+export function ClassControls({
+  isChatOpen,
+  unread,
+  onToggleChat,
+  onToggleHand,
+  onLeave,
+  onDeviceError,
+  lab,
+}: ClassControlsProps) {
   const { classroom } = useDictionary();
   const text = classroom.controls;
   const { localParticipant } = useLocalParticipant();
@@ -212,7 +272,11 @@ export function ClassControls({ isChatOpen, unread, onToggleChat, onToggleHand, 
         icons={{ on: VideoCameraIcon, off: VideoCameraSlashIcon }}
         onDeviceError={onDeviceError}
       />
-      {offersScreenShare && <ScreenShareToggle labels={{ on: text.shareOn, off: text.shareOff }} />}
+      {lab ? (
+        <ShareMenu labels={{ on: text.shareOn, off: text.shareOff }} lab={lab} offersScreen={offersScreenShare} />
+      ) : (
+        offersScreenShare && <ScreenShareToggle labels={{ on: text.shareOn, off: text.shareOff }} />
+      )}
       <ControlButton
         label={isHandRaised ? text.handDown : text.handUp}
         icon={HandIcon}

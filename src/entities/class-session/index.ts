@@ -111,6 +111,20 @@ export function endClass(roomToken: string): Promise<void> {
   return askVideoServer(roomToken, "/class/end", {}, "CLASS_ACTION_FAILED");
 }
 
+/**
+ * Shows a lab to the class, or updates the one on show: its key and state go
+ * into the room, and every browser draws it. Only the Teacher may, and only a
+ * lab the backend listed in their token.
+ */
+export function shareLab(roomToken: string, labKey: string, state: object): Promise<void> {
+  return askVideoServer(roomToken, "/lab", { labKey, state }, "LAB_SHARE_FAILED");
+}
+
+/** Takes the lab off show. Only the Teacher of the class may. */
+export function stopSharingLab(roomToken: string): Promise<void> {
+  return askVideoServer(roomToken, "/lab/stop", {}, "LAB_SHARE_FAILED");
+}
+
 const sessionsPath = (groupId: string, subjectId: string) => `/groups/${groupId}/courses/${subjectId}/sessions`;
 
 /** The latest classes of a course, most recent first. Only for the Teacher assigned to it. */

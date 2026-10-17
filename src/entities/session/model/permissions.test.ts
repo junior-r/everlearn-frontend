@@ -51,13 +51,15 @@ describe("adminSections", () => {
     expect(adminSections(platformAdmin, null)).toEqual(["institutions"]);
     expect(adminSections(platformAdmin, "any")).toContain("members");
     expect(adminSections(platformAdmin, "any")).toContain("institutions");
+    // Inside an institution a Platform Admin also grants it labs
+    expect(adminSections(platformAdmin, "any")).toContain("labs");
   });
 
   it("gives an Institution Admin every section of their institution, but not Institutions", () => {
     const sections = adminSections(memberOf("a", "ADMIN"), "a");
 
     expect(sections).toEqual([
-      "members", "reviews", "subjects", "pensums", "groups", "availability", "schedule",
+      "members", "reviews", "subjects", "pensums", "groups", "availability", "schedule", "labs",
     ]);
   });
 

@@ -63,7 +63,8 @@
     "teacherDashboard": "Panel docente",
     "wards": "Mis representados",
     "progress": "Mis notas",
-    "calendar": "Calendario de evaluaciones"
+    "calendar": "Calendario de evaluaciones",
+    "labs": "Laboratorios"
   },
   "classroom": {
     "myClasses": {
@@ -80,7 +81,9 @@
       "evaluations": "Evaluaciones",
       "evaluationsFor": "Evaluaciones de {subject}",
       "attendance": "Asistencia",
-      "attendanceFor": "Asistencia de {subject}"
+      "attendanceFor": "Asistencia de {subject}",
+      "labs": "Laboratorios",
+      "labsFor": "Laboratorios de {subject}"
     },
     "heading": "{subject} · {group}",
     "preparing": "Preparando la clase…",
@@ -111,7 +114,10 @@
       "micPicker": "Elegir micrófono",
       "cameraPicker": "Elegir cámara",
       "micUnnamed": "Micrófono {number}",
-      "cameraUnnamed": "Cámara {number}"
+      "cameraUnnamed": "Cámara {number}",
+      "share": "Compartir",
+      "labShare": "Compartir un laboratorio",
+      "labStop": "Dejar de compartir el laboratorio"
     },
     "deviceError": "No pudimos usar tu cámara o micrófono. Revisa los permisos del navegador.",
     "closed": {
@@ -187,7 +193,18 @@
     },
     "stage": "Pantalla principal",
     "handsRaisedOne": "1 mano levantada",
-    "handsRaisedMany": "{count} manos levantadas"
+    "handsRaisedMany": "{count} manos levantadas",
+    "lab": {
+      "pickTitle": "Compartir un laboratorio",
+      "pickBody": "La clase verá el laboratorio y cada cambio que hagas. No se comparte como video: se ve nítido en cualquier pantalla.",
+      "noneShareable": "Tu institución no tiene laboratorios activos para compartir.",
+      "cancel": "Cancelar",
+      "youShare": "Lo estás compartiendo",
+      "teacherShares": "Lo comparte tu docente",
+      "stop": "Dejar de compartir",
+      "openOwn": "Abrir en mis laboratorios",
+      "tile": "Laboratorio compartido"
+    }
   },
   "evaluations": {
     "types": {
@@ -515,6 +532,10 @@
       "WARD_ATTENDANCE": {
         "title": "{studentName} {status}",
         "body": "{subjectName} · {date}"
+      },
+      "LAB_ASSIGNED": {
+        "title": "Nueva actividad: {title}",
+        "body": "Laboratorio de {subjectName} · Grupo {groupName}"
       }
     },
     "attendance": {
@@ -653,7 +674,8 @@
       "groups": "Grupos",
       "settings": "Configuración de perfil",
       "availability": "Disponibilidad docente",
-      "schedule": "Horarios"
+      "schedule": "Horarios",
+      "labs": "Laboratorios"
     },
     "institutionSwitcher": {
       "label": "Institución",
@@ -874,6 +896,18 @@
       "empty": "Nadie coincide con la búsqueda.",
       "failed": "No se pudo buscar. Inténtalo de nuevo.",
       "document": "Documento {number}"
+    },
+    "labs": {
+      "title": "Laboratorios",
+      "subtitle": "Activa o desactiva los laboratorios que la plataforma habilitó para tu institución.",
+      "subtitlePlatform": "Concede laboratorios a esta institución. Su administración decide luego cuáles quedan activos.",
+      "noneGranted": "La plataforma todavía no habilitó laboratorios para esta institución.",
+      "granted": "Concedido",
+      "enabled": "Activo",
+      "grantNamed": "Conceder {lab} a la institución",
+      "enableNamed": "Activar {lab}",
+      "available": "Disponible",
+      "unavailable": "No disponible"
     }
   },
   "institutionSelector": {
@@ -998,6 +1032,306 @@
     "STUDENT_NOT_ENROLLED": "El estudiante ya no está inscrito en este grupo. Recarga la página.",
     "CLASS_NOT_HELD_YET": "Solo puedes registrar una clase que ya se dio.",
     "STUDENT_NOT_IN_CLASS": "Solo se puede pasar la lista a los estudiantes inscritos en la clase.",
-    "CLASS_ACTION_FAILED": "No se pudo completar la acción. Inténtalo de nuevo."
+    "CLASS_ACTION_FAILED": "No se pudo completar la acción. Inténtalo de nuevo.",
+    "LAB_NOT_FOUND": "Este laboratorio no está disponible en tu institución.",
+    "LAB_ASSIGNMENT_NOT_FOUND": "No se encontró la actividad.",
+    "LAB_ATTEMPT_ALREADY_SUBMITTED": "Ya entregaste esta actividad.",
+    "INVALID_LAB_ASSIGNMENT": "Revisa la actividad: un ejercicio no es válido o falta información.",
+    "INVALID_EXERCISE": "El ejercicio no es válido. Revisa la oración y las respuestas.",
+    "EXERCISE_NOT_FOUND": "No se encontró el ejercicio.",
+    "TEACHER_ONLY": "Solo un docente de la institución puede hacer esto.",
+    "LAB_SHARE_FAILED": "No se pudo compartir el laboratorio con la clase. Inténtalo de nuevo."
+  },
+  "labs": {
+    "catalog": {
+      "title": "Laboratorios",
+      "subtitle": "Simulaciones de física, herramientas de matemática y ejercicios de lengua para aprender probando.",
+      "none": "Tu institución todavía no tiene laboratorios activos.",
+      "unavailable": "Este laboratorio no está disponible en tu institución.",
+      "back": "Volver a los laboratorios",
+      "fromClass": "Abriste el laboratorio tal como estaba en clase. Puedes cambiarlo a tu gusto: tu docente no ve estos cambios.",
+      "startOver": "Empezar de cero"
+    },
+    "categories": {
+      "PHYSICS": "Física",
+      "MATHS": "Matemática",
+      "LANGUAGE": "Lengua"
+    },
+    "categoryDescriptions": {
+      "PHYSICS": "Gravedad, fuerzas, velocidades y trayectorias, con números que puedes comprobar.",
+      "MATHS": "Gráficas de funciones, una calculadora científica y fórmulas resueltas para cualquier variable.",
+      "LANGUAGE": "Oraciones para completar y definiciones para encontrar la palabra."
+    },
+    "names": {
+      "gravity": "Caída libre",
+      "forces": "Fuerzas en una rampa",
+      "kinematics": "Velocidad y aceleración",
+      "projectile": "Tiro parabólico",
+      "function-grapher": "Graficador de funciones",
+      "scientific-calculator": "Calculadora científica",
+      "equation-solver": "Cálculo de variables",
+      "completions": "Completar oraciones",
+      "definitions": "Definiciones"
+    },
+    "descriptions": {
+      "gravity": "Deja caer un objeto en la Tierra, la Luna, Marte o Júpiter y compara cuánto tarda.",
+      "forces": "Suelta un bloque en una rampa con rozamiento y mira si baja o se queda quieto; si lo empujas, también puede subir.",
+      "kinematics": "Dos móviles en la misma recta: dónde está cada uno y cuándo se encuentran.",
+      "projectile": "Lanza un objeto con una velocidad y un ángulo: su trayectoria, su alcance y su altura máxima.",
+      "function-grapher": "Dibuja hasta tres funciones de x y lee sus valores en cualquier punto.",
+      "scientific-calculator": "Trigonometría en grados o radianes, potencias, raíces, logaritmos y factoriales.",
+      "equation-solver": "Escribe una fórmula y despeja cualquiera de sus variables a partir de las demás.",
+      "completions": "Escribe la palabra que falta en cada oración.",
+      "definitions": "Lee la definición y escribe la palabra que le corresponde."
+    },
+    "common": {
+      "readings": "Resultados",
+      "reset": "Reiniciar",
+      "cancel": "Cancelar"
+    },
+    "units": {
+      "metre": "m",
+      "second": "s",
+      "speed": "m/s",
+      "acceleration": "m/s²",
+      "kilogram": "kg",
+      "newton": "N",
+      "degree": "°"
+    },
+    "bodies": {
+      "earth": "Tierra",
+      "moon": "Luna",
+      "mars": "Marte",
+      "jupiter": "Júpiter"
+    },
+    "gravity": {
+      "height": "Altura",
+      "first": "Primer lugar",
+      "second": "Segundo lugar",
+      "drop": "Soltar",
+      "time": "Tiempo de caída en {body}",
+      "speed": "Velocidad al llegar al suelo en {body}",
+      "drawing": "Dos objetos caen desde {height}, en {first} y en {second}"
+    },
+    "projectile": {
+      "speed": "Velocidad inicial",
+      "angle": "Ángulo de lanzamiento",
+      "height": "Altura inicial",
+      "body": "Lugar",
+      "launch": "Lanzar",
+      "flightTime": "Tiempo de vuelo",
+      "range": "Alcance",
+      "maxHeight": "Altura máxima",
+      "drawing": "Trayectoria de un lanzamiento a {speed} con un ángulo de {angle}"
+    },
+    "kinematics": {
+      "first": "Móvil A",
+      "second": "Móvil B",
+      "position": "Posición inicial",
+      "velocity": "Velocidad inicial",
+      "acceleration": "Aceleración",
+      "start": "Arrancar",
+      "finalPosition": "Posición de {mover} a los {seconds} s",
+      "finalVelocity": "Velocidad de {mover} a los {seconds} s",
+      "meeting": "Se encuentran a los",
+      "never": "No se encuentran",
+      "drawing": "Dos móviles en una recta y su posición durante {seconds} segundos"
+    },
+    "forces": {
+      "mass": "Masa del bloque",
+      "force": "Empuje hacia arriba de la rampa",
+      "friction": "Coeficiente de rozamiento",
+      "angle": "Inclinación de la rampa",
+      "release": "Soltar el bloque",
+      "weight": "Peso",
+      "normal": "Fuerza normal",
+      "downSlope": "Peso a lo largo de la rampa",
+      "frictionForce": "Rozamiento",
+      "net": "Fuerza neta",
+      "acceleration": "Aceleración",
+      "motion": "El bloque",
+      "motions": {
+        "up": "Sube por la rampa",
+        "down": "Baja por la rampa",
+        "rest": "Se queda quieto"
+      },
+      "drawing": "Un bloque sobre una rampa de {angle} con las fuerzas que actúan sobre él",
+      "ready": "Pulsa «Soltar el bloque» para ver cómo se mueve en una rampa de 10 m.",
+      "heldByFriction": "No se mueve: el rozamiento compensa las demás fuerzas.",
+      "travelled": "Recorrió {distance} en {time}."
+    },
+    "grapher": {
+      "functions": "Funciones",
+      "name": "f{number}(x) =",
+      "remove": "Quitar la función {number}",
+      "add": "Agregar función",
+      "help": "Usa x como variable. Ejemplos: 2x^2 - 3, sin(x), sqrt(x), ln(x), abs(x - 1).",
+      "probe": "Leer los valores en",
+      "zoomIn": "Acercar",
+      "zoomOut": "Alejar",
+      "home": "Centrar",
+      "drawing": "Gráfica de las funciones en el plano cartesiano",
+      "valueAt": "f{number}({x})"
+    },
+    "expressionErrors": {
+      "empty": "Escribe una expresión.",
+      "syntax": "La expresión no está bien escrita. Revisa los paréntesis y los signos.",
+      "unknownName": "No conozco «{name}».",
+      "tooLong": "La expresión es demasiado larga.",
+      "noEquals": "Una ecuación lleva un solo signo =."
+    },
+    "calculator": {
+      "expression": "Expresión",
+      "undefined": "No está definido",
+      "angle": "Ángulos en",
+      "angles": {
+        "deg": "Grados",
+        "rad": "Radianes"
+      },
+      "keypad": "Teclado de la calculadora",
+      "clear": "Borrar todo",
+      "backspace": "Borrar el último carácter",
+      "history": "Últimos cálculos",
+      "noHistory": "Aquí aparecerán tus cálculos al pulsar =.",
+      "help": "También puedes escribir con el teclado: sin(30) + 2^3, sqrt(2), 5!."
+    },
+    "solver": {
+      "preset": "Fórmula",
+      "presets": {
+        "speed": "Velocidad",
+        "force": "Segunda ley de Newton",
+        "energy": "Energía potencial",
+        "circle": "Área del círculo",
+        "pythagoras": "Teorema de Pitágoras",
+        "ohm": "Ley de Ohm"
+      },
+      "custom": "Escribir mi propia fórmula",
+      "equation": "Ecuación",
+      "help": "Por ejemplo v = d / t. Cada letra es una variable; pi y e son constantes.",
+      "unknown": "Quiero calcular",
+      "valueOf": "Valor de {name}",
+      "result": "Resultado",
+      "waiting": "Escribe una ecuación para empezar.",
+      "missing": "Falta el valor de {names}.",
+      "noSolution": "No tiene solución con estos valores.",
+      "knownValues": "Valores conocidos"
+    },
+    "language": {
+      "completeTheSentence": "Completa la oración con la palabra que falta.",
+      "whichWord": "¿Qué palabra corresponde a esta definición?",
+      "yourAnswer": "Tu respuesta",
+      "check": "Comprobar",
+      "next": "Siguiente",
+      "skip": "Saltar",
+      "counter": "Ejercicio {number} de {total}",
+      "noPractice": "Este laboratorio todavía no tiene ejercicios de práctica.",
+      "score": "Aciertos",
+      "scoreValue": "{right} de {tried}",
+      "practiceNote": "La práctica no se guarda ni cuenta para ninguna nota.",
+      "nothingShown": "Tu docente todavía no eligió un ejercicio.",
+      "answerIs": "Respuesta:",
+      "revealAnswer": "Mostrar la respuesta",
+      "hideAnswer": "Ocultar la respuesta",
+      "pickExercise": "Elige el ejercicio que verá la clase",
+      "mine": "Mío"
+    },
+    "verdicts": {
+      "CORRECT": "Correcto",
+      "ACCENTS": "Revisa las tildes",
+      "INCORRECT": "Incorrecto"
+    },
+    "exercises": {
+      "title": "Mis ejercicios",
+      "newTitle": "Nuevo ejercicio",
+      "editTitle": "Editar ejercicio",
+      "sentence": "Oración",
+      "sentenceHelp": "Escribe ___ (tres guiones bajos) donde va la palabra que falta.",
+      "definition": "Definición",
+      "definitionHelp": "Escribe la definición; la respuesta es la palabra que define.",
+      "needsBlank": "La oración necesita exactamente un ___.",
+      "insertBlank": "Insertar ___",
+      "answers": "Respuestas aceptadas",
+      "answersHelp": "Separa con comas las respuestas que das por buenas (hasta {max}). La primera es la que se muestra.",
+      "hint": "Pista (opcional)",
+      "preview": "Así lo verán tus estudiantes",
+      "create": "Agregar ejercicio",
+      "save": "Guardar cambios",
+      "empty": "Todavía no escribiste ejercicios propios. Mientras tanto puedes usar los {count} del banco de la plataforma.",
+      "editNamed": "Editar el ejercicio «{prompt}»",
+      "removeNamed": "Quitar el ejercicio «{prompt}»"
+    },
+    "assign": {
+      "title": "Nueva actividad de laboratorio",
+      "lab": "Laboratorio",
+      "activityTitle": "Título de la actividad",
+      "instructions": "Instrucciones",
+      "instructionsLab": "Di qué deben probar y qué anotar; tus estudiantes lo escriben al entregar.",
+      "instructionsLanguage": "Los ejercicios se corrigen solos al entregar.",
+      "dueAt": "Fecha de entrega (opcional)",
+      "exercises": "Ejercicios ({count} de {max})",
+      "noExercises": "No hay ejercicios para este laboratorio.",
+      "submit": "Asignar al grupo"
+    },
+    "follow": {
+      "empty": "Todavía no diste actividades de laboratorio a este grupo.",
+      "handedIn": "Entregas",
+      "handedInCount": "{count} de {total} entregadas",
+      "due": "Entrega",
+      "noDue": "Sin fecha de entrega",
+      "viewResults": "Ver entregas",
+      "delete": "Eliminar",
+      "deleteNamed": "Eliminar la actividad «{title}»",
+      "deleteTitle": "¿Eliminar la actividad?",
+      "deleteBody": "«{title}» y todo lo que entregaron tus estudiantes se borrará. No se puede deshacer.",
+      "cancel": "Cancelar",
+      "resultsOf": "Entregas de «{title}»",
+      "student": "Estudiante",
+      "status": "Estado",
+      "submitted": "Entregada",
+      "pending": "Pendiente",
+      "late": "Tarde",
+      "submittedAt": "Entregada el",
+      "score": "Aciertos",
+      "scoreValue": "{score} de {total}",
+      "note": "Nota del estudiante",
+      "noStudents": "El grupo no tiene estudiantes inscritos.",
+      "answerKey": "Respuestas de los ejercicios"
+    },
+    "course": {
+      "title": "Laboratorios de {subject}",
+      "subtitle": "Grupo {group}",
+      "newActivity": "Asignar una actividad",
+      "activities": "Actividades del grupo",
+      "resultsOf": "Entregas de «{title}»"
+    },
+    "activities": {
+      "title": "Mis actividades",
+      "empty": "No tienes actividades de laboratorio por ahora.",
+      "from": "{lab} · {subject}",
+      "pending": "Pendiente",
+      "handedIn": "Entregada",
+      "scored": "{score} de {total}",
+      "late": "Entregada tarde",
+      "dueOn": "Entrega: {date}",
+      "noDue": "Sin fecha de entrega",
+      "noInstructions": "Tu docente no dejó instrucciones.",
+      "answerSheet": "Respuestas de la actividad",
+      "questionNumber": "Pregunta {number} de {total}",
+      "missingWord": "Palabra que falta",
+      "word": "Palabra",
+      "yourAnswer": "Tu respuesta:",
+      "blankAnswer": "(sin respuesta)",
+      "accepted": "Respuesta: {answers}",
+      "handIn": "Entregar",
+      "handInTitle": "Entregar la actividad",
+      "note": "¿Qué observaste?",
+      "noteHelp": "Anota los valores que encontraste o tu conclusión. Tu docente lo verá con tu entrega.",
+      "yourNote": "Tu nota",
+      "confirmTitle": "¿Entregar la actividad?",
+      "confirmBody": "Solo puedes entregarla una vez. Después verás tus resultados.",
+      "keepWorking": "Seguir trabajando",
+      "handedInOn": "Entregaste esta actividad el {date}.",
+      "scoreSentence": "Acertaste {score} de {total}."
+    }
   }
 }

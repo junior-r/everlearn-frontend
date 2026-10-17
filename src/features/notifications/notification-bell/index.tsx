@@ -7,6 +7,7 @@ import {
   ChatCircleDotsIcon,
   ConfettiIcon,
   ExamIcon,
+  FlaskIcon,
   HourglassMediumIcon,
   NotePencilIcon,
 } from "@phosphor-icons/react/dist/ssr";
@@ -37,6 +38,7 @@ const LOOK: Record<NotificationType, { icon: Icon; tone: Tone }> = {
   WARD_EVALUATION_PUBLISHED: { icon: NotePencilIcon, tone: "sky" },
   WARD_GRADE_POSTED: { icon: ExamIcon, tone: "mint" },
   WARD_ATTENDANCE: { icon: CalendarXIcon, tone: "coral" },
+  LAB_ASSIGNED: { icon: FlaskIcon, tone: "grape" },
 };
 
 /** Above this, the badge stops counting: the exact figure no longer matters. */

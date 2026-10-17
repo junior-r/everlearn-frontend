@@ -16,6 +16,7 @@ export const ADMIN_SECTIONS = [
   "groups",
   "availability",
   "schedule",
+  "labs",
 ] as const;
 export type AdminSection = (typeof ADMIN_SECTIONS)[number];
 
@@ -24,7 +25,7 @@ const INSTITUTION_SECTIONS = ADMIN_SECTIONS.filter((section) => section !== "ins
 /**
  * The dashboard sections to offer while acting in the given institution:
  * - a Platform Admin manages institutions, and every section of one they have entered;
- * - an Institution Admin manages everything inside their institution;
+ * - an Institution Admin manages everything inside their institution, labs included (only those granted);
  * - Staff only register members (Students).
  * This decides what the UI shows; the backend authorizes every request on its own.
  */
