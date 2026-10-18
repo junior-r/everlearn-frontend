@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fitWidth, frameToSourceRect } from "./crop";
+import { fitInside, fitWidth, frameToSourceRect } from "./crop";
 
 describe("frameToSourceRect", () => {
   it("scales the frame up when the video matches the container's proportions", () => {
@@ -52,5 +52,16 @@ describe("fitWidth", () => {
   it("shrinks large captures proportionally and leaves small ones alone", () => {
     expect(fitWidth({ width: 3200, height: 2000 }, 1600)).toEqual({ width: 1600, height: 1000 });
     expect(fitWidth({ width: 800, height: 500 }, 1600)).toEqual({ width: 800, height: 500 });
+  });
+});
+
+describe("fitInside", () => {
+  it("shrinks the longer side of a landscape or portrait photo", () => {
+    expect(fitInside({ width: 4000, height: 3000 }, 2400)).toEqual({ width: 2400, height: 1800 });
+    expect(fitInside({ width: 3000, height: 4000 }, 2400)).toEqual({ width: 1800, height: 2400 });
+  });
+
+  it("never enlarges a small photo", () => {
+    expect(fitInside({ width: 1200, height: 900 }, 2400)).toEqual({ width: 1200, height: 900 });
   });
 });

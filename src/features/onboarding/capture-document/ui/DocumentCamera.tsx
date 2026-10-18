@@ -5,6 +5,7 @@ import { useDictionary } from "@/shared/i18n";
 import { cn } from "@/shared/lib/cn";
 import { Button, buttonBase, buttonStyles, ErrorNotice } from "@/shared/ui";
 import { fitWidth, frameToSourceRect, ID_CARD_ASPECT_RATIO } from "../lib/crop";
+import { shrinkPhoto } from "../lib/shrink-photo";
 
 type CameraState = "idle" | "starting" | "live" | "preview";
 type CameraError = "denied" | "unavailable";
@@ -124,13 +125,13 @@ export function DocumentCamera({ disabled = false, onConfirm }: DocumentCameraPr
     canvas.toBlob((blob) => blob && showPreview(blob), "image/jpeg", JPEG_QUALITY);
   }
 
-  function handleFile(event: ChangeEvent<HTMLInputElement>) {
+  async function handleFile(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     // Reset so choosing the same file again still fires a change event
     event.target.value = "";
     if (file) {
       setError(null);
-      showPreview(file);
+      showPreview(await shrinkPhoto(file));
     }
   }
 
