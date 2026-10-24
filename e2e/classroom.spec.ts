@@ -68,6 +68,21 @@ test("a Teacher starts a class, a Student joins, and they share video, chat and 
   const teacherVideo = participants(studentPage).getByRole("listitem", { name: "Alan Turing" }).locator("video");
   await expect.poll(() => teacherVideo.evaluate((video: HTMLVideoElement) => video.videoWidth)).toBeGreaterThan(0);
 
+  // The Student zooms into the Teacher's camera; it is their own view, the Teacher's stays as it was
+  const transformOf = (video: typeof teacherVideo) => video.evaluate((element) => getComputedStyle(element).transform);
+  const zoomControls = studentPage.getByRole("group", { name: "Zoom de Alan Turing" });
+  await participants(studentPage).getByRole("listitem", { name: "Alan Turing" }).hover();
+  await zoomControls.getByRole("button", { name: "Acercar" }).click();
+  await zoomControls.getByRole("button", { name: "Acercar" }).click();
+  await expect(zoomControls.getByRole("button", { name: /Restablecer el zoom, ahora en 200/ })).toBeVisible();
+  expect(await transformOf(teacherVideo)).toBe("matrix(2, 0, 0, 2, 0, 0)");
+  const ownVideo = participants(page).getByRole("listitem", { name: "Alan Turing (tú)" }).locator("video");
+  expect(await transformOf(ownVideo)).toBe("matrix(1, 0, 0, 1, 0, 0)");
+  await zoomControls.getByRole("button", { name: "Alejar" }).click();
+  await expect(zoomControls.getByRole("button", { name: /ahora en 150/ })).toBeVisible();
+  await zoomControls.getByRole("button", { name: /Restablecer el zoom/ }).click();
+  await expect.poll(() => transformOf(teacherVideo)).toBe("matrix(1, 0, 0, 1, 0, 0)");
+
   // Chat reaches both, each seeing who wrote
   await say(studentPage, "¿Puede repetir el ejemplo?");
   await expect(chatLog(page)).toContainText("Grace Hopper");

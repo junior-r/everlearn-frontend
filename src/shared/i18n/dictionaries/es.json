@@ -190,11 +190,19 @@
       "mute": "Silenciar a {name}",
       "lowerHand": "Bajar la mano de {name}",
       "handTurn": "mano levantada, turno {position}",
+      "connectionPoor": "conexión débil",
+      "connectionLost": "sin conexión",
       "screenOf": "Pantalla de {name}"
     },
     "stage": "Pantalla principal",
     "handsRaisedOne": "1 mano levantada",
     "handsRaisedMany": "{count} manos levantadas",
+    "zoom": {
+      "group": "Zoom de {name}",
+      "in": "Acercar",
+      "out": "Alejar",
+      "reset": "Restablecer el zoom, ahora en {percent}"
+    },
     "handsQueue": {
       "title": "Manos levantadas, en orden",
       "lower": "Bajar",
