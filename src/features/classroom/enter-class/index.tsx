@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useId } from "react";
 import {
   courseAttendancePath,
+  courseTranscriptsPath,
   fetchMyCourses,
   startClassSession,
   type ClassroomCourse,
@@ -111,6 +112,13 @@ export function MyClasses({ institutionId }: { institutionId: string }) {
                       {text.evaluations}
                     </Link>
                   )}
+                  <Link
+                    href={localizedPath(locale, courseTranscriptsPath(course.groupId, course.subject.id))}
+                    aria-label={format(text.transcriptsFor, { subject })}
+                    className={buttonClass("secondary", "sm")}
+                  >
+                    {text.transcripts}
+                  </Link>
                   {course.openSessionId ? (
                     <Link
                       href={localizedPath(locale, classPath(course.openSessionId))}

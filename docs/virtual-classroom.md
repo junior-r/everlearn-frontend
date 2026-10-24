@@ -45,6 +45,13 @@ Teachers and Students need a screen to hold a class: see each other, write in a 
 - **Reason:** the backend already told Guardians of an absence taken by hand; without a screen no Teacher could take one.
 - **Implementation:** `pages/classroom/CourseAttendancePage` with `features/classroom/take-attendance` (`AttendanceSheet`, `RecordHeldClassForm`) over `entities/class-session`. The roll is a radio group per Student (`PRESENT`, `LATE`, `ABSENT`, `EXCUSED`); only marks that changed are sent, so a mark taken automatically stays automatic until the Teacher changes it. E2E: `e2e/communication.spec.ts`.
 
+## Transcripts of past classes
+
+- **Need:** captions are stored as the class goes on, but nobody could read them afterwards.
+- **Goal:** `/courses/:groupId/:subjectId/transcripts`, reached from "Transcripciones" in "Mis clases" by the course's Teacher and the Students of its group: the classes that have a transcript (the latest first), what was said in the one chosen, with speaker and time, and a plain-text download.
+- **Reason:** the file is built in the browser from what the backend sent (`transcriptText` in `entities/class-session`, saved with `shared/lib/download`), so the date in it follows the reader's locale and no second endpoint has to repeat the access rule. Plain text needs no guard against spreadsheet formulas.
+- **Implementation:** `pages/classroom/CourseTranscriptsPage` with `features/classroom/read-transcript` (`TranscriptView`). Who may read is decided only by the backend (see `backend/docs/classroom.md`). E2E: `e2e/classroom.spec.ts`.
+
 ## Known gaps
 
 - No picker for the speaker, and the device chosen is not remembered for the next class.

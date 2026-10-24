@@ -64,6 +64,42 @@ export interface CourseSessions {
   sessions: CourseSession[];
 }
 
+/** A class of a course that has a transcript. */
+export interface TranscribedSession {
+  sessionId: string;
+  /** ISO date-time. */
+  startsAt: string;
+  lines: number;
+}
+
+export interface CourseTranscripts {
+  subjectName: string;
+  groupName: string;
+  sessions: TranscribedSession[];
+}
+
+/** One transcribed stretch of a past class. */
+export interface TranscriptLine {
+  id: string;
+  /** Null when nobody was named as the speaker. */
+  speakerName: string | null;
+  text: string;
+  /** ISO date-time. */
+  startedAt: string;
+  /** ISO date-time. */
+  endedAt: string;
+}
+
+/** What was said in one class, in order. */
+export interface ClassTranscript {
+  sessionId: string;
+  subjectName: string;
+  groupName: string;
+  /** ISO date-time. */
+  startsAt: string;
+  lines: TranscriptLine[];
+}
+
 /** One enrolled Student on the attendance sheet of a class. */
 export interface AttendanceEntry {
   enrollmentId: string;
