@@ -272,7 +272,14 @@ test("a Teacher who only leaves keeps the class open, and a shared screen takes 
     "Pantalla de Alan Turing (tú)",
   );
   await expect(participants(studentPage).getByRole("listitem")).toHaveCount(2);
+  // Stopping asks first: keeping the share leaves the screen on the stage
   await page.getByRole("button", { name: "Dejar de compartir" }).click();
+  const stopScreen = page.getByRole("dialog", { name: "¿Dejar de compartir la pantalla?" });
+  await stopScreen.getByRole("button", { name: "Seguir compartiendo" }).click();
+  await expect(stopScreen).toBeHidden();
+  await expect(stage.getByRole("listitem", { name: "Pantalla de Alan Turing" })).toBeVisible();
+  await page.getByRole("button", { name: "Dejar de compartir" }).click();
+  await stopScreen.getByRole("button", { name: "Dejar de compartir" }).click();
   // With the screen gone, everyone is back on the grid
   await expect(stage).toHaveCount(0);
   await expect(participants(studentPage).getByRole("listitem")).toHaveCount(2);

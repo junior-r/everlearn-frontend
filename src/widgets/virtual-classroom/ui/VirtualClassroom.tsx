@@ -49,6 +49,7 @@ import { LabPicker } from "./LabPicker";
 import { LiveCaptions } from "./LiveCaptions";
 import { ParticipantTile, type Moderation } from "./ParticipantTile";
 import { SharedLabPanel } from "./SharedLabPanel";
+import { StopSharingDialog } from "./StopSharingDialog";
 
 interface VirtualClassroomProps {
   access: ClassroomAccess;
@@ -233,13 +234,19 @@ function Classroom({
     useParticipantAttribute(LABS_ATTRIBUTE, { participant: room.localParticipant }),
   );
   const [isPickingLab, setIsPickingLab] = useState(false);
+  const [isStoppingLab, setIsStoppingLab] = useState(false);
   const current = sharedLab.current;
   const stagedLab = useMemo<StagedLab | null>(
     () =>
       current && {
         name: labs.names[current.labKey],
         panel: (
-          <SharedLabPanel labKey={current.labKey} state={current.state} mode={current.mode} onStop={sharedLab.stop}>
+          <SharedLabPanel
+            labKey={current.labKey}
+            state={current.state}
+            mode={current.mode}
+            onStop={() => setIsStoppingLab(true)}
+          >
             {findLab(current.labKey).render({
               state: current.state,
               onChange: sharedLab.update,
@@ -249,7 +256,7 @@ function Classroom({
           </SharedLabPanel>
         ),
       },
-    [current, labs.names, findLab, institutionId, sharedLab.stop, sharedLab.update],
+    [current, labs.names, findLab, institutionId, sharedLab.update],
   );
   // The video-server refuses these to anyone but the Teacher; the menus simply do not offer them
   const moderation = useMemo<Moderation | null>(
@@ -362,7 +369,11 @@ function Classroom({
               onDeviceError={onDeviceError}
               lab={
                 isTeacher && shareableLabs.length > 0
-                  ? { isSharing: current !== null, onPick: () => setIsPickingLab(true), onStop: sharedLab.stop }
+                  ? {
+                      isSharing: current !== null,
+                      onPick: () => setIsPickingLab(true),
+                      onStop: () => setIsStoppingLab(true),
+                    }
                   : null
               }
             />
@@ -374,6 +385,15 @@ function Classroom({
                 sharedLab.share(labKey);
               }}
               onClose={() => setIsPickingLab(false)}
+            />
+            <StopSharingDialog
+              what="lab"
+              isOpen={isStoppingLab && current !== null}
+              onConfirm={() => {
+                setIsStoppingLab(false);
+                sharedLab.stop();
+              }}
+              onClose={() => setIsStoppingLab(false)}
             />
           </main>
           {isChatOpen && (

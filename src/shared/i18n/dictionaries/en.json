@@ -183,6 +183,14 @@
       "leaveOnly": "Just leave",
       "end": "End for everyone"
     },
+    "stopDialog": {
+      "screenTitle": "Stop sharing your screen?",
+      "screenBody": "The class will no longer see your screen or hear its sound.",
+      "labTitle": "Stop sharing the lab?",
+      "labBody": "The class will no longer see the lab. What you changed in it is lost.",
+      "cancel": "Keep sharing",
+      "confirm": "Stop sharing"
+    },
     "tile": {
       "options": "Options for {name}",
       "pin": "Pin to the stage",

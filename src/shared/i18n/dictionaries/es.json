@@ -183,6 +183,14 @@
       "leaveOnly": "Solo salir",
       "end": "Finalizar para todos"
     },
+    "stopDialog": {
+      "screenTitle": "¿Dejar de compartir la pantalla?",
+      "screenBody": "La clase dejará de ver tu pantalla y de oír su sonido.",
+      "labTitle": "¿Dejar de compartir el laboratorio?",
+      "labBody": "La clase dejará de ver el laboratorio. Lo que hayas cambiado en él se pierde.",
+      "cancel": "Seguir compartiendo",
+      "confirm": "Dejar de compartir"
+    },
     "tile": {
       "options": "Opciones de {name}",
       "pin": "Fijar en pantalla",
