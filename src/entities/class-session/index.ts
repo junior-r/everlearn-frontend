@@ -1,5 +1,6 @@
 import { ApiError, apiClient, forInstitution } from "@/shared/api";
 import { env } from "@/shared/config/env";
+import { parseFeedPackets, type FeedPacket } from "./lib/room-feed";
 import type {
   AttendanceEntry,
   AttendanceStatus,
@@ -10,18 +11,15 @@ import type {
 } from "./model/types";
 
 export {
-  appendUnique,
   CAPTIONS_TOPIC,
   CHAT_DELETED_TOPIC,
   CHAT_TOPIC,
   HAND_ATTRIBUTE,
   MAX_CHAT_LENGTH,
-  parseCaption,
-  parseChatDeletion,
-  parseChatMessage,
   ROLE_ATTRIBUTE,
-  withDeleted,
 } from "./lib/room-messages";
+export { EMPTY_FEED, withHistory, withPacket } from "./lib/room-feed";
+export type { FeedPacket, RoomFeed } from "./lib/room-feed";
 export { handQueue } from "./lib/hand-queue";
 export type { HandHolder, RaisedHand } from "./lib/hand-queue";
 export { ATTENDANCE_STATUSES } from "./model/types";
@@ -80,6 +78,18 @@ async function askVideoServer(roomToken: string, path: string, body: object, fai
   if (!response?.ok) {
     throw new ApiError(response?.status ?? 0, failure, `The video-server refused ${path}`);
   }
+}
+
+/** The chat and captions the room had before the viewer arrived, as the video-server kept them. */
+export async function fetchRoomFeed(roomToken: string, signal: AbortSignal): Promise<FeedPacket[]> {
+  const response = await fetch(`${env.videoServerUrl}/feed`, {
+    headers: { Authorization: `Bearer ${roomToken}` },
+    signal,
+  });
+  if (!response.ok) {
+    throw new ApiError(response.status, "FEED_UNAVAILABLE", "The video-server could not replay the class");
+  }
+  return parseFeedPackets(await response.json());
 }
 
 /** Sends a chat message to the class; it shows up when the room delivers it to everyone. */

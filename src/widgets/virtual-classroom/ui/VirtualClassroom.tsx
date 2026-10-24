@@ -205,7 +205,7 @@ function Classroom({
   const { classroom, errors, labs, roles } = useDictionary();
   const state = useConnectionState();
   const room = useRoomContext();
-  const feed = useRoomFeed();
+  const feed = useRoomFeed(access.token);
   const hands = handQueue(useParticipants());
   const [isChatOpen, setIsChatOpen] = useState(true);
   const [readUpTo, setReadUpTo] = useState(0);

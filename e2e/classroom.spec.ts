@@ -314,6 +314,40 @@ test("a Teacher who only leaves keeps the class open, and a shared screen takes 
   await institution.dispose();
 });
 
+test("a Student who joins late, or comes back, is shown the chat the class already had", async ({
+  page,
+  browser,
+  playwright,
+}) => {
+  test.setTimeout(120_000);
+  const { institution, teacher, student } = await createCourse(playwright);
+  await signIn(page, teacher.email, teacher.password);
+  await page.getByRole("button", { name: "Iniciar clase de Matemática" }).click();
+  await expect(page.getByRole("group", { name: "Controles de la clase" })).toBeVisible({ timeout: 30_000 });
+  await say(page, "Dicho antes de que llegaras");
+  await expect(messageOf(page, "Dicho antes de que llegaras")).toBeVisible();
+  await say(page, "Esto se retira");
+  await messageOf(page, "Esto se retira").click({ button: "right" });
+  await page.getByRole("menu").getByRole("menuitem", { name: "Eliminar para todos" }).click();
+  await expect(chatLog(page)).toContainText("Mensaje eliminado");
+
+  const studentPage = await openAs(browser, student.email, student.password);
+  await studentPage.getByRole("link", { name: "Entrar a la clase de Matemática" }).click({ timeout: 30_000 });
+  await expect(messageOf(studentPage, "Dicho antes de que llegaras")).toBeVisible({ timeout: 15_000 });
+  await expect(chatLog(studentPage)).toContainText("Mensaje eliminado");
+  await expect(chatLog(studentPage)).not.toContainText("Esto se retira");
+
+  // What is said live lands after the replay, and coming back keeps both in order
+  await say(page, "Ya estás aquí");
+  await expect(messageOf(studentPage, "Ya estás aquí")).toBeVisible();
+  await studentPage.reload();
+  await expect(chatLog(studentPage).getByRole("listitem")).toHaveCount(3, { timeout: 15_000 });
+  await expect(chatLog(studentPage).getByRole("listitem").last()).toContainText("Ya estás aquí");
+
+  await studentPage.context().close();
+  await institution.dispose();
+});
+
 test("a Student who is not enrolled cannot enter, and the page says why", async ({ page, browser, playwright }) => {
   test.setTimeout(90_000);
   const { institution, teacher, outsider } = await createCourse(playwright);
