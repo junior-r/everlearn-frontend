@@ -8,13 +8,22 @@ import { Button, ErrorNotice, TextField } from "@/shared/ui";
 import { confirmIdentity } from "../api/confirm-identity";
 
 interface ConfirmIdentityFormProps {
+  institutionId: string;
+  /** The member whose ID is on the desk. */
+  membershipId: string;
   application: OnboardingApplication;
   onConfirmed(application: OnboardingApplication): void;
   onRetake(): void;
 }
 
-/** Shows what the OCR read so the applicant can correct it before it is saved to their profile. */
-export function ConfirmIdentityForm({ application, onConfirmed, onRetake }: ConfirmIdentityFormProps) {
+/** Shows what the OCR read, for the desk to correct against the original document before the member is activated. */
+export function ConfirmIdentityForm({
+  institutionId,
+  membershipId,
+  application,
+  onConfirmed,
+  onRetake,
+}: ConfirmIdentityFormProps) {
   const { onboarding, errors } = useDictionary();
   const text = onboarding.confirm;
   const extracted = application.extracted;
@@ -31,7 +40,7 @@ export function ConfirmIdentityForm({ application, onConfirmed, onRetake }: Conf
     setErrorCode(null);
     try {
       onConfirmed(
-        await confirmIdentity({
+        await confirmIdentity(institutionId, membershipId, {
           firstName,
           lastName,
           documentNumber,
@@ -46,12 +55,12 @@ export function ConfirmIdentityForm({ application, onConfirmed, onRetake }: Conf
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    // The desk types someone else's data, so the browser must not offer its own user's details
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4" autoComplete="off">
       <ErrorNotice message={errorMessage(errors, errorCode)} />
       <TextField
         label={text.firstName}
         name="firstName"
-        autoComplete="given-name"
         required
         maxLength={100}
         value={firstName}
@@ -60,7 +69,6 @@ export function ConfirmIdentityForm({ application, onConfirmed, onRetake }: Conf
       <TextField
         label={text.lastName}
         name="lastName"
-        autoComplete="family-name"
         required
         maxLength={100}
         value={lastName}
@@ -78,7 +86,6 @@ export function ConfirmIdentityForm({ application, onConfirmed, onRetake }: Conf
         label={text.birthDate}
         name="birthDate"
         type="date"
-        autoComplete="bday"
         required
         value={birthDate}
         onChange={(event) => setBirthDate(event.target.value)}

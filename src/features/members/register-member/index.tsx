@@ -8,7 +8,7 @@ import { errorMessage, format, useDictionary } from "@/shared/i18n";
 import { useSubmit } from "@/shared/lib/use-submit";
 import { Button, ErrorNotice, SelectField, TextField } from "@/shared/ui";
 
-interface RegisteredMember {
+export interface RegisteredMember {
   member: Member;
   /** Null when the person already had an account and keeps their own credentials. */
   temporaryPassword: string | null;
@@ -18,12 +18,14 @@ interface RegisterMemberFormProps {
   institutionId: string;
   /** The roles this user may give, most junior first; the backend enforces the same rule. */
   allowedRoles: Role[];
-  onRegistered(): void;
+  /** Called with every registration; one still pending must have their ID checked next. */
+  onRegistered(registered: RegisteredMember): void;
 }
 
 /**
- * Registers a Teacher or Student and shows their temporary password once.
- * The password is kept only in this component's state and is gone on dismiss.
+ * Registers a member. When nothing else is left to do, because the person was
+ * already verified or needs no ID check, it shows the outcome here, with the
+ * temporary password once; it lives only in this component's state.
  */
 export function RegisterMemberForm({
   institutionId,
@@ -54,11 +56,12 @@ export function RegisterMemberForm({
     event.preventDefault();
     const result = await submit({ firstName, lastName, email, role: chosenRole });
     if (result) {
-      setRegistered(result);
+      // A pending member goes on to their ID check, which shows the credentials instead
+      setRegistered(result.member.isActive ? result : null);
       setFirstName("");
       setLastName("");
       setEmail("");
-      onRegistered();
+      onRegistered(result);
     }
   }
 

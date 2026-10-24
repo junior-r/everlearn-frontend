@@ -418,8 +418,6 @@
       "inactiveHint": "{count} inactive",
       "totalUsers": "Users",
       "activeUsers": "Active users",
-      "pendingReviews": "Pending reviews",
-      "pendingHint": "Documents to review across all institutions",
       "largestTitle": "Members per institution",
       "largestHint": "The active institutions with the most active members.",
       "largestEmpty": "No institution has members yet.",
@@ -430,7 +428,9 @@
         "active": "Active",
         "pendingOnboarding": "Onboarding",
         "suspended": "Suspended"
-      }
+      },
+      "pendingIdentity": "Awaiting ID check",
+      "pendingIdentityHint": "Accounts waiting for their institution to check their ID"
     },
     "institution": {
       "title": "Institution overview",
@@ -452,8 +452,8 @@
         "absent": "Absent",
         "excused": "Excused"
       },
-      "pendingOne": "1 identity document is waiting for review.",
-      "pendingMany": "{count} identity documents are waiting for review."
+      "pendingOne": "1 member is waiting for their ID check.",
+      "pendingMany": "{count} members are waiting for their ID check."
     },
     "teacher": {
       "title": "Teacher dashboard",
@@ -607,12 +607,10 @@
     }
   },
   "onboarding": {
-    "title": "Verify your identity",
-    "subtitle": "We need a photo of your identity document to complete your profile.",
     "steps": {
       "capture": "Document",
       "confirm": "Details",
-      "done": "Review"
+      "done": "Active"
     },
     "documentType": {
       "label": "Document type",
@@ -623,32 +621,40 @@
     "camera": {
       "start": "Turn on camera",
       "starting": "Turning on camera…",
-      "instructions": "Place your document inside the frame and avoid glare.",
+      "instructions": "Place the document inside the frame and avoid glare.",
       "capture": "Take photo",
       "retake": "Retake photo",
       "use": "Use this photo",
       "upload": "Upload an image",
-      "previewAlt": "Preview of your document photo",
+      "previewAlt": "Preview of the photo of the document",
       "denied": "We could not access the camera. Allow access in your browser or upload an image.",
       "unavailable": "We could not find a camera on this device. You can upload an image."
     },
-    "processing": "Reading your document…",
+    "processing": "Reading the document…",
     "confirm": {
-      "title": "Confirm your details",
-      "subtitle": "We read these details from your document. Check them and correct anything that is wrong.",
+      "title": "Confirm the details",
+      "subtitle": "Compare what was read with the original document and correct anything that needs it.",
       "firstName": "First names",
       "lastName": "Last names",
       "documentNumber": "Document number",
       "birthDate": "Date of birth",
-      "submit": "Submit for review",
+      "submit": "Confirm and activate",
       "retake": "Retake the photo"
     },
-    "rejected": "Your previous application was rejected: {reason} Take a new photo to try again.",
-    "submitted": {
-      "title": "Application submitted",
-      "body": "Your institution will review your details. We will let you know when your account is active."
+    "unreadable": "We couldn't read the document automatically. Fill in the details by hand or take the photo again.",
+    "pending": {
+      "title": "Show your ID at your institution",
+      "body": "Your account becomes active once your institution's staff check your ID in person. Bring the original document to the enrolment office."
     },
-    "unreadable": "We could not read your document automatically. Fill in your details by hand or retake the photo."
+    "check": {
+      "title": "Check {name}'s ID",
+      "subtitle": "Ask for the original document, photograph it and confirm the details with the person in front of you.",
+      "later": "Do it later",
+      "doneTitle": "{name} is now active",
+      "doneBody": "Their identity is verified and they can use the platform.",
+      "credentials": "Hand over these credentials. The temporary password will not be shown again.",
+      "finish": "Done"
+    }
   },
   "roles": {
     "ADMIN": "Institution Admin",
@@ -671,13 +677,13 @@
       "institutions": "Institutions",
       "subjects": "Subjects",
       "members": "Members",
-      "reviews": "Pending reviews",
       "pensums": "Pensums",
       "groups": "Groups",
       "settings": "Profile settings",
       "availability": "Teacher availability",
       "schedule": "Timetables",
-      "labs": "Labs"
+      "labs": "Labs",
+      "backToPortal": "Back to my overview"
     },
     "institutionSwitcher": {
       "label": "Institution",
@@ -744,7 +750,7 @@
     },
     "members": {
       "title": "Members",
-      "subtitle": "Register the teachers, students and guardians of your institution. They cannot sign up on their own.",
+      "subtitle": "Register the people who enrol at your institution and check their ID in person. Nobody can sign themselves up.",
       "empty": "This institution has no members yet.",
       "name": "Name",
       "firstName": "First names",
@@ -768,29 +774,10 @@
       "pages": "Pages of members",
       "pageStatus": "Page {page} of {pages} · {total} members",
       "previousPage": "Previous",
-      "nextPage": "Next"
-    },
-    "reviews": {
-      "title": "Pending reviews",
-      "subtitle": "Compare the document with the person you registered before activating their account.",
-      "empty": "There are no applications awaiting review.",
-      "photoAlt": "Photo of {name}'s document",
-      "photoUnavailable": "The document photo could not be loaded.",
-      "field": "Field",
-      "registered": "Registered by the institution",
-      "extracted": "Read from the document",
-      "confirmed": "Confirmed by the person",
-      "name": "Name",
-      "documentNumber": "Document number",
-      "birthDate": "Date of birth",
-      "documentType": "Document type",
-      "notAvailable": "—",
-      "approve": "Approve",
-      "reject": "Reject",
-      "reason": "Reason for rejection",
-      "reasonHint": "The person will see this reason so they can fix it.",
-      "confirmReject": "Confirm rejection",
-      "cancel": "Cancel"
+      "nextPage": "Next",
+      "actions": "Actions",
+      "verify": "Check ID",
+      "verifyMember": "Check ID of {name}"
     },
     "pensums": {
       "title": "Pensums",
@@ -954,10 +941,6 @@
     "SUBJECT_CODE_TAKEN": "Another subject already uses this code.",
     "SUBJECT_IN_USE": "The subject belongs to a pensum and cannot be deleted.",
     "SUBJECT_NOT_FOUND": "The subject was not found.",
-    "APPLICATION_NOT_FOUND": "The application was not found.",
-    "APPLICATION_NOT_AWAITING_REVIEW": "This application was already reviewed.",
-    "REJECTION_REASON_REQUIRED": "Give a reason for the rejection.",
-    "ONBOARDING_NOT_AVAILABLE": "This account has no pending registration to verify.",
     "HTTP_403": "You are not allowed to do this.",
     "NETWORK_ERROR": "We could not reach the server. Check your connection and try again.",
     "RATE_LIMITED": "Too many attempts. Wait a moment and try again.",
@@ -972,8 +955,7 @@
     "HTTP_413": "The photo is too large. The maximum is 5 MB.",
     "OCR_PROCESSING_FAILED": "We could not read your document. Take another photo in good light.",
     "INVALID_BIRTH_DATE": "The date of birth is not valid.",
-    "APPLICATION_ALREADY_SUBMITTED": "Your application was already submitted.",
-    "NOTHING_TO_CONFIRM": "Take a photo of your document first.",
+    "NOTHING_TO_CONFIRM": "Photograph the document first.",
     "HTTP_400": "Check the details and try again.",
     "PASSWORD_CHANGE_REQUIRED": "You must change your temporary password to continue.",
     "INVALID_CURRENT_PASSWORD": "The current password is incorrect.",
@@ -1042,7 +1024,10 @@
     "INVALID_EXERCISE": "The exercise is not valid. Check the sentence and the answers.",
     "EXERCISE_NOT_FOUND": "The exercise was not found.",
     "TEACHER_ONLY": "Only a teacher of the institution can do this.",
-    "LAB_SHARE_FAILED": "The lab could not be shared with the class. Try again."
+    "LAB_SHARE_FAILED": "The lab could not be shared with the class. Try again.",
+    "MEMBER_NOT_FOUND": "We couldn't find that member.",
+    "IDENTITY_ALREADY_VERIFIED": "This member's ID was already checked.",
+    "IDENTITY_CHECK_NOT_ALLOWED": "You can't check this member's ID."
   },
   "labs": {
     "catalog": {

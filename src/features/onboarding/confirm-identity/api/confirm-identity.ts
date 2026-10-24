@@ -1,25 +1,19 @@
 import type {
   ApplicationResponse,
-  DocumentType,
+  ConfirmedIdentity,
   OnboardingApplication,
 } from "@/entities/onboarding-application";
-import { apiClient } from "@/shared/api";
+import { apiClient, forInstitution } from "@/shared/api";
 
-export interface ConfirmedIdentity {
-  firstName: string;
-  lastName: string;
-  documentType: DocumentType;
-  documentNumber: string;
-  birthDate: string;
-}
-
-export async function confirmIdentity(identity: ConfirmedIdentity): Promise<OnboardingApplication> {
-  const { application } = await apiClient.request<ApplicationResponse>("/onboarding/confirm", {
-    method: "POST",
-    body: identity,
-  });
-  if (!application) {
-    throw new Error("The server returned no application");
-  }
+/** Saves the data checked against the member's ID; the member is active once it resolves. */
+export async function confirmIdentity(
+  institutionId: string,
+  membershipId: string,
+  identity: ConfirmedIdentity,
+): Promise<OnboardingApplication> {
+  const { application } = await apiClient.request<ApplicationResponse>(
+    `/onboarding/members/${membershipId}/confirm`,
+    { method: "POST", body: identity, headers: forInstitution(institutionId) },
+  );
   return application;
 }

@@ -12,7 +12,7 @@ test("a temporary password only lets the member choose their own, before anythin
   await expect(page).toHaveURL("/es/change-password");
   await expect(page.getByRole("heading", { name: "Crea tu contraseña" })).toBeVisible();
 
-  // Onboarding and the dashboard both lead straight back here
+  // The ID notice and the dashboard both lead straight back here
   for (const path of ["/es/onboarding", "/es/admin/members", "/es"]) {
     await page.goto(path);
     await expect(page).toHaveURL("/es/change-password");
@@ -21,7 +21,7 @@ test("a temporary password only lets the member choose their own, before anythin
   const blocked = await page.evaluate(async (apiUrl) => {
     const refreshed = await fetch(`${apiUrl}/auth/refresh`, { method: "POST", credentials: "include" });
     const { accessToken } = await refreshed.json();
-    const response = await fetch(`${apiUrl}/onboarding/application`, {
+    const response = await fetch(`${apiUrl}/institutions`, {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
     return { status: response.status, code: (await response.json()).code };
@@ -37,7 +37,7 @@ test("a temporary password only lets the member choose their own, before anythin
 
   await chooseOwnPassword(page, student.password);
 
-  // Now the pending member reaches onboarding, and the temporary password is dead
+  // Now the pending member reaches the ID notice, and the temporary password is dead
   await expect(page).toHaveURL("/es/onboarding");
   await page.getByRole("button", { name: "Cerrar sesión" }).click();
   await signIn(page, student.email, student.password);

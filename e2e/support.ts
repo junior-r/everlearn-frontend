@@ -1,6 +1,7 @@
 import { expect, type APIRequestContext, type Page, type PlaywrightWorkerArgs } from "@playwright/test";
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+export const VIDEO_SERVER_URL = process.env.NEXT_PUBLIC_VIDEO_SERVER_URL ?? "http://localhost:8080";
 // The Platform Admin that docker-compose.yml creates on first start
 export const PLATFORM_ADMIN = {
   email: process.env.PLATFORM_ADMIN_EMAIL ?? "admin@everlearn.local",
@@ -97,13 +98,31 @@ export async function createInstitution(playwright: Playwright) {
     ...adminNames,
   };
 
+  /** Checks a pending member's ID at the desk, as the Institution Admin, which activates them. */
+  async function checkIdentity(membershipId: string, names: Names = DEFAULT_NAMES) {
+    const desk = { headers: bearer(adminToken, institutionId) };
+    const uploaded = await api.post(`${API_URL}/onboarding/members/${membershipId}/document`, {
+      ...desk,
+      multipart: {
+        documentType: "NATIONAL_ID",
+        file: { name: "id.png", mimeType: "image/png", buffer: BLANK_PNG },
+      },
+    });
+    expect(uploaded.status(), "photograph ID").toBe(200);
+    const confirmed = await api.post(`${API_URL}/onboarding/members/${membershipId}/confirm`, {
+      ...desk,
+      data: { ...names, documentType: "NATIONAL_ID", documentNumber: "12345678", birthDate: "2000-01-01" },
+    });
+    expect(confirmed.status(), "confirm ID data").toBe(200);
+  }
+
   return {
     institutionId,
     name,
     admin,
     /**
-     * Registers a Teacher or Student who has already chosen their own
-     * password, so they are pending onboarding and can sign in normally.
+     * Registers a member who has already chosen their own password but whose
+     * ID has not been checked yet, so they are pending and can sign in normally.
      */
     async register(role: RegistrableRole, names: Names = DEFAULT_NAMES): Promise<Account> {
       const email = `e2e-${role.toLowerCase()}-${unique()}@example.com`;
@@ -122,34 +141,13 @@ export async function createInstitution(playwright: Playwright) {
         ...names,
       };
     },
-    /** Registers a member and takes them through onboarding and approval, leaving them active. */
+    checkIdentity,
+    /** Registers a member and has their ID checked at the desk, leaving them active with their own password. */
     async registerActive(role: RegistrableRole, names: Names = DEFAULT_NAMES): Promise<Account> {
       const email = `e2e-${role.toLowerCase()}-${unique()}@example.com`;
       const registered = await addMember(adminToken, role, email, names);
-      const token = await replacePassword(api, email, registered.temporaryPassword ?? "");
-      const uploaded = await api.post(`${API_URL}/onboarding/document`, {
-        headers: bearer(token),
-        multipart: {
-          documentType: "NATIONAL_ID",
-          file: { name: "id.png", mimeType: "image/png", buffer: BLANK_PNG },
-        },
-      });
-      expect(uploaded.status(), "upload ID").toBe(200);
-      const confirmed = await api.post(`${API_URL}/onboarding/confirm`, {
-        headers: bearer(token),
-        data: {
-          ...names,
-          documentType: "NATIONAL_ID",
-          documentNumber: "12345678",
-          birthDate: "2000-01-01",
-        },
-      });
-      expect(confirmed.status(), "confirm ID data").toBe(200);
-      const { application } = (await confirmed.json()) as { application: { id: string } };
-      const reviewed = await post(adminToken, `/onboarding/application/${application.id}/review`, {
-        decision: "APPROVE",
-      });
-      expect(reviewed.status(), "approve application").toBe(200);
+      await replacePassword(api, email, registered.temporaryPassword ?? "");
+      await checkIdentity(registered.member.membershipId, names);
       return { email, password: PASSWORD, membershipId: registered.member.membershipId, ...names };
     },
     /** Gives someone who already has an account a role in this institution too. */
@@ -205,29 +203,29 @@ export async function chooseOwnPassword(page: Page, temporaryPassword: string): 
 }
 
 /**
- * Takes a pending member from the camera step to "submitted for review". The
- * fake camera shows no document, so the OCR reads nothing and every field is typed.
+ * Checks the ID of the member whose check is open on the members page, with
+ * the camera. The fake camera shows no document, so the OCR reads nothing and every field is typed.
  */
-export async function completeOnboarding(
+export async function checkIdentityAtDesk(
   page: Page,
-  firstName: string,
-  lastName = "Prueba",
+  registeredName: string,
+  identity: { firstName: string; lastName: string },
 ): Promise<void> {
-  await expect(page).toHaveURL("/es/onboarding");
-  await page.getByRole("button", { name: "Activar cámara" }).click();
-  const video = page.getByTestId("camera-video");
+  const check = page.getByRole("region", { name: `Verificar la identidad de ${registeredName}` });
+  await check.getByRole("button", { name: "Activar cámara" }).click();
+  const video = check.getByTestId("camera-video");
   // Wait for real frames, otherwise the capture would be empty
   await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.videoWidth)).toBeGreaterThan(0);
-  await page.getByRole("button", { name: "Tomar foto" }).click();
-  await page.getByRole("button", { name: "Usar esta foto" }).click();
-  await expect(page.getByRole("heading", { name: "Confirma tus datos" })).toBeVisible();
-  await expect(formError(page)).toContainText("No pudimos leer tu documento automáticamente");
-  await page.getByLabel("Nombres").fill(firstName);
-  await page.getByLabel("Apellidos").fill(lastName);
-  await page.getByLabel("Número de documento").fill("12345678");
-  await page.getByLabel("Fecha de nacimiento").fill("2008-03-14");
-  await page.getByRole("button", { name: "Enviar para revisión" }).click();
-  await expect(page.getByRole("heading", { name: "Solicitud enviada" })).toBeVisible();
+  await check.getByRole("button", { name: "Tomar foto" }).click();
+  await check.getByRole("button", { name: "Usar esta foto" }).click();
+  await expect(check.getByRole("heading", { name: "Confirma los datos" })).toBeVisible();
+  await expect(check.getByRole("alert")).toContainText("No pudimos leer el documento automáticamente");
+  await check.getByLabel("Nombres").fill(identity.firstName);
+  await check.getByLabel("Apellidos").fill(identity.lastName);
+  await check.getByLabel("Número de documento").fill("12345678");
+  await check.getByLabel("Fecha de nacimiento").fill("2008-03-14");
+  await check.getByRole("button", { name: "Confirmar y activar" }).click();
+  await expect(check.getByRole("heading", { name: `${registeredName} ya está activo` })).toBeVisible();
 }
 
 /**

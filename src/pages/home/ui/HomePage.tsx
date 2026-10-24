@@ -13,7 +13,7 @@ import {
 import Link from "next/link";
 import { useEffect } from "react";
 import { useActiveInstitution } from "@/entities/institution";
-import { canAccessAdmin, hasOwnPassword, landingPath, roleTone, useSession } from "@/entities/session";
+import { canAccessAdmin, hasAdminDashboard, hasOwnPassword, landingPath, roleTone, useSession } from "@/entities/session";
 import { LogoutButton } from "@/features/auth/logout";
 import { MyClasses } from "@/features/classroom/enter-class";
 import { format, localizedPath, useDictionary, useLocale, useLocalizedRouter } from "@/shared/i18n";
@@ -34,14 +34,12 @@ export function HomePage() {
   // While a temporary password is pending, SessionRouting owns the navigation
   const isReady = user !== null && hasOwnPassword(user) && !institution.isLoading;
   const needsOnboarding = isReady && user.status === "PENDING_ONBOARDING";
-  const isAdmin =
-    isReady &&
-    !needsOnboarding &&
-    !institution.needsSelection &&
-    canAccessAdmin(user, institution.active?.id ?? null);
-
-  const landing =
-    isReady && !needsOnboarding && !isAdmin && !institution.needsSelection ? landingPath(institution.roles) : null;
+  const canDecide = isReady && !needsOnboarding && !institution.needsSelection;
+  const activeId = institution.active?.id ?? null;
+  // A Principal works the enrolment desk too, but lands on their own screen unless they also have the admin dashboard
+  const isPrincipalOnly = canDecide && institution.roles.includes("COORDINATOR") && !hasAdminDashboard(user, activeId);
+  const isAdmin = canDecide && !isPrincipalOnly && canAccessAdmin(user, activeId);
+  const landing = canDecide && !isAdmin ? landingPath(institution.roles) : null;
 
   useEffect(() => {
     if (session.status === "anonymous") {

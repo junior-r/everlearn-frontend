@@ -1,62 +1,76 @@
-import { expect, test } from "@playwright/test";
-import { API_URL, createInstitution, formError, signIn } from "./support";
+import { expect, test, type Page } from "@playwright/test";
+import { API_URL, createInstitution, PASSWORD, signIn } from "./support";
 
-// Chromium's fake camera (see playwright.config.ts) stands in for the device webcam
-test("photographs the ID, corrects the OCR data and submits it for review", async ({
+type Institution = Awaited<ReturnType<typeof createInstitution>>;
+
+/** Signs the Institution Admin in at the desk and opens the ID check of a pending member from the table. */
+async function openCheck(page: Page, institution: Institution, name: string) {
+  await signIn(page, institution.admin.email, institution.admin.password);
+  await expect(page).toHaveURL("/es/admin");
+  await page.goto("/es/admin/members");
+  await page.getByRole("button", { name: `Verificar identidad de ${name}` }).click();
+  return page.getByRole("region", { name: `Verificar la identidad de ${name}` });
+}
+
+async function waitForFrames(page: Page) {
+  const video = page.getByTestId("camera-video");
+  await expect(video).toBeVisible();
+  // Wait for real frames, otherwise the capture would be empty
+  await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.videoWidth)).toBeGreaterThan(0);
+}
+
+// Chromium's fake camera (see playwright.config.ts) stands in for the desk's webcam
+test("the desk photographs a member's ID, corrects the OCR data and the member is active at once", async ({
   page,
   playwright,
 }) => {
   const institution = await createInstitution(playwright);
   const student = await institution.register("STUDENT");
-  await signIn(page, student.email, student.password);
-  await expect(page).toHaveURL("/es/onboarding");
+  const check = await openCheck(page, institution, "Ada Lovelace");
 
-  await page.getByLabel("Tipo de documento").selectOption("PASSPORT");
-  await page.getByRole("button", { name: "Activar cámara" }).click();
-  const video = page.getByTestId("camera-video");
-  await expect(video).toBeVisible();
-  // Wait for real frames, otherwise the capture would be empty
-  await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.videoWidth)).toBeGreaterThan(0);
-  await page.getByRole("button", { name: "Tomar foto" }).click();
+  await check.getByLabel("Tipo de documento").selectOption("PASSPORT");
+  await check.getByRole("button", { name: "Activar cámara" }).click();
+  await waitForFrames(page);
+  await check.getByRole("button", { name: "Tomar foto" }).click();
 
-  const preview = page.getByAltText("Vista previa de la foto de tu documento");
+  const preview = check.getByAltText("Vista previa de la foto del documento");
   await expect(preview).toBeVisible();
   // The photo is cropped to the ID-card frame, so it must be card-shaped rather than 4:3
   const ratio = await preview.evaluate((img: HTMLImageElement) => img.naturalWidth / img.naturalHeight);
   expect(ratio).toBeCloseTo(85.6 / 53.98, 1);
 
-  const upload = page.waitForResponse((response) => response.url().endsWith("/onboarding/document"));
-  await page.getByRole("button", { name: "Usar esta foto" }).click();
-  await expect(page.getByText("Analizando tu documento…")).toBeVisible();
+  const upload = page.waitForResponse((response) => response.url().endsWith("/document"));
+  await check.getByRole("button", { name: "Usar esta foto" }).click();
+  await expect(check.getByText("Analizando el documento…")).toBeVisible();
   expect((await upload).status()).toBe(200);
 
   // The fake camera shows no document, so the real OCR finds nothing: the form says so and is left blank
-  await expect(page.getByRole("heading", { name: "Confirma tus datos" })).toBeVisible();
-  await expect(formError(page)).toContainText("No pudimos leer tu documento automáticamente");
-  await expect(page.getByLabel("Nombres")).toHaveValue("");
-  await expect(page.getByLabel("Número de documento")).toHaveValue("");
+  await expect(check.getByRole("heading", { name: "Confirma los datos" })).toBeVisible();
+  await expect(check.getByRole("alert")).toContainText("No pudimos leer el documento automáticamente");
+  await expect(check.getByLabel("Nombres")).toHaveValue("");
+  await check.getByLabel("Nombres").fill("Ada Augusta");
+  await check.getByLabel("Apellidos").fill("Lovelace");
+  await check.getByLabel("Número de documento").fill("87654321");
+  await check.getByLabel("Fecha de nacimiento").fill("2008-03-14");
+  await check.getByRole("button", { name: "Confirmar y activar" }).click();
 
-  // A reload resumes at the confirmation step instead of starting over
-  await page.reload();
-  await expect(page.getByRole("heading", { name: "Confirma tus datos" })).toBeVisible();
+  await expect(check.getByRole("heading", { name: "Ada Lovelace ya está activo" })).toBeVisible();
+  await check.getByRole("button", { name: "Listo" }).click();
+  // The account now carries the name from the ID, and the form is back for the next person
+  await expect(page.getByRole("row", { name: /Ada Augusta Lovelace/ })).toContainText("Activo");
+  await expect(page.getByRole("form", { name: "Registrar miembro" })).toBeVisible();
 
-  await page.getByLabel("Nombres").fill("Ada");
-  await page.getByLabel("Apellidos").fill("Lovelace");
-  await page.getByLabel("Número de documento").fill("87654321");
-  await page.getByLabel("Fecha de nacimiento").fill("2008-03-14");
-  await page.getByRole("button", { name: "Enviar para revisión" }).click();
-
-  await expect(page.getByRole("heading", { name: "Solicitud enviada" })).toBeVisible();
-  await page.reload();
-  await expect(page.getByRole("heading", { name: "Solicitud enviada" })).toBeVisible();
+  // The member signs in to an active account, with nothing left to do about their ID
   await page.getByRole("button", { name: "Cerrar sesión" }).click();
-  await expect(page).toHaveURL("/es/login");
+  await signIn(page, student.email, PASSWORD);
+  await expect(page).toHaveURL("/es");
+  await expect(page.getByRole("heading", { name: "Te damos la bienvenida, Ada Augusta" })).toBeVisible();
   await institution.dispose();
 });
 
 test("the OCR service reads a legible ID and prefills the form", async ({ page, context, playwright }) => {
   const institution = await createInstitution(playwright);
-  const student = await institution.register("STUDENT");
+  await institution.register("STUDENT");
   // A clean, flat ID card, the way a good photo of one looks
   const cardPage = await context.newPage();
   await cardPage.setContent(`
@@ -71,88 +85,112 @@ test("the OCR service reads a legible ID and prefills the form", async ({ page, 
   const photo = await cardPage.locator("#card").screenshot({ type: "png" });
   await cardPage.close();
 
-  await signIn(page, student.email, student.password);
-  await expect(page).toHaveURL("/es/onboarding");
-  await page.getByLabel("Subir una imagen").setInputFiles({
-    name: "cedula.png",
-    mimeType: "image/png",
-    buffer: photo,
-  });
-  await page.getByRole("button", { name: "Usar esta foto" }).click();
+  const check = await openCheck(page, institution, "Ada Lovelace");
+  await check.getByLabel("Subir una imagen").setInputFiles({ name: "cedula.png", mimeType: "image/png", buffer: photo });
+  await check.getByRole("button", { name: "Usar esta foto" }).click();
 
-  await expect(page.getByRole("heading", { name: "Confirma tus datos" })).toBeVisible();
-  await expect(page.getByLabel("Nombres")).toHaveValue("María Fernanda");
-  await expect(page.getByLabel("Apellidos")).toHaveValue("González Pérez");
-  await expect(page.getByLabel("Número de documento")).toHaveValue("V-12345678");
-  // The expiry-free birth date, not the later issue date
-  await expect(page.getByLabel("Fecha de nacimiento")).toHaveValue("2008-03-14");
-  await expect(page.getByText("No pudimos leer tu documento automáticamente")).toHaveCount(0);
+  await expect(check.getByRole("heading", { name: "Confirma los datos" })).toBeVisible();
+  await expect(check.getByLabel("Nombres")).toHaveValue("María Fernanda");
+  await expect(check.getByLabel("Apellidos")).toHaveValue("González Pérez");
+  await expect(check.getByLabel("Número de documento")).toHaveValue("V-12345678");
+  // The birth date, not the later issue date
+  await expect(check.getByLabel("Fecha de nacimiento")).toHaveValue("2008-03-14");
+  await expect(check.getByText("No pudimos leer el documento automáticamente")).toHaveCount(0);
   await institution.dispose();
 });
 
-test("lets the applicant retake the photo from the confirmation step", async ({
-  page,
-  playwright,
-}) => {
+test("lets the desk retake the photo from the confirmation step", async ({ page, playwright }) => {
   const institution = await createInstitution(playwright);
-  const student = await institution.register("STUDENT");
-  await signIn(page, student.email, student.password);
+  await institution.register("STUDENT");
+  const check = await openCheck(page, institution, "Ada Lovelace");
 
-  await page.getByRole("button", { name: "Activar cámara" }).click();
-  const video = page.getByTestId("camera-video");
-  await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.videoWidth)).toBeGreaterThan(0);
-  await page.getByRole("button", { name: "Tomar foto" }).click();
-  await page.getByRole("button", { name: "Repetir foto" }).click();
-  await expect(video).toBeVisible();
-  await expect.poll(() => video.evaluate((el: HTMLVideoElement) => el.videoWidth)).toBeGreaterThan(0);
-  await page.getByRole("button", { name: "Tomar foto" }).click();
-  await page.getByRole("button", { name: "Usar esta foto" }).click();
-  await expect(page.getByRole("heading", { name: "Confirma tus datos" })).toBeVisible();
+  await check.getByRole("button", { name: "Activar cámara" }).click();
+  await waitForFrames(page);
+  await check.getByRole("button", { name: "Tomar foto" }).click();
+  await check.getByRole("button", { name: "Repetir foto" }).click();
+  await waitForFrames(page);
+  await check.getByRole("button", { name: "Tomar foto" }).click();
+  await check.getByRole("button", { name: "Usar esta foto" }).click();
+  await expect(check.getByRole("heading", { name: "Confirma los datos" })).toBeVisible();
 
-  await page.getByRole("button", { name: "Volver a tomar la foto" }).click();
+  await check.getByRole("button", { name: "Volver a tomar la foto" }).click();
 
-  await expect(page.getByRole("button", { name: "Activar cámara" })).toBeVisible();
+  await expect(check.getByRole("button", { name: "Activar cámara" })).toBeVisible();
   await institution.dispose();
 });
 
-test("falls back to uploading a file and rejects one that is not an image", async ({
-  page,
-  playwright,
-}) => {
+test("falls back to uploading a file and rejects one that is not an image", async ({ page, playwright }) => {
   const institution = await createInstitution(playwright);
-  const teacher = await institution.register("TEACHER");
-  await signIn(page, teacher.email, teacher.password);
-  await expect(page).toHaveURL("/es/onboarding");
+  await institution.register("TEACHER");
+  const check = await openCheck(page, institution, "Ada Lovelace");
 
-  await page.getByLabel("Subir una imagen").setInputFiles({
+  await check.getByLabel("Subir una imagen").setInputFiles({
     name: "id.jpg",
     mimeType: "image/jpeg",
     buffer: Buffer.from("this is not really a JPEG"),
   });
-  await page.getByRole("button", { name: "Usar esta foto" }).click();
+  await check.getByRole("button", { name: "Usar esta foto" }).click();
 
-  await expect(formError(page)).toHaveText("La foto debe ser una imagen JPEG, PNG o WebP.");
-  await expect(page.getByRole("button", { name: "Activar cámara" })).toBeVisible();
+  await expect(check.getByRole("alert")).toHaveText("La foto debe ser una imagen JPEG, PNG o WebP.");
+  await expect(check.getByRole("button", { name: "Activar cámara" })).toBeVisible();
   await institution.dispose();
 });
 
 test("explains a blocked camera and still offers the upload", async ({ browser, playwright }) => {
   const context = await browser.newContext({ permissions: [], locale: "es-ES" });
   const page = await context.newPage();
-  // Simulates the user (or the browser) refusing camera access
+  // Simulates the desk's browser refusing camera access
   await page.addInitScript(() => {
     navigator.mediaDevices.getUserMedia = () =>
       Promise.reject(new DOMException("Permission denied", "NotAllowedError"));
   });
   const institution = await createInstitution(playwright);
+  await institution.register("STUDENT");
+  const check = await openCheck(page, institution, "Ada Lovelace");
+
+  await check.getByRole("button", { name: "Activar cámara" }).click();
+
+  await expect(check.getByRole("alert")).toContainText("No pudimos acceder a la cámara");
+  await expect(check.getByLabel("Subir una imagen")).toBeAttached();
+  await context.close();
+  await institution.dispose();
+});
+
+test("a check left for later stays pending and can be resumed from the table", async ({ page, playwright }) => {
+  const institution = await createInstitution(playwright);
+  await institution.register("STUDENT", { firstName: "Grace", lastName: "Hopper" });
+  const check = await openCheck(page, institution, "Grace Hopper");
+
+  await check.getByRole("button", { name: "Hacerlo más tarde" }).click();
+
+  await expect(check).toHaveCount(0);
+  await expect(page.getByRole("row", { name: /Grace Hopper/ })).toContainText("Pendiente de verificación");
+  await page.getByRole("button", { name: "Verificar identidad de Grace Hopper" }).click();
+  await expect(page.getByRole("region", { name: "Verificar la identidad de Grace Hopper" })).toBeVisible();
+  await institution.dispose();
+});
+
+test("a pending member is told to bring their ID to the institution, and can do nothing else", async ({
+  page,
+  playwright,
+}) => {
+  const institution = await createInstitution(playwright);
   const student = await institution.register("STUDENT");
   await signIn(page, student.email, student.password);
 
-  await page.getByRole("button", { name: "Activar cámara" }).click();
+  await expect(page).toHaveURL("/es/onboarding");
+  await expect(page.getByRole("heading", { name: "Presenta tu documento en tu institución" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Activar cámara" })).toHaveCount(0);
+  await page.goto("/es/admin/members");
+  await expect(page).toHaveURL("/es/onboarding");
 
-  await expect(formError(page)).toContainText("No pudimos acceder a la cámara");
-  await expect(page.getByLabel("Subir una imagen")).toBeAttached();
-  await context.close();
+  // Once the desk checks the ID, the next visit goes straight to the app
+  await institution.checkIdentity(student.membershipId);
+  await page.getByRole("button", { name: "Cerrar sesión" }).click();
+  await signIn(page, student.email, student.password);
+  await expect(page).toHaveURL("/es");
+  await page.goto("/es/onboarding");
+  await expect(page).toHaveURL("/es");
   await institution.dispose();
 });
 
@@ -167,17 +205,16 @@ test("the server refuses an ID photo over 5 MB and keeps serving", async ({ play
   const student = await institution.register("STUDENT");
   const api = await playwright.request.newContext();
   const login = await api.post(`${API_URL}/auth/login`, {
-    data: { email: student.email, password: student.password },
+    data: { email: institution.admin.email, password: institution.admin.password },
   });
   const { accessToken } = (await login.json()) as { accessToken: string };
+  const desk = { Authorization: `Bearer ${accessToken}`, "x-institution-id": institution.institutionId };
   const oversized = Buffer.alloc(5 * 1024 * 1024 + 1);
   // Starts like a real JPEG, so only its size can be the reason it is refused
   oversized.set([0xff, 0xd8, 0xff, 0xe0]);
 
-  const authorization = { Authorization: `Bearer ${accessToken}` };
-
-  const response = await api.post(`${API_URL}/onboarding/document`, {
-    headers: authorization,
+  const response = await api.post(`${API_URL}/onboarding/members/${student.membershipId}/document`, {
+    headers: desk,
     multipart: {
       documentType: "NATIONAL_ID",
       file: { name: "id.jpg", mimeType: "image/jpeg", buffer: oversized },
@@ -185,9 +222,33 @@ test("the server refuses an ID photo over 5 MB and keeps serving", async ({ play
   });
 
   expect(response.status()).toBe(413);
-  const current = await api.get(`${API_URL}/onboarding/application`, { headers: authorization });
-  expect(current.status()).toBe(200);
-  expect(((await current.json()) as { application: unknown }).application).toBeNull();
+  // Nothing was opened for the member: there is still nothing to confirm
+  const confirm = await api.post(`${API_URL}/onboarding/members/${student.membershipId}/confirm`, {
+    headers: desk,
+    data: { firstName: "Ada", lastName: "Lovelace", documentType: "NATIONAL_ID", documentNumber: "1", birthDate: "2000-01-01" },
+  });
+  expect(confirm.status()).toBe(409);
+  expect(((await confirm.json()) as { code: string }).code).toBe("NOTHING_TO_CONFIRM");
+  await api.dispose();
+  await institution.dispose();
+});
+
+test("a member cannot check their own ID", async ({ playwright }) => {
+  const institution = await createInstitution(playwright);
+  const student = await institution.register("STUDENT");
+  const api = await playwright.request.newContext();
+  const login = await api.post(`${API_URL}/auth/login`, { data: { email: student.email, password: student.password } });
+  const { accessToken } = (await login.json()) as { accessToken: string };
+
+  const response = await api.post(`${API_URL}/onboarding/members/${student.membershipId}/document`, {
+    headers: { Authorization: `Bearer ${accessToken}`, "x-institution-id": institution.institutionId },
+    multipart: {
+      documentType: "NATIONAL_ID",
+      file: { name: "id.jpg", mimeType: "image/jpeg", buffer: Buffer.from([0xff, 0xd8, 0xff, 0xe0]) },
+    },
+  });
+
+  expect(response.status()).toBe(403);
   await api.dispose();
   await institution.dispose();
 });

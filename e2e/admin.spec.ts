@@ -1,9 +1,8 @@
 import { expect, test } from "@playwright/test";
 import {
+  checkIdentityAtDesk,
   chooseOwnPassword,
-  completeOnboarding,
   createInstitution,
-  formError,
   PASSWORD,
   PLATFORM_ADMIN,
   signIn,
@@ -11,7 +10,7 @@ import {
 
 const unique = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 
-test("the full pipeline: an admin registers a Student, the Student onboards, the admin approves", async ({
+test("the full pipeline: a Student enrols at the desk, shows their ID and signs in to an active account", async ({
   page,
   browser,
   playwright,
@@ -32,82 +31,58 @@ test("the full pipeline: an admin registers a Student, the Student onboards, the
   await memberForm.getByLabel("Rol").selectOption("STUDENT");
   await memberForm.getByRole("button", { name: "Registrar" }).click();
 
-  await expect(page.getByRole("heading", { name: "Miembro registrado" })).toBeVisible();
-  const temporaryPassword = await page.getByTestId("temporary-password").innerText();
+  // 2. The ID check opens at once, with the credentials to hand over at the end
+  const check = page.getByRole("region", { name: "Verificar la identidad de Grace Hopper" });
+  await expect(check).toBeVisible();
+  const temporaryPassword = await check.getByTestId("temporary-password").innerText();
   expect(temporaryPassword.length).toBeGreaterThanOrEqual(12);
-  const studentRow = page.getByRole("row", { name: /Grace Hopper/ });
-  await expect(studentRow).toContainText("Estudiante");
-  await expect(studentRow).toContainText("Pendiente de verificación");
+  await expect(page.getByRole("row", { name: /Grace Hopper/ })).toContainText("Pendiente de verificación");
+  await checkIdentityAtDesk(page, "Grace Hopper", { firstName: "Grace Brewster", lastName: "Hopper" });
 
   // The password is shown once only
-  await page.getByRole("button", { name: "Ya las copié" }).click();
+  await check.getByRole("button", { name: "Listo" }).click();
   await expect(page.getByText(temporaryPassword)).toHaveCount(0);
+  const studentRow = page.getByRole("row", { name: /Grace Brewster Hopper/ });
+  await expect(studentRow).toContainText("Estudiante");
+  await expect(studentRow).toContainText("Activo");
 
-  // 2. The Student signs in on their own device and completes onboarding
-  const studentContext = await browser.newContext({ locale: "es-ES", permissions: ["camera"] });
+  // 3. The Student signs in on their own device, chooses a password and lands on the home page
+  const studentContext = await browser.newContext({ locale: "es-ES" });
   const studentPage = await studentContext.newPage();
   await signIn(studentPage, studentEmail, temporaryPassword);
-  // The temporary password only lets them choose their own; then onboarding opens
   await chooseOwnPassword(studentPage, temporaryPassword);
-  await completeOnboarding(studentPage, "Grace Brewster", "Hopper");
-
-  // 3. The admin reviews: the photo sits beside the registered, OCR and confirmed data
-  await page.getByRole("link", { name: "Revisiones pendientes" }).click();
-  await expect(page).toHaveURL("/es/admin/reviews");
-  const card = page.getByRole("article", { name: "Grace Hopper" });
-  await expect(card).toContainText(studentEmail);
-  const photo = card.getByAltText("Foto del documento de Grace Hopper");
-  await expect(photo).toBeVisible();
-  await expect.poll(() => photo.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
-  const nameRow = card.getByRole("row", { name: /^Nombre/ });
-  await expect(nameRow).toContainText("Grace Hopper");
-  // Registered name, nothing from the OCR (the fake camera shows no document), and the confirmed name
-  await expect(nameRow.getByRole("cell").nth(0)).toHaveText("Grace Hopper");
-  await expect(nameRow.getByRole("cell").nth(1)).toHaveText("");
-  await expect(nameRow.getByRole("cell").nth(2)).toHaveText("Grace Brewster Hopper");
-
-  await card.getByRole("button", { name: "Aprobar" }).click();
-  await expect(page.getByText("No hay solicitudes pendientes de revisión.")).toBeVisible();
-
-  // 4. The Student is now active and lands on the home page under the name from their ID
-  await studentPage.getByRole("button", { name: "Cerrar sesión" }).click();
-  await signIn(studentPage, studentEmail, PASSWORD);
   await expect(studentPage).toHaveURL("/es");
   await expect(
     studentPage.getByRole("heading", { name: "Te damos la bienvenida, Grace Brewster" }),
   ).toBeVisible();
-
-  await page.getByRole("link", { name: "Miembros" }).click();
-  await expect(page.getByRole("row", { name: /Grace Brewster/ })).toContainText("Activo");
+  await studentPage.getByRole("button", { name: "Cerrar sesión" }).click();
+  await signIn(studentPage, studentEmail, PASSWORD);
+  await expect(studentPage).toHaveURL("/es");
   await studentContext.close();
   await institution.dispose();
 });
 
-test("a rejection reaches the applicant with its reason and lets them try again", async ({
-  page,
-  browser,
-  playwright,
-}) => {
+test("only an Institution Admin checks the ID of a Teacher", async ({ page, playwright }) => {
   const institution = await createInstitution(playwright);
-  const teacher = await institution.register("TEACHER", { firstName: "Alan", lastName: "Turing" });
-  const teacherContext = await browser.newContext({ locale: "es-ES", permissions: ["camera"] });
-  const teacherPage = await teacherContext.newPage();
-  await signIn(teacherPage, teacher.email, teacher.password);
-  await completeOnboarding(teacherPage, "Alan");
+  const staff = await institution.registerActive("STAFF", { firstName: "Rosalind", lastName: "Franklin" });
+  await institution.register("TEACHER", { firstName: "Alan", lastName: "Turing" });
+
+  // Staff see the pending Teacher but are offered no check
+  await signIn(page, staff.email, staff.password);
+  await expect(page).toHaveURL("/es/admin/members");
+  await expect(page.getByRole("row", { name: /Alan Turing/ })).toContainText("Pendiente de verificación");
+  await expect(page.getByRole("button", { name: "Verificar identidad de Alan Turing" })).toHaveCount(0);
+  await page.getByRole("button", { name: "Cerrar sesión" }).click();
+  await expect(page).toHaveURL("/es/login");
 
   await signIn(page, institution.admin.email, institution.admin.password);
-  await page.getByRole("link", { name: "Revisiones pendientes" }).click();
-  const card = page.getByRole("article", { name: "Alan Turing" });
-  await expect(card).toContainText("Docente");
-  await card.getByRole("button", { name: "Rechazar" }).click();
-  await card.getByLabel("Motivo del rechazo").fill("La foto está borrosa.");
-  await card.getByRole("button", { name: "Confirmar rechazo" }).click();
-  await expect(page.getByText("No hay solicitudes pendientes de revisión.")).toBeVisible();
-
-  await teacherPage.reload();
-  await expect(formError(teacherPage)).toContainText("La foto está borrosa.");
-  await expect(teacherPage.getByRole("button", { name: "Activar cámara" })).toBeVisible();
-  await teacherContext.close();
+  // Only once signed in: leaving the login page earlier would abandon the sign-in
+  await expect(page).toHaveURL("/es/admin");
+  await page.goto("/es/admin/members");
+  await page.getByRole("button", { name: "Verificar identidad de Alan Turing" }).click();
+  await checkIdentityAtDesk(page, "Alan Turing", { firstName: "Alan Mathison", lastName: "Turing" });
+  await page.getByRole("button", { name: "Listo" }).click();
+  await expect(page.getByRole("row", { name: /Alan Mathison Turing/ })).toContainText("Docente");
   await institution.dispose();
 });
 
@@ -190,7 +165,6 @@ test("a Platform Admin creates an institution with its first admin, enters it an
     "Resumen",
     "Instituciones",
     "Miembros",
-    "Revisiones pendientes",
     "Materias",
     "Pensums",
     "Grupos",
@@ -239,7 +213,7 @@ test("a Platform Admin creates an institution with its first admin, enters it an
   await expect(row).toContainText("Inactiva");
 });
 
-test("Staff register Students and their Guardians, and nothing else", async ({ page, playwright }) => {
+test("Staff enrol Students and their Guardians at the desk, and nothing else", async ({ page, playwright }) => {
   const institution = await createInstitution(playwright);
   const staff = await institution.registerActive("STAFF", { firstName: "Rosalind", lastName: "Franklin" });
   const studentEmail = `e2e-student-${unique()}@example.com`;
@@ -250,7 +224,7 @@ test("Staff register Students and their Guardians, and nothing else", async ({ p
   // Members is their whole dashboard
   const nav = page.getByRole("navigation", { name: "Secciones de administración" });
   await expect(nav.getByRole("link")).toHaveText(["Miembros"]);
-  for (const section of ["reviews", "subjects", "groups", "schedule", "institutions"]) {
+  for (const section of ["subjects", "groups", "schedule", "institutions"]) {
     await page.goto(`/es/admin/${section}`);
     await expect(page).toHaveURL("/es/admin/members");
   }
@@ -262,37 +236,57 @@ test("Staff register Students and their Guardians, and nothing else", async ({ p
   await memberForm.getByLabel("Correo electrónico").fill(studentEmail);
   await memberForm.getByRole("button", { name: "Registrar" }).click();
 
-  await expect(page.getByRole("heading", { name: "Miembro registrado" })).toBeVisible();
-  await expect(page.getByTestId("temporary-password")).not.toBeEmpty();
+  const check = page.getByRole("region", { name: "Verificar la identidad de Katherine Johnson" });
+  await expect(check.getByTestId("temporary-password")).not.toBeEmpty();
+  await checkIdentityAtDesk(page, "Katherine Johnson", { firstName: "Katherine", lastName: "Johnson" });
+  await check.getByRole("button", { name: "Listo" }).click();
   const studentRow = page.getByRole("row", { name: /Katherine Johnson/ });
   await expect(studentRow).toContainText("Estudiante");
-  await expect(studentRow).toContainText("Pendiente de verificación");
+  await expect(studentRow).toContainText("Activo");
   await institution.dispose();
 });
 
-test("Teachers and Students cannot reach the admin dashboard", async ({ page, browser, playwright }) => {
+test("a Principal works the enrolment desk and goes back to their own overview", async ({ page, playwright }) => {
+  const institution = await createInstitution(playwright);
+  const principal = await institution.registerActive("COORDINATOR", { firstName: "Maria", lastName: "Montessori" });
+  await institution.register("STUDENT", { firstName: "Grace", lastName: "Hopper" });
+  await signIn(page, principal.email, principal.password);
+
+  // Their own screen comes first; the desk is one link away
+  await expect(page).toHaveURL("/es/principal");
+  await page.getByRole("link", { name: "Miembros" }).click();
+  await expect(page).toHaveURL("/es/admin/members");
+  const nav = page.getByRole("navigation", { name: "Secciones de administración" });
+  await expect(nav.getByRole("link")).toHaveText(["Miembros"]);
+  await expect(
+    page.getByRole("form", { name: "Registrar miembro" }).getByLabel("Rol").locator("option"),
+  ).toHaveText(["Estudiante", "Representante"]);
+
+  await page.getByRole("button", { name: "Verificar identidad de Grace Hopper" }).click();
+  await checkIdentityAtDesk(page, "Grace Hopper", { firstName: "Grace", lastName: "Hopper" });
+  await page.getByRole("button", { name: "Listo" }).click();
+  await expect(page.getByRole("row", { name: /Grace Hopper/ })).toContainText("Activo");
+
+  await page.getByRole("link", { name: "Volver a mi panel" }).click();
+  await expect(page).toHaveURL("/es/principal");
+  await institution.dispose();
+});
+
+test("Teachers and Students cannot reach the admin dashboard", async ({ page, playwright }) => {
   const institution = await createInstitution(playwright);
   const student = await institution.register("STUDENT", { firstName: "Linus", lastName: "Pauling" });
-  // Pending: any admin URL leads back to onboarding
+  // Pending: any admin URL leads back to the notice about bringing their ID
   await signIn(page, student.email, student.password);
   await expect(page).toHaveURL("/es/onboarding");
   await page.goto("/es/admin/members");
   await expect(page).toHaveURL("/es/onboarding");
 
-  // Active: approved through the dashboard, then still kept out of it
-  await completeOnboarding(page, "Linus");
-  const adminContext = await browser.newContext({ locale: "es-ES" });
-  const adminPage = await adminContext.newPage();
-  await signIn(adminPage, institution.admin.email, institution.admin.password);
-  await adminPage.getByRole("link", { name: "Revisiones pendientes" }).click();
-  await adminPage.getByRole("article", { name: "Linus Pauling" }).getByRole("button", { name: "Aprobar" }).click();
-  await expect(adminPage.getByText("No hay solicitudes pendientes de revisión.")).toBeVisible();
-  await adminContext.close();
-
+  // Active once the desk checked their ID, and still kept out of it
+  await institution.checkIdentity(student.membershipId, { firstName: "Linus", lastName: "Pauling" });
   await page.getByRole("button", { name: "Cerrar sesión" }).click();
   await signIn(page, student.email, student.password);
   await expect(page).toHaveURL("/es");
-  await page.goto("/es/admin/reviews");
+  await page.goto("/es/admin/members");
   await expect(page).toHaveURL("/es");
   await expect(page.getByRole("link", { name: "Miembros" })).toHaveCount(0);
   await institution.dispose();

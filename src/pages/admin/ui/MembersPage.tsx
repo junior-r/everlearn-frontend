@@ -1,21 +1,22 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { fetchMemberPage, type Member } from "@/entities/member";
 import { registrableRoles, roleTone, statusTone, useSession, type Role } from "@/entities/session";
 import { GuardianLinks } from "@/features/guardians/link-guardian";
-import { RegisterMemberForm } from "@/features/members/register-member";
+import { RegisterMemberForm, type RegisteredMember } from "@/features/members/register-member";
 import { errorMessage, format, useDictionary, useLocale } from "@/shared/i18n";
 import { useResource } from "@/shared/lib/use-resource";
-import { Avatar, Badge, DataTable, ErrorNotice, Pagination, SelectField, TextField, type Column } from "@/shared/ui";
+import { Avatar, Badge, Button, DataTable, ErrorNotice, Pagination, SelectField, TextField, type Column } from "@/shared/ui";
 import { AdminPage, Section, WithActiveInstitution } from "@/widgets/admin-shell";
+import { IdentityCheck } from "@/widgets/identity-check";
 
 /** How long typing must pause before the table asks the server again. */
 const SEARCH_DELAY_MS = 300;
 
 function Members({ institutionId }: { institutionId: string }) {
   const { user } = useSession();
-  const { admin, errors, roles, userStatus } = useDictionary();
+  const { admin, errors, onboarding, roles, userStatus } = useDictionary();
   const text = admin.members;
   const locale = useLocale();
   const [typed, setTyped] = useState("");
@@ -29,6 +30,28 @@ function Members({ institutionId }: { institutionId: string }) {
   const members = useResource(load);
   // Shown most junior first, so the default choice is the least privileged
   const allowedRoles: Role[] = user ? [...registrableRoles(user, institutionId)].reverse() : [];
+  // The member whose ID is on the desk; it takes the place of the registration form
+  const [checking, setChecking] = useState<RegisteredMember | null>(null);
+  const checkRef = useRef<HTMLDivElement>(null);
+  const canCheck = (member: Member) => member.status === "PENDING_ONBOARDING" && allowedRoles.includes(member.role);
+
+  function startCheck(registered: RegisteredMember) {
+    setChecking(registered);
+    // On a phone the panel is below the table, out of sight
+    requestAnimationFrame(() => checkRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  }
+
+  function handleRegistered(registered: RegisteredMember) {
+    members.reload();
+    if (!registered.member.isActive) {
+      startCheck(registered);
+    }
+  }
+
+  function endCheck() {
+    setChecking(null);
+    members.reload();
+  }
 
   useEffect(() => {
     const timer = setTimeout(
@@ -53,6 +76,21 @@ function Members({ institutionId }: { institutionId: string }) {
     {
       header: text.status,
       cell: (row) => <Badge tone={statusTone(row.status)}>{userStatus[row.status]}</Badge>,
+    },
+    {
+      header: text.actions,
+      cell: (row) =>
+        canCheck(row) && (
+          <Button
+            size="sm"
+            variant="secondary"
+            aria-label={format(text.verifyMember, { name: `${row.firstName} ${row.lastName}` })}
+            disabled={checking?.member.membershipId === row.membershipId}
+            onClick={() => startCheck({ member: row, temporaryPassword: null })}
+          >
+            {text.verify}
+          </Button>
+        ),
     },
   ];
   const count = new Intl.NumberFormat(locale);
@@ -101,13 +139,34 @@ function Members({ institutionId }: { institutionId: string }) {
         })}
         labels={{ navigation: text.pages, previous: text.previousPage, next: text.nextPage }}
       />
-      <Section title={text.newTitle} panel>
-        <RegisterMemberForm
-          institutionId={institutionId}
-          allowedRoles={allowedRoles}
-          onRegistered={members.reload}
-        />
-      </Section>
+      <div ref={checkRef} className="scroll-mt-6">
+        {checking ? (
+          <Section
+            title={format(onboarding.check.title, {
+              name: `${checking.member.firstName} ${checking.member.lastName}`,
+            })}
+            panel
+          >
+            <IdentityCheck
+              // A new panel per member, so nothing read from one ID can carry over to the next
+              key={checking.member.membershipId}
+              institutionId={institutionId}
+              member={checking.member}
+              temporaryPassword={checking.temporaryPassword}
+              onFinished={endCheck}
+              onLater={endCheck}
+            />
+          </Section>
+        ) : (
+          <Section title={text.newTitle} panel>
+            <RegisterMemberForm
+              institutionId={institutionId}
+              allowedRoles={allowedRoles}
+              onRegistered={handleRegistered}
+            />
+          </Section>
+        )}
+      </div>
       <Section title={admin.guardians.title}>
         <GuardianLinks institutionId={institutionId} />
       </Section>

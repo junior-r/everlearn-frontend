@@ -41,9 +41,9 @@ export function PlatformDashboard() {
           tone="mint"
         />
         <StatCard
-          label={text.pendingReviews}
-          value={count(data.pendingReviews)}
-          hint={text.pendingHint}
+          label={text.pendingIdentity}
+          value={count(data.usersByStatus.pendingOnboarding)}
+          hint={text.pendingIdentityHint}
           icon={IdentificationCardIcon}
           tone="sun"
         />

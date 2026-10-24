@@ -37,9 +37,9 @@ test("an Institution Admin lands on their institution in figures", async ({ page
   await institution.dispose();
 });
 
-test("a member who has not finished onboarding is not counted as an active Student", async ({ page, playwright }) => {
+test("a member whose ID has not been checked is not counted as an active Student", async ({ page, playwright }) => {
   const { institution } = await createCourse(playwright);
-  // Registered and with their own password, but not approved yet
+  // Registered and with their own password, but their ID not checked yet
   await institution.register("STUDENT", { firstName: "Tim", lastName: "Berners" });
   await signIn(page, institution.admin.email, institution.admin.password);
   await expect(page).toHaveURL("/es/admin");
@@ -67,7 +67,7 @@ test("a Platform Admin lands on the platform in figures", async ({ page, playwri
   await expect(page).toHaveURL("/es/admin");
   await expect(page.getByRole("heading", { name: "Resumen de la plataforma", level: 1 })).toBeVisible();
   await expect(page.getByTestId("admin-context")).toBeVisible();
-  for (const label of ["Instituciones activas", "Usuarios", "Usuarios activos", "Revisiones pendientes"]) {
+  for (const label of ["Instituciones activas", "Usuarios", "Usuarios activos", "Por verificar"]) {
     await expect(stat(page, label)).toHaveText(/^\d[\d.]*$/);
   }
   expect(Number((await stat(page, "Instituciones activas").innerText()).replace(/\D/g, ""))).toBeGreaterThan(0);

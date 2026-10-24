@@ -59,15 +59,15 @@ describe("adminSections", () => {
     const sections = adminSections(memberOf("a", "ADMIN"), "a");
 
     expect(sections).toEqual([
-      "members", "reviews", "subjects", "pensums", "groups", "availability", "schedule", "labs",
+      "members", "subjects", "pensums", "groups", "availability", "schedule", "labs",
     ]);
   });
 
-  it("gives Staff only member registration", () => {
-    expect(adminSections(memberOf("a", "STAFF"), "a")).toEqual(["members"]);
+  it.each<Role>(["STAFF", "COORDINATOR"])("gives %s only the enrolment desk, in Members", (role) => {
+    expect(adminSections(memberOf("a", role), "a")).toEqual(["members"]);
   });
 
-  it.each<Role>(["TEACHER", "STUDENT", "COORDINATOR", "GUARDIAN"])("gives a %s nothing", (role) => {
+  it.each<Role>(["TEACHER", "STUDENT", "GUARDIAN"])("gives a %s nothing", (role) => {
     expect(adminSections(memberOf("a", role), "a")).toEqual([]);
   });
 
@@ -89,6 +89,7 @@ describe("registrableRoles", () => {
       "COORDINATOR", "TEACHER", "STAFF", "GUARDIAN", "STUDENT",
     ]);
     expect(registrableRoles(memberOf("a", "STAFF"), "a")).toEqual(["GUARDIAN", "STUDENT"]);
+    expect(registrableRoles(memberOf("a", "COORDINATOR"), "a")).toEqual(["GUARDIAN", "STUDENT"]);
     expect(registrableRoles(memberOf("a", "TEACHER"), "a")).toEqual([]);
   });
 
@@ -112,8 +113,9 @@ describe("hasAdminDashboard", () => {
     expect(hasAdminDashboard(mixed, "a")).toBe(true);
   });
 
-  it("is not for Staff, nor for an admin acting where they hold another role", () => {
+  it("is not for the enrolment desk, nor for an admin acting where they hold another role", () => {
     expect(hasAdminDashboard(memberOf("a", "STAFF"), "a")).toBe(false);
+    expect(hasAdminDashboard(memberOf("a", "COORDINATOR"), "a")).toBe(false);
     expect(hasAdminDashboard(mixed, "b")).toBe(false);
     expect(hasAdminDashboard(mixed, null)).toBe(false);
   });

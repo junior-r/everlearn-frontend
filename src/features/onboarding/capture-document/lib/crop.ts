@@ -39,3 +39,9 @@ export function fitWidth(size: Size, maxWidth: number): Size {
   const ratio = Math.min(1, maxWidth / size.width);
   return { width: Math.round(size.width * ratio), height: Math.round(size.height * ratio) };
 }
+
+/** Shrinks a size so its longer side is at most `maxSide`, keeping its proportions. Never enlarges. */
+export function fitInside(size: Size, maxSide: number): Size {
+  const ratio = Math.min(1, maxSide / Math.max(size.width, size.height));
+  return { width: Math.round(size.width * ratio), height: Math.round(size.height * ratio) };
+}

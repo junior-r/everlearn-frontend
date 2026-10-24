@@ -10,13 +10,13 @@ test("a registered Student signs in and survives a reload", async ({
 
   await signIn(page, student.email, student.password);
 
-  // A new member has not been verified yet, so they are sent to onboarding
+  // A new member's ID has not been checked yet, so they are told to bring it to the institution
   await expect(page).toHaveURL("/es/onboarding");
-  await expect(page.getByRole("heading", { name: "Verifica tu identidad" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Presenta tu documento en tu institución" })).toBeVisible();
 
   // The access token is memory-only, so this proves the refresh cookie restores the session
   await page.reload();
-  await expect(page.getByRole("heading", { name: "Verifica tu identidad" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Presenta tu documento en tu institución" })).toBeVisible();
   await institution.dispose();
 });
 
