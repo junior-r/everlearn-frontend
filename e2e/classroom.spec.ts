@@ -68,6 +68,21 @@ test("a Teacher starts a class, a Student joins, and they share video, chat and 
   const teacherVideo = participants(studentPage).getByRole("listitem", { name: "Alan Turing" }).locator("video");
   await expect.poll(() => teacherVideo.evaluate((video: HTMLVideoElement) => video.videoWidth)).toBeGreaterThan(0);
 
+  // The Student zooms into the Teacher's camera; it is their own view, the Teacher's stays as it was
+  const transformOf = (video: typeof teacherVideo) => video.evaluate((element) => getComputedStyle(element).transform);
+  const zoomControls = studentPage.getByRole("group", { name: "Zoom de Alan Turing" });
+  await participants(studentPage).getByRole("listitem", { name: "Alan Turing" }).hover();
+  await zoomControls.getByRole("button", { name: "Acercar" }).click();
+  await zoomControls.getByRole("button", { name: "Acercar" }).click();
+  await expect(zoomControls.getByRole("button", { name: /Restablecer el zoom, ahora en 200/ })).toBeVisible();
+  expect(await transformOf(teacherVideo)).toBe("matrix(2, 0, 0, 2, 0, 0)");
+  const ownVideo = participants(page).getByRole("listitem", { name: "Alan Turing (tú)" }).locator("video");
+  expect(await transformOf(ownVideo)).toBe("matrix(1, 0, 0, 1, 0, 0)");
+  await zoomControls.getByRole("button", { name: "Alejar" }).click();
+  await expect(zoomControls.getByRole("button", { name: /ahora en 150/ })).toBeVisible();
+  await zoomControls.getByRole("button", { name: /Restablecer el zoom/ }).click();
+  await expect.poll(() => transformOf(teacherVideo)).toBe("matrix(1, 0, 0, 1, 0, 0)");
+
   // Chat reaches both, each seeing who wrote
   await say(studentPage, "¿Puede repetir el ejemplo?");
   await expect(chatLog(page)).toContainText("Grace Hopper");
@@ -117,6 +132,25 @@ test("hands, the Teacher's moderation, chat menus and ending the class for every
   const teacherMenu = page.getByRole("menu", { name: "Opciones de Grace Hopper" });
   await teacherMenu.getByRole("menuitem", { name: "Bajar la mano de Grace Hopper" }).click();
   await expect(studentPage.getByRole("button", { name: "Levantar la mano" })).toBeVisible();
+  await expect(page.getByRole("status").filter({ hasText: "mano levantada" })).toHaveCount(0);
+
+  // Hands are taken in the order they went up: each tile shows its turn, and the Teacher's list keeps the queue
+  await studentPage.getByRole("button", { name: "Levantar la mano" }).click();
+  await expect(tileOf(page, "Grace Hopper.*turno 1")).toBeVisible();
+  await page.getByRole("button", { name: "Levantar la mano" }).click();
+  await expect(tileOf(page, "Alan Turing \\(tú\\).*turno 2")).toBeVisible();
+  await expect(tileOf(studentPage, "Alan Turing.*turno 2")).toBeVisible();
+  await page.getByRole("button", { name: "2 manos levantadas" }).click();
+  const queue = page.getByRole("region", { name: "Manos levantadas, en orden" });
+  await expect(queue.getByRole("listitem")).toHaveText([/Grace Hopper/, /Alan Turing \(tú\)/]);
+  // The Teacher lowers others' hands from the list; their own goes down from their controls
+  await expect(queue.getByRole("button", { name: /^Bajar la mano de/ })).toHaveCount(1);
+  await queue.getByRole("button", { name: "Bajar la mano de Grace Hopper" }).click();
+  await expect(studentPage.getByRole("button", { name: "Levantar la mano" })).toBeVisible();
+  await expect(tileOf(studentPage, "Alan Turing.*turno 1")).toBeVisible();
+  await expect(queue.getByRole("listitem")).toHaveText([/Alan Turing \(tú\)/]);
+  await page.getByRole("button", { name: "Bajar la mano" }).click();
+  await expect(queue).toHaveCount(0);
   await expect(page.getByRole("status").filter({ hasText: "mano levantada" })).toHaveCount(0);
 
   // Only the Teacher silences a Student, who can speak again afterwards

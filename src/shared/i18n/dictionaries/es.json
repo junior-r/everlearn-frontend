@@ -189,12 +189,25 @@
       "unpin": "Quitar de la pantalla principal",
       "mute": "Silenciar a {name}",
       "lowerHand": "Bajar la mano de {name}",
-      "handRaised": "mano levantada",
+      "handTurn": "mano levantada, turno {position}",
+      "connectionPoor": "conexión débil",
+      "connectionLost": "sin conexión",
       "screenOf": "Pantalla de {name}"
     },
     "stage": "Pantalla principal",
     "handsRaisedOne": "1 mano levantada",
     "handsRaisedMany": "{count} manos levantadas",
+    "zoom": {
+      "group": "Zoom de {name}",
+      "in": "Acercar",
+      "out": "Alejar",
+      "reset": "Restablecer el zoom, ahora en {percent}"
+    },
+    "handsQueue": {
+      "title": "Manos levantadas, en orden",
+      "lower": "Bajar",
+      "lowerAll": "Bajar todas"
+    },
     "lab": {
       "pickTitle": "Compartir un laboratorio",
       "pickBody": "La clase verá el laboratorio y cada cambio que hagas. No se comparte como video: se ve nítido en cualquier pantalla.",

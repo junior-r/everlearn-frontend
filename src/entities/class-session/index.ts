@@ -22,6 +22,8 @@ export {
   ROLE_ATTRIBUTE,
   withDeleted,
 } from "./lib/room-messages";
+export { handQueue } from "./lib/hand-queue";
+export type { HandHolder, RaisedHand } from "./lib/hand-queue";
 export { ATTENDANCE_STATUSES } from "./model/types";
 export type {
   AttendanceEntry,
