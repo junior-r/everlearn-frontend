@@ -40,7 +40,7 @@ import {
   type Closure,
   type StageChoice,
 } from "../lib/room-state";
-import { ROOM_OPTIONS } from "../lib/room-options";
+import { roomOptions } from "../lib/room-options";
 import { useRoomFeed } from "../model/use-room-feed";
 import { useSharedLab } from "../model/use-shared-lab";
 import { ClassControls } from "./ClassControls";
@@ -108,7 +108,8 @@ function VideoGrid({
     }
   }
   const onStage = stageKey(keys, screens, choice);
-  const tile = (trackRef: TrackReferenceOrPlaceholder, className?: string) => {
+  // Zoom is offered where a tile is large: on the stage and in the grid, not in the strip beside the stage
+  const tile = (trackRef: TrackReferenceOrPlaceholder, canZoom: boolean, className?: string) => {
     const key = keyOf(trackRef);
     return (
       <ParticipantTile
@@ -117,6 +118,7 @@ function VideoGrid({
         isOnStage={key === onStage}
         onToggleStage={() => setChoice(key === onStage ? null : key)}
         handPosition={handPositions.get(trackRef.participant.identity) ?? null}
+        canZoom={canZoom}
         moderation={moderation}
         className={className}
       />
@@ -148,7 +150,7 @@ function VideoGrid({
         )}
       >
         {labTile()}
-        {tracks.map((trackRef) => tile(trackRef))}
+        {tracks.map((trackRef) => tile(trackRef, true))}
       </ul>
     );
   }
@@ -162,7 +164,7 @@ function VideoGrid({
         </div>
       ) : (
         <ul aria-label={classroom.stage} className="flex min-h-64 flex-1 lg:min-h-0">
-          {tracks.filter((trackRef) => keyOf(trackRef) === onStage).map((trackRef) => tile(trackRef, "flex-1"))}
+          {tracks.filter((trackRef) => keyOf(trackRef) === onStage).map((trackRef) => tile(trackRef, true, "flex-1"))}
         </ul>
       )}
       {(others.length > 0 || (lab && !isLabOnStage)) && (
@@ -171,7 +173,7 @@ function VideoGrid({
           className="flex shrink-0 gap-3 overflow-x-auto p-0.5 lg:w-52 lg:flex-col lg:overflow-x-visible lg:overflow-y-auto"
         >
           {!isLabOnStage && labTile("h-28 w-44 shrink-0 lg:h-32 lg:w-full")}
-          {others.map((trackRef) => tile(trackRef, "h-28 w-44 shrink-0 lg:h-32 lg:w-full"))}
+          {others.map((trackRef) => tile(trackRef, false, "h-28 w-44 shrink-0 lg:h-32 lg:w-full"))}
         </ul>
       )}
     </div>
@@ -426,12 +428,14 @@ export function VirtualClassroom({ access, institutionId, findLab, onLeave, onRe
   const [closure, setClosure] = useState<Closure | null>(null);
   const [hadError, setHadError] = useState(false);
   const startsOnAir = access.role === "TEACHER";
+  // Built once: LiveKitRoom makes a new room whenever its options change
+  const options = useMemo(() => roomOptions(access.role), [access.role]);
   return (
     <LiveKitRoom
       serverUrl={env.livekitUrl}
       token={access.token}
       connect={closure === null}
-      options={ROOM_OPTIONS}
+      options={options}
       audio={startsOnAir}
       video={startsOnAir}
       onDisconnected={(reason) => setClosure((current) => current ?? closureFor(reason))}

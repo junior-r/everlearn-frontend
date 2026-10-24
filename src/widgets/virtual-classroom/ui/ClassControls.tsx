@@ -27,7 +27,7 @@ import { useState, type MouseEvent, type ReactNode } from "react";
 import { HAND_ATTRIBUTE } from "@/entities/class-session";
 import { format, useDictionary } from "@/shared/i18n";
 import { cn } from "@/shared/lib/cn";
-import { SCREEN_CAPTURE } from "../lib/room-options";
+import { SCREEN_CAPTURE, SCREEN_PUBLISH } from "../lib/room-options";
 import { Button, buttonClass, ContextMenu, useContextMenu, type MenuAction } from "@/shared/ui";
 
 /** How a control looks: resting, switched off (a closed microphone), or one of the states worth noticing. */
@@ -150,6 +150,7 @@ function ScreenShareToggle({ labels }: { labels: { on: string; off: string } }) 
   const { toggle, enabled, pending } = useTrackToggle({
     source: Track.Source.ScreenShare,
     captureOptions: SCREEN_CAPTURE,
+    publishOptions: SCREEN_PUBLISH,
     onDeviceError: () => undefined,
   });
   return (
@@ -182,6 +183,7 @@ function ShareMenu({ labels, lab, offersScreen }: { labels: { on: string; off: s
   const { toggle, enabled } = useTrackToggle({
     source: Track.Source.ScreenShare,
     captureOptions: SCREEN_CAPTURE,
+    publishOptions: SCREEN_PUBLISH,
     onDeviceError: () => undefined,
   });
   const menu = useContextMenu();

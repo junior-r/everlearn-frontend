@@ -190,11 +190,19 @@
       "mute": "Mute {name}",
       "lowerHand": "Lower {name}'s hand",
       "handTurn": "hand raised, turn {position}",
+      "connectionPoor": "weak connection",
+      "connectionLost": "connection lost",
       "screenOf": "{name}'s screen"
     },
     "stage": "Stage",
     "handsRaisedOne": "1 hand raised",
     "handsRaisedMany": "{count} hands raised",
+    "zoom": {
+      "group": "Zoom for {name}",
+      "in": "Zoom in",
+      "out": "Zoom out",
+      "reset": "Reset zoom, now at {percent}"
+    },
     "handsQueue": {
       "title": "Raised hands, in order",
       "lower": "Lower",
