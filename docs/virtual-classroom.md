@@ -14,6 +14,7 @@ Teachers and Students need a screen to hold a class: see each other, write in a 
 - **Chat and captions arrive as room data, published only by the video-server.** The browser sends a chat message to the video-server over HTTP with its room token and renders it when the room delivers it, like everyone else's. Packets sent by a participant are ignored.
 - **Everything a member does to the room goes through the video-server.** Raising a hand, silencing a Student, taking a chat message down and ending the class are HTTP calls with the room token, exactly like chat. The browser holds no LiveKit permission beyond publishing its own media, so a menu that does not offer an action is a courtesy: the video-server is what refuses it.
 - **Hands and roles are participant attributes.** The role is signed into the access token by the backend and the hand is set by the video-server, so both reach late joiners with no extra message and neither can be forged.
+- **Hands are taken in order.** The hand attribute is when it went up (milliseconds). `handQueue` (`entities/class-session`) orders the raised hands once per render of the classroom: each tile shows its turn, and the count in the header opens the list, where the Teacher lowers a hand or all of them. Ties fall back to the identity, so every viewer sees the same order.
 - **The browser's own `<dialog>` and popover for the confirmation and the menus.** They give focus trapping, Escape, the top layer and closing on an outside click without a dependency (`Dialog`, `ContextMenu` in `shared/ui`).
 - **The access is requested per visit and kept in memory.** Re-entering asks the backend again, so a member removed from a group cannot come back with an old token.
 
@@ -44,7 +45,6 @@ Teachers and Students need a screen to hold a class: see each other, write in a 
 ## Known gaps
 
 - No picker for the speaker, and the device chosen is not remembered for the next class.
-- A hand raised is shown and counted, but hands are not listed in the order they went up.
 - A Teacher cannot remove a participant from the class, and a microphone silenced by the Teacher can be opened again by its owner.
 - A reply is a mention typed into the field, not a thread.
 - The roll has no field for the note the backend accepts with a mark, and the class it shows is not kept in the address.

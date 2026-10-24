@@ -119,6 +119,25 @@ test("hands, the Teacher's moderation, chat menus and ending the class for every
   await expect(studentPage.getByRole("button", { name: "Levantar la mano" })).toBeVisible();
   await expect(page.getByRole("status").filter({ hasText: "mano levantada" })).toHaveCount(0);
 
+  // Hands are taken in the order they went up: each tile shows its turn, and the Teacher's list keeps the queue
+  await studentPage.getByRole("button", { name: "Levantar la mano" }).click();
+  await expect(tileOf(page, "Grace Hopper.*turno 1")).toBeVisible();
+  await page.getByRole("button", { name: "Levantar la mano" }).click();
+  await expect(tileOf(page, "Alan Turing \\(tú\\).*turno 2")).toBeVisible();
+  await expect(tileOf(studentPage, "Alan Turing.*turno 2")).toBeVisible();
+  await page.getByRole("button", { name: "2 manos levantadas" }).click();
+  const queue = page.getByRole("region", { name: "Manos levantadas, en orden" });
+  await expect(queue.getByRole("listitem")).toHaveText([/Grace Hopper/, /Alan Turing \(tú\)/]);
+  // The Teacher lowers others' hands from the list; their own goes down from their controls
+  await expect(queue.getByRole("button", { name: /^Bajar la mano de/ })).toHaveCount(1);
+  await queue.getByRole("button", { name: "Bajar la mano de Grace Hopper" }).click();
+  await expect(studentPage.getByRole("button", { name: "Levantar la mano" })).toBeVisible();
+  await expect(tileOf(studentPage, "Alan Turing.*turno 1")).toBeVisible();
+  await expect(queue.getByRole("listitem")).toHaveText([/Alan Turing \(tú\)/]);
+  await page.getByRole("button", { name: "Bajar la mano" }).click();
+  await expect(queue).toHaveCount(0);
+  await expect(page.getByRole("status").filter({ hasText: "mano levantada" })).toHaveCount(0);
+
   // Only the Teacher silences a Student, who can speak again afterwards
   await studentPage.getByRole("button", { name: "Activar micrófono" }).click();
   await expect(studentPage.getByRole("button", { name: "Silenciar micrófono" })).toBeVisible();

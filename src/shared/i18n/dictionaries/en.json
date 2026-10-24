@@ -189,12 +189,17 @@
       "unpin": "Remove from the stage",
       "mute": "Mute {name}",
       "lowerHand": "Lower {name}'s hand",
-      "handRaised": "hand raised",
+      "handTurn": "hand raised, turn {position}",
       "screenOf": "{name}'s screen"
     },
     "stage": "Stage",
     "handsRaisedOne": "1 hand raised",
     "handsRaisedMany": "{count} hands raised",
+    "handsQueue": {
+      "title": "Raised hands, in order",
+      "lower": "Lower",
+      "lowerAll": "Lower all"
+    },
     "lab": {
       "pickTitle": "Share a lab",
       "pickBody": "The class will see the lab and every change you make. It is not shared as video: it looks sharp on any screen.",

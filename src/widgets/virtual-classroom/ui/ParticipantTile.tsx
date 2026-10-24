@@ -17,7 +17,7 @@ import {
   PushPinSlashIcon,
 } from "@phosphor-icons/react/dist/ssr";
 import { Track } from "livekit-client";
-import { HAND_ATTRIBUTE, ROLE_ATTRIBUTE } from "@/entities/class-session";
+import { ROLE_ATTRIBUTE } from "@/entities/class-session";
 import { format, useDictionary } from "@/shared/i18n";
 import { cn } from "@/shared/lib/cn";
 import { Avatar, ContextMenu, useContextMenu, type MenuAction } from "@/shared/ui";
@@ -33,6 +33,8 @@ interface ParticipantTileProps {
   /** The tile is the one shown large. */
   isOnStage: boolean;
   onToggleStage(): void;
+  /** The participant's turn among the raised hands (1 is first); null while their hand is down. */
+  handPosition: number | null;
   /** Null unless the viewer is the Teacher of the class. */
   moderation: Moderation | null;
   className?: string;
@@ -43,7 +45,14 @@ interface ParticipantTileProps {
  * or the screen they share. Its menu (right click, or the button in its
  * corner) pins it and, for the Teacher, keeps order.
  */
-export function ParticipantTile({ trackRef, isOnStage, onToggleStage, moderation, className }: ParticipantTileProps) {
+export function ParticipantTile({
+  trackRef,
+  isOnStage,
+  onToggleStage,
+  handPosition,
+  moderation,
+  className,
+}: ParticipantTileProps) {
   const { classroom, roles } = useDictionary();
   const text = classroom.tile;
   const { participant } = trackRef;
@@ -51,7 +60,7 @@ export function ParticipantTile({ trackRef, isOnStage, onToggleStage, moderation
   const isSpeaking = useIsSpeaking(participant);
   const video = useTrackMutedIndicator(trackRef);
   const microphone = useTrackMutedIndicator({ participant, source: Track.Source.Microphone });
-  const isHandRaised = Boolean(useParticipantAttribute(HAND_ATTRIBUTE, { participant }));
+  const isHandRaised = handPosition !== null;
   const isTeacher = useParticipantAttribute(ROLE_ATTRIBUTE, { participant }) === "TEACHER";
   const menu = useContextMenu();
 
@@ -62,7 +71,10 @@ export function ParticipantTile({ trackRef, isOnStage, onToggleStage, moderation
   // A shared screen says nothing about its owner's microphone or hand: their own tile does
   const states = isScreen
     ? []
-    : [microphone.isMuted && classroom.muted, isHandRaised && text.handRaised].filter((state) => state !== false);
+    : [
+        microphone.isMuted && classroom.muted,
+        isHandRaised && format(text.handTurn, { position: String(handPosition) }),
+      ].filter((state) => state !== false);
 
   const canModerate = moderation !== null && !isScreen && !participant.isLocal;
   const actions: MenuAction[] = [
@@ -119,9 +131,10 @@ export function ParticipantTile({ trackRef, isOnStage, onToggleStage, moderation
       {isHandRaised && !isScreen && (
         <span
           aria-hidden
-          className="absolute top-2 left-2 flex size-8 animate-pop items-center justify-center rounded-full bg-sun text-ink"
+          className="absolute top-2 left-2 flex h-8 min-w-8 animate-pop items-center justify-center gap-1 rounded-full bg-sun px-2 text-sm font-bold text-ink"
         >
           <HandIcon weight="fill" className="size-4.5" />
+          {handPosition}
         </span>
       )}
       <button

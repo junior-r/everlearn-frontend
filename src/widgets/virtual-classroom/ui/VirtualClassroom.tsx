@@ -10,18 +10,18 @@ import {
   useTracks,
   type TrackReferenceOrPlaceholder,
 } from "@livekit/components-react";
-import { HandIcon } from "@phosphor-icons/react/dist/ssr";
 import { ConnectionState, Track } from "livekit-client";
 import { useCallback, useMemo, useState, type ReactNode } from "react";
 import {
   deleteChatMessage,
   endClass,
-  HAND_ATTRIBUTE,
+  handQueue,
   lowerParticipantHand,
   muteParticipant,
   setHandRaised,
   type ChatMessage,
   type ClassroomAccess,
+  type RaisedHand,
 } from "@/entities/class-session";
 import { LABS_ATTRIBUTE, parseShareableLabs, type LabLookup } from "@/entities/lab";
 import { ChatPanel } from "@/features/classroom/send-chat-message";
@@ -44,6 +44,7 @@ import { ROOM_OPTIONS } from "../lib/room-options";
 import { useRoomFeed } from "../model/use-room-feed";
 import { useSharedLab } from "../model/use-shared-lab";
 import { ClassControls } from "./ClassControls";
+import { HandQueue } from "./HandQueue";
 import { LabPicker } from "./LabPicker";
 import { LiveCaptions } from "./LiveCaptions";
 import { ParticipantTile, type Moderation } from "./ParticipantTile";
@@ -80,9 +81,18 @@ interface StagedLab {
  * shown large with the rest beside it. A screen that starts being shared takes
  * the stage for everyone, whatever each viewer had pinned.
  */
-function VideoGrid({ moderation, lab }: { moderation: Moderation | null; lab: StagedLab | null }) {
+function VideoGrid({
+  moderation,
+  lab,
+  hands,
+}: {
+  moderation: Moderation | null;
+  lab: StagedLab | null;
+  hands: RaisedHand[];
+}) {
   const { classroom } = useDictionary();
   const tracks = useTracks(TILES);
+  const handPositions = new Map(hands.map((hand) => [hand.identity, hand.position]));
   const [choice, setChoice] = useState<StageChoice>(undefined);
   // A shared lab is one more thing to put on the stage, and it takes it the way a new screen does
   const labKeys = lab ? [LAB_STAGE_KEY] : [];
@@ -106,6 +116,7 @@ function VideoGrid({ moderation, lab }: { moderation: Moderation | null; lab: St
         trackRef={trackRef}
         isOnStage={key === onStage}
         onToggleStage={() => setChoice(key === onStage ? null : key)}
+        handPosition={handPositions.get(trackRef.participant.identity) ?? null}
         moderation={moderation}
         className={className}
       />
@@ -167,22 +178,6 @@ function VideoGrid({ moderation, lab }: { moderation: Moderation | null; lab: St
   );
 }
 
-/** How many hands are up, said aloud when it changes: the Teacher may be looking at a shared screen. */
-function RaisedHands() {
-  const { classroom } = useDictionary();
-  const raised = useParticipants().filter((participant) => participant.attributes[HAND_ATTRIBUTE]).length;
-  return (
-    <p role="status" className={cn(raised === 0 && "sr-only")}>
-      {raised > 0 && (
-        <Badge tone="sun">
-          <HandIcon aria-hidden weight="fill" className="mr-1 size-3.5" />
-          {raised === 1 ? classroom.handsRaisedOne : format(classroom.handsRaisedMany, { count: String(raised) })}
-        </Badge>
-      )}
-    </p>
-  );
-}
-
 function CenteredMessage({ children }: { children: React.ReactNode }) {
   return <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6 text-center">{children}</div>;
 }
@@ -208,6 +203,7 @@ function Classroom({
   const state = useConnectionState();
   const room = useRoomContext();
   const feed = useRoomFeed();
+  const hands = handQueue(useParticipants());
   const [isChatOpen, setIsChatOpen] = useState(true);
   const [readUpTo, setReadUpTo] = useState(0);
   const [isLeaving, setIsLeaving] = useState(false);
@@ -316,7 +312,9 @@ function Classroom({
         <h1 className="min-w-0 flex-1 truncate text-lg font-semibold">
           {format(classroom.heading, { subject: access.subjectName, group: access.groupName })}
         </h1>
-        {isInRoom && <RaisedHands />}
+        {isInRoom && (
+          <HandQueue hands={hands} localIdentity={room.localParticipant.identity} moderation={moderation} />
+        )}
         {isInRoom && state !== ConnectionState.Connected && (
           <p role="status" className="rounded-full bg-sun-soft px-2.5 py-0.5 text-xs font-medium text-sun-ink">
             {classroom.reconnecting}
@@ -351,7 +349,7 @@ function Classroom({
           <main className="flex min-w-0 flex-1 flex-col gap-3 p-3 sm:p-4 lg:min-h-0">
             {hadError && <ErrorNotice message={classroom.deviceError} />}
             <ErrorNotice message={errorMessage(errors, actionError)} />
-            <VideoGrid moderation={moderation} lab={stagedLab} />
+            <VideoGrid moderation={moderation} lab={stagedLab} hands={hands} />
             <LiveCaptions captions={feed.captions} />
             <ClassControls
               isChatOpen={isChatOpen}
