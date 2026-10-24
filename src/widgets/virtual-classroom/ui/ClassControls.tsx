@@ -18,6 +18,7 @@ import {
   MonitorArrowUpIcon,
   SignOutIcon,
   SpeakerHighIcon,
+  SpeakerSlashIcon,
   VideoCameraIcon,
   VideoCameraSlashIcon,
 } from "@phosphor-icons/react/dist/ssr";
@@ -27,6 +28,7 @@ import { useState, type MouseEvent, type ReactNode } from "react";
 import { HAND_ATTRIBUTE } from "@/entities/class-session";
 import { format, useDictionary } from "@/shared/i18n";
 import { cn } from "@/shared/lib/cn";
+import { SOUND_LEVELS, useSoundPreferences } from "@/shared/lib/sound-preferences";
 import { useScreenShare } from "../model/use-screen-share";
 import { Button, buttonClass, ContextMenu, useContextMenu, type MenuAction } from "@/shared/ui";
 import { StopSharingDialog } from "./StopSharingDialog";
@@ -164,6 +166,53 @@ function ScreenShareToggle({ labels }: { labels: { on: string; off: string } }) 
   );
 }
 
+/** Switches the classroom's sounds on and off, with their volume beside it to choose from. */
+function SoundToggle() {
+  const text = useDictionary().classroom.controls;
+  const sounds = useSoundPreferences();
+  const menu = useContextMenu();
+  const actions: MenuAction[] = SOUND_LEVELS.map((level) => {
+    const isCurrent = level === sounds.level;
+    return {
+      id: level,
+      label: text.soundLevels[level],
+      icon: isCurrent ? CheckIcon : SpeakerHighIcon,
+      isCurrent,
+      onSelect: () => {
+        sounds.setLevel(level);
+        sounds.setEnabled(true);
+      },
+    };
+  });
+  const look = sounds.enabled ? "idle" : "off";
+  return (
+    <div className="flex">
+      <ControlButton
+        label={sounds.enabled ? text.soundsOff : text.soundsOn}
+        icon={sounds.enabled ? SpeakerHighIcon : SpeakerSlashIcon}
+        look={look}
+        isPressed={sounds.enabled}
+        onClick={() => sounds.setEnabled(!sounds.enabled)}
+        className="rounded-r-none"
+      />
+      <button
+        type="button"
+        aria-label={text.soundsPicker}
+        title={text.soundsPicker}
+        aria-haspopup="menu"
+        onClick={menu.openAbove}
+        className={cn(
+          "flex h-12 w-7 items-center justify-center rounded-r-xl border-l border-ink/25 transition duration-150 active:scale-[0.96] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-ink",
+          looks[look],
+        )}
+      >
+        <CaretUpIcon aria-hidden weight="bold" className="size-3.5" />
+      </button>
+      <ContextMenu label={text.soundsPicker} actions={actions} anchor={menu.anchor} onClose={menu.close} />
+    </div>
+  );
+}
+
 /** What the Teacher can do with a lab from the toolbar; null for anyone else. */
 export interface LabSharing {
   isSharing: boolean;
@@ -283,6 +332,7 @@ export function ClassControls({
         disabled={isMovingHand}
         onClick={() => void toggleHand()}
       />
+      <SoundToggle />
       <ControlButton
         label={unread > 0 ? `${chatLabel}, ${unreadText}` : chatLabel}
         icon={ChatCircleDotsIcon}

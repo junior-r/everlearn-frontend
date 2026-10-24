@@ -42,6 +42,7 @@ import {
 } from "../lib/room-state";
 import { roomOptions } from "../lib/room-options";
 import { useRoomFeed } from "../model/use-room-feed";
+import { useClassroomSounds } from "../model/use-classroom-sounds";
 import { useSharedLab } from "../model/use-shared-lab";
 import { ClassControls } from "./ClassControls";
 import { HandQueue } from "./HandQueue";
@@ -213,6 +214,7 @@ function Classroom({
   const [isEnding, setIsEnding] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const isTeacher = access.role === "TEACHER";
+  useClassroomSounds({ identity: access.identity, isTeacher });
   const { token } = access;
   const isInRoom = state !== ConnectionState.Connecting && state !== ConnectionState.Disconnected;
   const outcome = closure ?? (hadError && state === ConnectionState.Disconnected ? "failed" : null);

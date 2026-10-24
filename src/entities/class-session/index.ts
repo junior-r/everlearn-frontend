@@ -18,6 +18,7 @@ export {
   CHAT_TOPIC,
   HAND_ATTRIBUTE,
   MAX_CHAT_LENGTH,
+  parseChatMessage,
   ROLE_ATTRIBUTE,
 } from "./lib/room-messages";
 export { EMPTY_FEED, withHistory, withPacket } from "./lib/room-feed";

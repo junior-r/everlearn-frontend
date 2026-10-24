@@ -120,7 +120,15 @@
       "cameraUnnamed": "Cámara {number}",
       "share": "Compartir",
       "labShare": "Compartir un laboratorio",
-      "labStop": "Dejar de compartir el laboratorio"
+      "labStop": "Dejar de compartir el laboratorio",
+      "soundsOn": "Activar los sonidos",
+      "soundsOff": "Silenciar los sonidos",
+      "soundsPicker": "Volumen de los sonidos",
+      "soundLevels": {
+        "low": "Bajo",
+        "medium": "Medio",
+        "high": "Alto"
+      }
     },
     "deviceError": "No pudimos usar tu cámara o micrófono. Revisa los permisos del navegador.",
     "closed": {

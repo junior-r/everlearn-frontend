@@ -45,6 +45,13 @@ Teachers and Students need a screen to hold a class: see each other, write in a 
 - **Reason:** the backend already told Guardians of an absence taken by hand; without a screen no Teacher could take one.
 - **Implementation:** `pages/classroom/CourseAttendancePage` with `features/classroom/take-attendance` (`AttendanceSheet`, `RecordHeldClassForm`) over `entities/class-session`. The roll is a radio group per Student (`PRESENT`, `LATE`, `ABSENT`, `EXCUSED`); only marks that changed are sent, so a mark taken automatically stays automatic until the Teacher changes it. E2E: `e2e/communication.spec.ts`.
 
+## Sounds
+
+- **Need:** a member looking at another window misses that someone came in, wrote or raised a hand.
+- **Goal:** short, soft cues for entering a class, someone else entering, a message from someone else, a class of theirs opening (a Student on the home screen) and, for the Teacher, a hand going up. Nothing the viewer does themselves makes a sound, and a replayed message makes none.
+- **Reason:** the tones are generated with Web Audio (`shared/lib/sounds.ts`: a table of sine tones and `scheduleCue`), so there are no audio files to license or download. The switch and the volume (low, medium, high) are the viewer's own and stay in this browser (`shared/lib/sound-preferences.ts`, `localStorage`, read safely): they are a convenience, not a setting anyone else needs. `prefers-reduced-motion` is about motion, so it does not mute them.
+- **Implementation:** `useClassroomSounds` (`widgets/virtual-classroom`) listens to the room; `SoundToggle` in the toolbar switches them and opens the volume menu; `MyClasses` plays `classStarted` when a refresh shows a newly opened class (`hasNewlyOpenedClass`). A browser allows sound only after the viewer interacted with the page, so a cue before that is skipped.
+
 ## Transcripts of past classes
 
 - **Need:** captions are stored as the class goes on, but nobody could read them afterwards.

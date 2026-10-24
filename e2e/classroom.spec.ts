@@ -341,9 +341,18 @@ test("a Student who joins late, or comes back, is shown the chat the class alrea
   // What is said live lands after the replay, and coming back keeps both in order
   await say(page, "Ya estás aquí");
   await expect(messageOf(studentPage, "Ya estás aquí")).toBeVisible();
+  // The Student turns sounds down and off; this browser remembers it
+  await studentPage.getByRole("button", { name: "Volumen de los sonidos" }).click();
+  await studentPage.getByRole("menu", { name: "Volumen de los sonidos" }).getByRole("menuitem", { name: "Bajo" }).click();
+  await studentPage.getByRole("button", { name: "Silenciar los sonidos" }).click();
   await studentPage.reload();
   await expect(chatLog(studentPage).getByRole("listitem")).toHaveCount(3, { timeout: 15_000 });
   await expect(chatLog(studentPage).getByRole("listitem").last()).toContainText("Ya estás aquí");
+  await expect(studentPage.getByRole("button", { name: "Activar los sonidos" })).toBeVisible();
+  await studentPage.getByRole("button", { name: "Volumen de los sonidos" }).click();
+  await expect(
+    studentPage.getByRole("menu", { name: "Volumen de los sonidos" }).getByRole("menuitem", { name: "Bajo" }),
+  ).toHaveAttribute("aria-current", "true");
 
   await studentPage.context().close();
   await institution.dispose();

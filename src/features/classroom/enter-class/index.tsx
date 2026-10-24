@@ -2,7 +2,7 @@
 
 import { ArrowRightIcon, BroadcastIcon } from "@phosphor-icons/react/dist/ssr";
 import Link from "next/link";
-import { useCallback, useEffect, useId } from "react";
+import { useCallback, useEffect, useId, useRef } from "react";
 import {
   courseAttendancePath,
   courseTranscriptsPath,
@@ -13,9 +13,11 @@ import {
 import { courseEvaluationsPath } from "@/entities/evaluation";
 import { courseLabsPath } from "@/entities/lab";
 import { errorMessage, format, localizedPath, useDictionary, useLocale, useLocalizedRouter } from "@/shared/i18n";
+import { useSoundCue } from "@/shared/lib/sound-preferences";
 import { useResource } from "@/shared/lib/use-resource";
 import { useSubmit } from "@/shared/lib/use-submit";
 import { Badge, Button, buttonClass, ErrorNotice } from "@/shared/ui";
+import { hasNewlyOpenedClass } from "./lib/opened-classes";
 
 // A Student sees the class appear without reloading once their Teacher opens it
 const REFRESH_MS = 15_000;
@@ -49,6 +51,18 @@ export function MyClasses({ institutionId }: { institutionId: string }) {
     const timer = setInterval(reload, REFRESH_MS);
     return () => clearInterval(timer);
   }, [reload]);
+
+  const play = useSoundCue();
+  const lastSeen = useRef<ClassroomCourse[] | null>(null);
+  useEffect(() => {
+    if (!courses.data) {
+      return;
+    }
+    if (hasNewlyOpenedClass(lastSeen.current, courses.data)) {
+      play("classStarted");
+    }
+    lastSeen.current = courses.data;
+  }, [courses.data, play]);
 
   return (
     <section aria-labelledby={headingId} className="mt-6">
