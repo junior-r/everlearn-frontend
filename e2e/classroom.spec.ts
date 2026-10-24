@@ -374,7 +374,13 @@ test("after a class, its Teacher and its Students read and download what was sai
   await studentPage.getByRole("link", { name: "Transcripciones de Matemática" }).click();
   await expect(studentPage.getByRole("heading", { name: "Transcripciones de Matemática" })).toBeVisible();
   const said = studentPage.getByRole("list", { name: "Lo que se dijo" });
-  await expect(said.getByRole("listitem").first()).toContainText("Alan Turing: Transcripción simulada");
+  // The video-server's outbox delivers each line to the backend a moment after the room saw it
+  await expect(async () => {
+    await studentPage.reload();
+    await expect(said.getByRole("listitem").first()).toContainText("Alan Turing: Transcripción simulada", {
+      timeout: 2_000,
+    });
+  }).toPass({ timeout: 30_000 });
 
   const downloading = studentPage.waitForEvent("download");
   await studentPage.getByRole("button", { name: "Descargar .txt" }).click();
