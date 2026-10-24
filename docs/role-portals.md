@@ -12,7 +12,7 @@ Each lands on a screen of their own: a Guardian on the Students they answer for 
 
 - **The home screen sends them on.** `landingPath` (`entities/session`) decides: a Principal goes to `/principal`, someone who is only a Guardian to `/guardian`. Teachers and Students stay on the home screen, where starting a class is one tap away; a Teacher who is also a Guardian gets a link instead.
 - **A landing page cannot offer a way back.** `PortalShell` with `isLanding` shows the account links and sign-out where other pages show "Volver al inicio", which would only bounce.
-- **A Principal reads; they do not administer.** Their dashboard uses the read-only academic overview. The admin dashboard and its forms stay closed to them, as before.
+- **A Principal reads the teaching and works the enrolment desk.** Their dashboard uses the read-only academic overview. Like Staff, they may open Members to register Students and Guardians and check their ID (a "Miembros" link on their landing page, "Volver a mi panel" in the admin sidebar); every other admin section stays closed to them. The home screen still sends them to `/principal` first, unless they also have the admin dashboard.
 - **One ward at a time.** Wards are tabs; each tab renders its own panel, keyed by the Student, so one Student's figures are never shown under another's name while loading.
 - **The same building blocks as the other dashboards:** `StatCard`, `BarChart`, `DataTable`, `Section`. No average or rate is computed in the browser.
 
@@ -28,7 +28,7 @@ Each lands on a screen of their own: a Guardian on the Students they answer for 
 - **`widgets/dashboards`:** `GroupTeaching` (`/principal/groups/:groupId`, reached from a group's name in the dashboard), from `GET /analytics/academic/groups/:groupId`, which sends no Student data beyond a count: the Teacher and weekly hours of each subject, and the weekly timetable. `WeekTimetable` (`entities/schedule`) is the same read-only timetable the Guardian portal shows.
 - **`widgets/dashboards`:** `AcademicDashboard`: cards (active groups, students, Teachers, attendance, subjects without a Teacher), the groups table, the busiest Teachers' weekly load, the pensums table.
 - **`pages/dashboards`:** `GuardianPage`, `PrincipalPage`; routes `app/[lang]/guardian`, `app/[lang]/principal`.
-- **Registration:** `registrableRoles` now offers "Representante" to Institution Admins and Staff, after "Estudiante", which stays the default.
+- **Registration:** `registrableRoles` offers "Representante" to Institution Admins, Staff and Principals, after "Estudiante", which stays the default.
 - **E2E:** `e2e/roles.spec.ts`.
 
 ## Known gaps

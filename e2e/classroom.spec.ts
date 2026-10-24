@@ -1,5 +1,5 @@
 import { expect, test, type Browser, type Page } from "@playwright/test";
-import { API_URL, createCourse, signIn } from "./support";
+import { API_URL, VIDEO_SERVER_URL, createCourse, signIn } from "./support";
 
 // Needs the whole stack: `docker compose up -d postgres redis livekit ocr-server video-server backend`
 test.describe.configure({ mode: "serial" });
@@ -142,7 +142,7 @@ test("hands, the Teacher's moderation, chat menus and ending the class for every
     ["/participants/lower-hand", { identity: teacherAccess.identity }],
     ["/class/end", {}],
   ] as const) {
-    const refused = await studentPage.request.post(`http://localhost:8080${path}`, { headers: asStudent, data });
+    const refused = await studentPage.request.post(`${VIDEO_SERVER_URL}${path}`, { headers: asStudent, data });
     expect(refused.status(), path).toBe(403);
   }
   await expect(page.getByRole("button", { name: "Silenciar micrófono" })).toBeVisible();
@@ -246,7 +246,7 @@ test("a Teacher who only leaves keeps the class open, and a shared screen takes 
   await expect(page.getByRole("main").getByRole("alert")).toHaveCount(0);
 
   // When the class cannot be ended, the Teacher is back in it, told so, and the Student never noticed
-  await page.route("http://localhost:8080/class/end", (route) => route.fulfill({ status: 502 }));
+  await page.route(`${VIDEO_SERVER_URL}/class/end`, (route) => route.fulfill({ status: 502 }));
   await leaveButton(page).click();
   await page
     .getByRole("dialog", { name: "¿Salir o finalizar la clase?" })
@@ -257,7 +257,7 @@ test("a Teacher who only leaves keeps the class open, and a shared screen takes 
   );
   await expect(page.getByRole("button", { name: "Apagar cámara" })).toBeVisible();
   await expect(participants(studentPage).getByRole("listitem")).toHaveCount(2);
-  await page.unroute("http://localhost:8080/class/end");
+  await page.unroute(`${VIDEO_SERVER_URL}/class/end`);
 
   await leaveButton(page).click();
   await page
@@ -291,7 +291,7 @@ test("a Student who is not enrolled cannot enter, and the page says why", async 
   await expect(page.getByRole("list", { name: "Participantes" })).toHaveCount(0);
 
   // Nor can anyone post chat messages to the video-server without a room token
-  const forged = await page.request.post("http://localhost:8080/chat", {
+  const forged = await page.request.post(`${VIDEO_SERVER_URL}/chat`, {
     headers: { Authorization: "Bearer not-a-token" },
     data: { content: "hola" },
   });

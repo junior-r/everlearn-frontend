@@ -1,12 +1,4 @@
-import type { Role } from "@/entities/session/@x/onboarding-application";
-
-export type OnboardingStatus =
-  | "PENDING_UPLOAD"
-  | "PROCESSING"
-  | "PENDING_CONFIRMATION"
-  | "NEEDS_REVIEW"
-  | "APPROVED"
-  | "REJECTED";
+export type OnboardingStatus = "PENDING_UPLOAD" | "PROCESSING" | "PENDING_CONFIRMATION" | "APPROVED";
 
 export const DOCUMENT_TYPES = ["NATIONAL_ID", "PASSPORT", "OTHER"] as const;
 export type DocumentType = (typeof DOCUMENT_TYPES)[number];
@@ -20,7 +12,7 @@ export interface ExtractedIdentity {
   confidence: number;
 }
 
-/** What the applicant confirmed after checking the OCR reading. */
+/** The data confirmed at the desk against the original document. */
 export interface ConfirmedIdentity {
   firstName: string;
   lastName: string;
@@ -29,22 +21,14 @@ export interface ConfirmedIdentity {
   birthDate: string;
 }
 
+/** One member's identity check, done in person by whoever registers them. */
 export interface OnboardingApplication {
   id: string;
   status: OnboardingStatus;
   documentType: DocumentType | null;
   extracted: ExtractedIdentity | null;
-  rejectionReason: string | null;
-}
-
-/** An application as an Institution Admin reviews it. */
-export interface ApplicationReview extends OnboardingApplication {
-  requestedRole: Role | null;
-  /** The account as the institution registered it. */
-  applicant: { userId: string; email: string; firstName: string; lastName: string };
-  confirmed: ConfirmedIdentity | null;
 }
 
 export interface ApplicationResponse {
-  application: OnboardingApplication | null;
+  application: OnboardingApplication;
 }

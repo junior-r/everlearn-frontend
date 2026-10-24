@@ -3,22 +3,21 @@ import type {
   DocumentType,
   OnboardingApplication,
 } from "@/entities/onboarding-application";
-import { apiClient } from "@/shared/api";
+import { apiClient, forInstitution } from "@/shared/api";
 
-/** Sends the ID photo for OCR. Resolves once the backend has read it, which takes a few seconds. */
+/** Sends the photo of a member's ID, taken at the desk, for OCR. Resolves once the backend has read it. */
 export async function uploadDocument(
+  institutionId: string,
+  membershipId: string,
   photo: Blob,
   documentType: DocumentType,
 ): Promise<OnboardingApplication> {
   const body = new FormData();
   body.append("documentType", documentType);
   body.append("file", photo, "document.jpg");
-  const { application } = await apiClient.request<ApplicationResponse>("/onboarding/document", {
-    method: "POST",
-    body,
-  });
-  if (!application) {
-    throw new Error("The server returned no application");
-  }
+  const { application } = await apiClient.request<ApplicationResponse>(
+    `/onboarding/members/${membershipId}/document`,
+    { method: "POST", body, headers: forInstitution(institutionId) },
+  );
   return application;
 }

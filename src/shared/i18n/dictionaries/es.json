@@ -418,8 +418,6 @@
       "inactiveHint": "{count} inactivas",
       "totalUsers": "Usuarios",
       "activeUsers": "Usuarios activos",
-      "pendingReviews": "Revisiones pendientes",
-      "pendingHint": "Documentos por revisar en todas las instituciones",
       "largestTitle": "Miembros por institución",
       "largestHint": "Las instituciones activas con más miembros activos.",
       "largestEmpty": "Todavía no hay instituciones con miembros.",
@@ -430,7 +428,9 @@
         "active": "Activos",
         "pendingOnboarding": "En incorporación",
         "suspended": "Suspendidos"
-      }
+      },
+      "pendingIdentity": "Por verificar",
+      "pendingIdentityHint": "Cuentas que esperan la verificación de su documento en la institución"
     },
     "institution": {
       "title": "Resumen de la institución",
@@ -452,8 +452,8 @@
         "absent": "Ausente",
         "excused": "Justificada"
       },
-      "pendingOne": "1 documento de identidad espera revisión.",
-      "pendingMany": "{count} documentos de identidad esperan revisión."
+      "pendingOne": "1 miembro espera la verificación de su documento.",
+      "pendingMany": "{count} miembros esperan la verificación de su documento."
     },
     "teacher": {
       "title": "Panel docente",
@@ -607,12 +607,10 @@
     }
   },
   "onboarding": {
-    "title": "Verifica tu identidad",
-    "subtitle": "Necesitamos una foto de tu documento de identidad para completar tu perfil.",
     "steps": {
       "capture": "Documento",
       "confirm": "Datos",
-      "done": "Revisión"
+      "done": "Activo"
     },
     "documentType": {
       "label": "Tipo de documento",
@@ -623,32 +621,40 @@
     "camera": {
       "start": "Activar cámara",
       "starting": "Activando cámara…",
-      "instructions": "Coloca tu documento dentro del marco y evita los reflejos.",
+      "instructions": "Coloca el documento dentro del marco y evita los reflejos.",
       "capture": "Tomar foto",
       "retake": "Repetir foto",
       "use": "Usar esta foto",
       "upload": "Subir una imagen",
-      "previewAlt": "Vista previa de la foto de tu documento",
+      "previewAlt": "Vista previa de la foto del documento",
       "denied": "No pudimos acceder a la cámara. Permite el acceso en tu navegador o sube una imagen.",
       "unavailable": "No encontramos una cámara en este dispositivo. Puedes subir una imagen."
     },
-    "processing": "Analizando tu documento…",
+    "processing": "Analizando el documento…",
     "confirm": {
-      "title": "Confirma tus datos",
-      "subtitle": "Leímos estos datos de tu documento. Revísalos y corrige lo que haga falta.",
+      "title": "Confirma los datos",
+      "subtitle": "Compara lo que se leyó con el documento original y corrige lo que haga falta.",
       "firstName": "Nombres",
       "lastName": "Apellidos",
       "documentNumber": "Número de documento",
       "birthDate": "Fecha de nacimiento",
-      "submit": "Enviar para revisión",
+      "submit": "Confirmar y activar",
       "retake": "Volver a tomar la foto"
     },
-    "rejected": "Tu solicitud anterior fue rechazada: {reason} Toma una nueva foto para intentarlo otra vez.",
-    "submitted": {
-      "title": "Solicitud enviada",
-      "body": "Tu institución revisará tus datos. Te avisaremos cuando tu cuenta esté activa."
+    "unreadable": "No pudimos leer el documento automáticamente. Completa los datos a mano o vuelve a tomar la foto.",
+    "pending": {
+      "title": "Presenta tu documento en tu institución",
+      "body": "Tu cuenta se activará cuando el personal de tu institución verifique tu documento de identidad en persona. Lleva el documento original a la oficina de inscripción."
     },
-    "unreadable": "No pudimos leer tu documento automáticamente. Completa tus datos a mano o vuelve a tomar la foto."
+    "check": {
+      "title": "Verificar la identidad de {name}",
+      "subtitle": "Pide el documento original, fotografíalo y confirma los datos con la persona delante.",
+      "later": "Hacerlo más tarde",
+      "doneTitle": "{name} ya está activo",
+      "doneBody": "Su identidad quedó verificada y ya puede usar la plataforma.",
+      "credentials": "Entrega estas credenciales. La contraseña temporal no se volverá a mostrar.",
+      "finish": "Listo"
+    }
   },
   "roles": {
     "ADMIN": "Administrador de institución",
@@ -671,13 +677,13 @@
       "institutions": "Instituciones",
       "subjects": "Materias",
       "members": "Miembros",
-      "reviews": "Revisiones pendientes",
       "pensums": "Pensums",
       "groups": "Grupos",
       "settings": "Configuración de perfil",
       "availability": "Disponibilidad docente",
       "schedule": "Horarios",
-      "labs": "Laboratorios"
+      "labs": "Laboratorios",
+      "backToPortal": "Volver a mi panel"
     },
     "institutionSwitcher": {
       "label": "Institución",
@@ -744,7 +750,7 @@
     },
     "members": {
       "title": "Miembros",
-      "subtitle": "Registra a los docentes, estudiantes y representantes de tu institución. Ellos no pueden registrarse por su cuenta.",
+      "subtitle": "Registra a quienes se inscriben en tu institución y verifica su documento de identidad en persona. Nadie puede registrarse por su cuenta.",
       "empty": "Esta institución aún no tiene miembros.",
       "name": "Nombre",
       "firstName": "Nombres",
@@ -768,29 +774,10 @@
       "pages": "Páginas de miembros",
       "pageStatus": "Página {page} de {pages} · {total} miembros",
       "previousPage": "Anterior",
-      "nextPage": "Siguiente"
-    },
-    "reviews": {
-      "title": "Revisiones pendientes",
-      "subtitle": "Compara el documento con la persona que registraste antes de activar su cuenta.",
-      "empty": "No hay solicitudes pendientes de revisión.",
-      "photoAlt": "Foto del documento de {name}",
-      "photoUnavailable": "No se pudo cargar la foto del documento.",
-      "field": "Dato",
-      "registered": "Registrado por la institución",
-      "extracted": "Leído del documento",
-      "confirmed": "Confirmado por la persona",
-      "name": "Nombre",
-      "documentNumber": "Número de documento",
-      "birthDate": "Fecha de nacimiento",
-      "documentType": "Tipo de documento",
-      "notAvailable": "—",
-      "approve": "Aprobar",
-      "reject": "Rechazar",
-      "reason": "Motivo del rechazo",
-      "reasonHint": "La persona verá este motivo para poder corregirlo.",
-      "confirmReject": "Confirmar rechazo",
-      "cancel": "Cancelar"
+      "nextPage": "Siguiente",
+      "actions": "Acciones",
+      "verify": "Verificar identidad",
+      "verifyMember": "Verificar identidad de {name}"
     },
     "pensums": {
       "title": "Pensums",
@@ -954,10 +941,6 @@
     "SUBJECT_CODE_TAKEN": "Otra materia ya usa este código.",
     "SUBJECT_IN_USE": "La materia pertenece a un pensum y no se puede eliminar.",
     "SUBJECT_NOT_FOUND": "No se encontró la materia.",
-    "APPLICATION_NOT_FOUND": "No se encontró la solicitud.",
-    "APPLICATION_NOT_AWAITING_REVIEW": "Esta solicitud ya fue revisada.",
-    "REJECTION_REASON_REQUIRED": "Indica el motivo del rechazo.",
-    "ONBOARDING_NOT_AVAILABLE": "Esta cuenta no tiene un registro pendiente por verificar.",
     "HTTP_403": "No tienes permiso para hacer esto.",
     "NETWORK_ERROR": "No pudimos conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.",
     "RATE_LIMITED": "Demasiados intentos. Espera un momento e inténtalo de nuevo.",
@@ -972,8 +955,7 @@
     "HTTP_413": "La foto es demasiado grande. El máximo es 5 MB.",
     "OCR_PROCESSING_FAILED": "No pudimos leer tu documento. Toma otra foto con buena luz.",
     "INVALID_BIRTH_DATE": "La fecha de nacimiento no es válida.",
-    "APPLICATION_ALREADY_SUBMITTED": "Tu solicitud ya fue enviada.",
-    "NOTHING_TO_CONFIRM": "Primero toma una foto de tu documento.",
+    "NOTHING_TO_CONFIRM": "Primero toma una foto del documento.",
     "HTTP_400": "Revisa los datos e inténtalo de nuevo.",
     "PASSWORD_CHANGE_REQUIRED": "Debes cambiar tu contraseña temporal para continuar.",
     "INVALID_CURRENT_PASSWORD": "La contraseña actual no es correcta.",
@@ -1042,7 +1024,10 @@
     "INVALID_EXERCISE": "El ejercicio no es válido. Revisa la oración y las respuestas.",
     "EXERCISE_NOT_FOUND": "No se encontró el ejercicio.",
     "TEACHER_ONLY": "Solo un docente de la institución puede hacer esto.",
-    "LAB_SHARE_FAILED": "No se pudo compartir el laboratorio con la clase. Inténtalo de nuevo."
+    "LAB_SHARE_FAILED": "No se pudo compartir el laboratorio con la clase. Inténtalo de nuevo.",
+    "MEMBER_NOT_FOUND": "No encontramos a ese miembro.",
+    "IDENTITY_ALREADY_VERIFIED": "La identidad de este miembro ya fue verificada.",
+    "IDENTITY_CHECK_NOT_ALLOWED": "No puedes verificar la identidad de este miembro."
   },
   "labs": {
     "catalog": {

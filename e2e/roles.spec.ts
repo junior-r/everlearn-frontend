@@ -155,9 +155,11 @@ test("a Principal lands on the teaching of the institution, to read and not to a
   await detail.getByRole("link", { name: "Volver al panel académico" }).click();
   await expect(page).toHaveURL("/es/principal");
 
-  // No administration: the dashboard of the admins sends them back to their own
-  await expect(page.getByRole("link", { name: "Miembros" })).toHaveCount(0);
-  await page.goto("/es/admin/members");
+  // The only admin section they get is the enrolment desk; the rest sends them to it
+  await expect(page.getByRole("link", { name: "Miembros" })).toBeVisible();
+  await page.goto("/es/admin/groups");
+  await expect(page).toHaveURL("/es/admin/members");
+  await page.getByRole("link", { name: "Volver a mi panel" }).click();
   await expect(page).toHaveURL("/es/principal");
   // And the way out and the account are on their landing screen
   await expect(page.getByRole("link", { name: "Configuración de perfil" })).toBeVisible();

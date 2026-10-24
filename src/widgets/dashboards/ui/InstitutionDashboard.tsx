@@ -36,15 +36,15 @@ export function InstitutionDashboard({ institutionId }: { institutionId: string 
   }
   return (
     <div className="flex flex-col gap-6">
-      {data.pendingReviews > 0 && (
+      {data.awaitingIdentityCheck > 0 && (
         <Link
-          href={localizedPath(locale, "/admin/reviews")}
+          href={localizedPath(locale, "/admin/members")}
           className="group flex items-center gap-3 rounded-2xl border border-sun bg-sun-soft px-4 py-3 text-sm font-medium text-sun-ink transition-colors hover:bg-sun/30 focus-visible:outline-2 focus-visible:outline-brand"
         >
           <IdentificationCardIcon aria-hidden weight="duotone" className="size-5 shrink-0" />
-          {data.pendingReviews === 1
+          {data.awaitingIdentityCheck === 1
             ? text.pendingOne
-            : format(text.pendingMany, { count: count(data.pendingReviews) })}
+            : format(text.pendingMany, { count: count(data.awaitingIdentityCheck) })}
           <ArrowRightIcon
             aria-hidden
             weight="bold"

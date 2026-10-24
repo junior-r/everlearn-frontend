@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ArrowLeftIcon,
   BooksIcon,
   BuildingsIcon,
   CalendarCheckIcon,
@@ -9,7 +10,6 @@ import {
   ChartPieSliceIcon,
   FlaskIcon,
   GearSixIcon,
-  IdentificationCardIcon,
   TreeStructureIcon,
   UsersThreeIcon,
 } from "@phosphor-icons/react/dist/ssr";
@@ -23,6 +23,7 @@ import {
   adminSections,
   hasAdminDashboard,
   hasOwnPassword,
+  landingPath,
   useSession,
   type AdminSection,
 } from "@/entities/session";
@@ -37,7 +38,6 @@ const sectionPath = (section: AdminSection) => `/admin/${section}`;
 const sectionIcons: Record<AdminSection, Icon> = {
   institutions: BuildingsIcon,
   members: UsersThreeIcon,
-  reviews: IdentificationCardIcon,
   subjects: BooksIcon,
   pensums: TreeStructureIcon,
   groups: ChalkboardTeacherIcon,
@@ -136,6 +136,8 @@ export function AdminShell({ children }: { children: ReactNode }) {
   const hasDashboard = isUsable && hasAdminDashboard(user, institution.active?.id ?? null);
   const isAllowedHere = isAdminRoot ? hasDashboard : current !== undefined && sections.includes(current);
   const fallback = sections.length > 0 ? sectionPath(sections[0]) : "/";
+  // A Principal works the enrolment desk from here but has a screen of their own to go back to
+  const portal = hasDashboard ? null : landingPath(institution.roles);
 
   useEffect(() => {
     if (session.status === "anonymous") {
@@ -206,6 +208,15 @@ export function AdminShell({ children }: { children: ReactNode }) {
           </ul>
         </nav>
         <div className="relative flex flex-col gap-3">
+          {portal && (
+            <Link
+              href={localizedPath(locale, portal)}
+              className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-on-ink/75 transition-colors hover:bg-ink-raised hover:text-on-ink"
+            >
+              <ArrowLeftIcon aria-hidden weight="bold" className="size-5 shrink-0" />
+              {admin.nav.backToPortal}
+            </Link>
+          )}
           <Link
             href={localizedPath(locale, "/settings")}
             className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-on-ink/75 transition-colors hover:bg-ink-raised hover:text-on-ink"
