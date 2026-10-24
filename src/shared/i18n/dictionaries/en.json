@@ -8,7 +8,8 @@
     "loading": "Loading…",
     "or": "or",
     "panelTitle": "Your institution, organised in one place.",
-    "panelBody": "Members, curricula, groups and timetables for the whole school community."
+    "panelBody": "Members, curricula, groups and timetables for the whole school community.",
+    "humanCheckUnavailable": "We could not load the security check. Reload the page, or allow challenges.cloudflare.com if you use a blocker."
   },
   "auth": {
     "login": {
@@ -961,6 +962,7 @@
     "HTTP_403": "You are not allowed to do this.",
     "NETWORK_ERROR": "We could not reach the server. Check your connection and try again.",
     "RATE_LIMITED": "Too many attempts. Wait a moment and try again.",
+    "HUMAN_CHECK_FAILED": "We could not confirm you are a person. Complete the check and try again.",
     "INVALID_CREDENTIALS": "The email or password is incorrect.",
     "ACCOUNT_SUSPENDED": "This account has been suspended. Contact your institution.",
     "GOOGLE_OAUTH_UNAVAILABLE": "Google sign-in is not available right now.",

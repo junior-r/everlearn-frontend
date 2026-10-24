@@ -41,6 +41,7 @@ jobs:
             NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL || 'https://api.example.com' }}
             NEXT_PUBLIC_LIVEKIT_URL=${{ vars.NEXT_PUBLIC_LIVEKIT_URL || 'wss://rtc.example.com' }}
             NEXT_PUBLIC_VIDEO_SERVER_URL=${{ vars.NEXT_PUBLIC_VIDEO_SERVER_URL || 'https://video.example.com' }}
+            NEXT_PUBLIC_TURNSTILE_SITE_KEY=${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
           tags: |
             ${{ steps.image.outputs.name }}:main
             ${{ steps.image.outputs.name }}:latest

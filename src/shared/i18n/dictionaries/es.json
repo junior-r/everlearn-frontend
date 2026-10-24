@@ -8,7 +8,8 @@
     "loading": "Cargando…",
     "or": "o",
     "panelTitle": "Tu institución, organizada en un solo lugar.",
-    "panelBody": "Miembros, pensums, grupos y horarios para toda la comunidad educativa."
+    "panelBody": "Miembros, pensums, grupos y horarios para toda la comunidad educativa.",
+    "humanCheckUnavailable": "No pudimos cargar la verificación de seguridad. Recarga la página o permite challenges.cloudflare.com si usas un bloqueador."
   },
   "auth": {
     "login": {
@@ -961,6 +962,7 @@
     "HTTP_403": "No tienes permiso para hacer esto.",
     "NETWORK_ERROR": "No pudimos conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.",
     "RATE_LIMITED": "Demasiados intentos. Espera un momento e inténtalo de nuevo.",
+    "HUMAN_CHECK_FAILED": "No pudimos confirmar que eres una persona. Completa la verificación e inténtalo de nuevo.",
     "INVALID_CREDENTIALS": "El correo o la contraseña no son correctos.",
     "ACCOUNT_SUSPENDED": "Esta cuenta está suspendida. Contacta a tu institución.",
     "GOOGLE_OAUTH_UNAVAILABLE": "El inicio de sesión con Google no está disponible en este momento.",

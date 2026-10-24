@@ -12,6 +12,8 @@ export { DataTable } from "./DataTable";
 export type { Column } from "./DataTable";
 export { Dialog } from "./Dialog";
 export { ErrorNotice } from "./ErrorNotice";
+export { useHumanCheck } from "./HumanCheck";
+export type { HumanCheck } from "./HumanCheck";
 export { Logo } from "./Logo";
 export { Mosaic } from "./Mosaic";
 export { PageHeader, Section } from "./Section";
