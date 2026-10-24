@@ -4,7 +4,7 @@ import { useState, type FormEvent } from "react";
 import { useSession } from "@/entities/session";
 import { ApiError } from "@/shared/api";
 import { errorMessage, useDictionary } from "@/shared/i18n";
-import { Button, ErrorNotice, TextField } from "@/shared/ui";
+import { Button, ErrorNotice, TextField, useHumanCheck } from "@/shared/ui";
 import { login } from "../api/login";
 
 interface LoginFormProps {
@@ -19,17 +19,19 @@ export function LoginForm({ initialErrorCode, onSuccess }: LoginFormProps) {
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorCode, setErrorCode] = useState<string | null>(initialErrorCode ?? null);
+  const humanCheck = useHumanCheck("login");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
     setErrorCode(null);
     try {
-      session.establish(await login({ email, password }));
+      session.establish(await login({ email, password }, humanCheck.headers));
       onSuccess();
     } catch (caught) {
       setErrorCode(caught instanceof ApiError ? caught.code : "UNKNOWN");
       setIsSubmitting(false);
+      humanCheck.reset();
     }
   }
 
@@ -54,7 +56,8 @@ export function LoginForm({ initialErrorCode, onSuccess }: LoginFormProps) {
         value={password}
         onChange={(event) => setPassword(event.target.value)}
       />
-      <Button type="submit" isLoading={isSubmitting}>
+      {humanCheck.widget}
+      <Button type="submit" isLoading={isSubmitting} disabled={!humanCheck.isReady}>
         {auth.login.submit}
       </Button>
     </form>

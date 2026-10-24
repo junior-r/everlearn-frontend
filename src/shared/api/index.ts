@@ -20,6 +20,9 @@ export const realtime = createRealtime({
   refresh: () => apiClient.refresh(),
 });
 
+/** Carries the token of a solved bot challenge (`useHumanCheck`) to a route that requires one. */
+export const HUMAN_CHECK_HEADER = "X-Human-Check";
+
 /** Headers naming the institution an admin request acts on; the backend authorizes against it. */
 export function forInstitution(institutionId: string): Record<string, string> {
   return { "x-institution-id": institutionId };

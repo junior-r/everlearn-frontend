@@ -5,14 +5,14 @@ import { useState, type FormEvent } from "react";
 import { apiClient } from "@/shared/api";
 import { errorMessage, useDictionary, useLocale } from "@/shared/i18n";
 import { useSubmit } from "@/shared/lib/use-submit";
-import { Button, ErrorNotice, TextField } from "@/shared/ui";
+import { Button, ErrorNotice, TextField, useHumanCheck } from "@/shared/ui";
 
 const MIN_LENGTH = 8;
 const MAX_LENGTH = 72;
 
 // Both calls are made signed out, so they must not try to refresh a session
-const requestReset = (body: { email: string; locale: string }) =>
-  apiClient.request<void>("/auth/forgot-password", { method: "POST", body, skipAuth: true }).then(() => true);
+const requestReset = (body: { email: string; locale: string }, headers?: Record<string, string>) =>
+  apiClient.request<void>("/auth/forgot-password", { method: "POST", body, headers, skipAuth: true }).then(() => true);
 
 const resetPassword = (body: { token: string; newPassword: string }) =>
   apiClient.request<void>("/auth/reset-password", { method: "POST", body, skipAuth: true }).then(() => true);
@@ -38,11 +38,14 @@ export function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
   const [isSent, setIsSent] = useState(false);
   const { submit, isSubmitting, error } = useSubmit(requestReset);
+  const humanCheck = useHumanCheck("forgot-password");
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (await submit({ email, locale })) {
+    if (await submit({ email, locale }, humanCheck.headers)) {
       setIsSent(true);
+    } else {
+      humanCheck.reset();
     }
   }
 
@@ -61,7 +64,8 @@ export function ForgotPasswordForm() {
         value={email}
         onChange={(event) => setEmail(event.target.value)}
       />
-      <Button type="submit" isLoading={isSubmitting}>
+      {humanCheck.widget}
+      <Button type="submit" isLoading={isSubmitting} disabled={!humanCheck.isReady}>
         {text.submit}
       </Button>
     </form>

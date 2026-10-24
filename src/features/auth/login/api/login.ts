@@ -6,10 +6,11 @@ export interface LoginCredentials {
   password: string;
 }
 
-export function login(credentials: LoginCredentials): Promise<AuthResponse> {
+export function login(credentials: LoginCredentials, headers?: Record<string, string>): Promise<AuthResponse> {
   return apiClient.request<AuthResponse>("/auth/login", {
     method: "POST",
     body: credentials,
+    headers,
     skipAuth: true,
   });
 }

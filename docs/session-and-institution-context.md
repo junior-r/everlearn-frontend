@@ -35,3 +35,4 @@ Every screen knows which institution the session is acting in, and the two manda
 - The reset token arrives after `#` in the address and is read with `useSyncExternalStore`, so the server-rendered page and the first client render agree. Without a token the screen explains itself and offers a new link.
 - Both forms call the API with `skipAuth`, since nobody is signed in. After a reset the member signs in with the new password; they are not signed in automatically.
 - **E2E:** `e2e/password-reset.spec.ts` reads the link from the backend's log, which needs `EMAIL_LOG_BODIES=true` (the default in `docker-compose.yml`).
+- **Bot check:** the sign-in and forgot-password forms place `useHumanCheck(action)` (`shared/ui`, Cloudflare Turnstile) above their button, keep the button off until it is solved, send its `headers` and call `reset()` after a failed submit. It is off when `NEXT_PUBLIC_TURNSTILE_SITE_KEY` was not set at build time. See `backend/docs/account-security.md`.
