@@ -1,4 +1,5 @@
 import {
+  AudioPresets,
   ScreenSharePresets,
   VideoPresets,
   type RoomOptions,
@@ -30,9 +31,13 @@ export function roomOptions(role: ClassroomRole): RoomOptions {
   };
 }
 
-/** A shared screen is captured at full size and encoded to keep text sharp rather than motion smooth. */
+/**
+ * A shared screen is captured at full size and encoded to keep text sharp rather than motion smooth.
+ * Its sound comes too (a tab anywhere, a whole screen on Windows), untouched by voice processing.
+ */
 export const SCREEN_CAPTURE: ScreenShareCaptureOptions = {
-  audio: false,
+  audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
+  systemAudio: "include",
   resolution: ScreenSharePresets.h1080fps30.resolution,
   contentHint: "detail",
 };
@@ -45,4 +50,7 @@ export const SCREEN_PUBLISH: TrackPublishOptions = {
   videoCodec: "vp9",
   backupCodec: { codec: "vp8" },
   degradationPreference: "maintain-resolution",
+  // A video's soundtrack is music, not speech: a music bitrate, and no pausing on quiet passages
+  audioPreset: AudioPresets.musicHighQuality,
+  dtx: false,
 };

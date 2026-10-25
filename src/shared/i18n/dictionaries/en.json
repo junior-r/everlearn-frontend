@@ -84,7 +84,9 @@
       "attendance": "Attendance",
       "attendanceFor": "Attendance of {subject}",
       "labs": "Labs",
-      "labsFor": "{subject} labs"
+      "labsFor": "{subject} labs",
+      "transcripts": "Transcripts",
+      "transcriptsFor": "Transcripts of {subject}"
     },
     "heading": "{subject} · {group}",
     "preparing": "Preparing the class…",
@@ -118,7 +120,15 @@
       "cameraUnnamed": "Camera {number}",
       "share": "Share",
       "labShare": "Share a lab",
-      "labStop": "Stop sharing the lab"
+      "labStop": "Stop sharing the lab",
+      "soundsOn": "Turn sounds on",
+      "soundsOff": "Turn sounds off",
+      "soundsPicker": "Sound volume",
+      "soundLevels": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High"
+      }
     },
     "deviceError": "We could not use your camera or microphone. Check your browser permissions.",
     "closed": {
@@ -182,6 +192,30 @@
       "confirm": "Leave",
       "leaveOnly": "Just leave",
       "end": "End for everyone"
+    },
+    "stopDialog": {
+      "screenTitle": "Stop sharing your screen?",
+      "screenBody": "The class will no longer see your screen or hear its sound.",
+      "labTitle": "Stop sharing the lab?",
+      "labBody": "The class will no longer see the lab. What you changed in it is lost.",
+      "cancel": "Keep sharing",
+      "confirm": "Stop sharing"
+    },
+    "transcripts": {
+      "fallbackTitle": "Transcripts",
+      "title": "Transcripts of {subject}",
+      "subtitle": "Group {group}. What was said in each class with captions, to go over or download.",
+      "sessionsTitle": "Classes",
+      "noSessions": "No class of this subject has a transcript yet.",
+      "sessionFor": "Transcript of the class on {date}",
+      "linesOne": "1 line",
+      "linesMany": "{count} lines",
+      "transcriptTitle": "Class on {date}",
+      "linesLabel": "What was said",
+      "unknownSpeaker": "Unidentified",
+      "said": ": {text}",
+      "download": "Download .txt",
+      "exportName": "Transcript"
     },
     "tile": {
       "options": "Options for {name}",

@@ -1,60 +1,57 @@
 "use client";
 
-import { useDataChannel } from "@livekit/components-react";
-import type { Participant } from "livekit-client";
-import { useCallback, useState } from "react";
+import { useConnectionState, useDataChannel } from "@livekit/components-react";
+import { ConnectionState, type Participant } from "livekit-client";
+import { useCallback, useEffect, useState } from "react";
 import {
-  appendUnique,
   CAPTIONS_TOPIC,
   CHAT_DELETED_TOPIC,
   CHAT_TOPIC,
-  parseCaption,
-  parseChatDeletion,
-  parseChatMessage,
-  withDeleted,
+  EMPTY_FEED,
+  fetchRoomFeed,
+  withHistory,
+  withPacket,
   type Caption,
   type ChatMessage,
 } from "@/entities/class-session";
 
-const MAX_MESSAGES = 300;
-// Captions are for following along, not for reading back
-const MAX_CAPTIONS = 3;
-
 interface DataPacket {
+  topic?: string;
   payload: Uint8Array;
   from?: Participant;
 }
 
 /**
- * Collects the chat messages and captions that arrive while the viewer is in
- * the room, and blanks the messages taken down. Only the video-server
- * publishes them, so a packet sent by a participant is ignored.
+ * Collects the chat messages and captions of the room, and blanks the messages
+ * taken down. Each time the viewer connects, what the room had before is
+ * replayed first, so a late joiner or a member coming back sees it too. Only
+ * the video-server publishes, so a packet sent by a participant is ignored.
  */
-export function useRoomFeed(): { messages: ChatMessage[]; captions: Caption[] } {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [captions, setCaptions] = useState<Caption[]>([]);
+export function useRoomFeed(roomToken: string): { messages: ChatMessage[]; captions: Caption[] } {
+  const [feed, setFeed] = useState(EMPTY_FEED);
+  const isConnected = useConnectionState() === ConnectionState.Connected;
 
-  const onChat = useCallback((packet: DataPacket) => {
-    const message = packet.from ? null : parseChatMessage(packet.payload);
-    if (message) {
-      setMessages((current) => appendUnique(current, message, MAX_MESSAGES));
+  const onPacket = useCallback((packet: DataPacket) => {
+    const { topic } = packet;
+    if (!packet.from && topic) {
+      setFeed((current) => withPacket(current, { topic, payload: packet.payload }));
     }
   }, []);
-  const onChatDeleted = useCallback((packet: DataPacket) => {
-    const id = packet.from ? null : parseChatDeletion(packet.payload);
-    if (id) {
-      setMessages((current) => withDeleted(current, id));
-    }
-  }, []);
-  const onCaption = useCallback((packet: DataPacket) => {
-    const caption = packet.from ? null : parseCaption(packet.payload);
-    if (caption) {
-      setCaptions((current) => appendUnique(current, caption, MAX_CAPTIONS));
-    }
-  }, []);
+  useDataChannel(CHAT_TOPIC, onPacket);
+  useDataChannel(CHAT_DELETED_TOPIC, onPacket);
+  useDataChannel(CAPTIONS_TOPIC, onPacket);
 
-  useDataChannel(CHAT_TOPIC, onChat);
-  useDataChannel(CHAT_DELETED_TOPIC, onChatDeleted);
-  useDataChannel(CAPTIONS_TOPIC, onCaption);
-  return { messages, captions };
+  useEffect(() => {
+    if (!isConnected) {
+      return;
+    }
+    const request = new AbortController();
+    fetchRoomFeed(roomToken, request.signal)
+      .then((history) => setFeed((current) => withHistory(current, history)))
+      // The replay is a courtesy: without it the class goes on with what arrives live
+      .catch(() => undefined);
+    return () => request.abort();
+  }, [roomToken, isConnected]);
+
+  return { messages: feed.messages, captions: feed.captions };
 }

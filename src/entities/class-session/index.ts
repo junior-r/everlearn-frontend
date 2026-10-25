@@ -1,28 +1,31 @@
 import { ApiError, apiClient, forInstitution } from "@/shared/api";
 import { env } from "@/shared/config/env";
+import { parseFeedPackets, type FeedPacket } from "./lib/room-feed";
 import type {
   AttendanceEntry,
   AttendanceStatus,
   ChatMessage,
   ClassroomAccess,
   ClassroomCourse,
+  ClassTranscript,
   CourseSessions,
+  CourseTranscripts,
 } from "./model/types";
 
 export {
-  appendUnique,
   CAPTIONS_TOPIC,
   CHAT_DELETED_TOPIC,
   CHAT_TOPIC,
   HAND_ATTRIBUTE,
   MAX_CHAT_LENGTH,
-  parseCaption,
-  parseChatDeletion,
   parseChatMessage,
   ROLE_ATTRIBUTE,
-  withDeleted,
 } from "./lib/room-messages";
+export { EMPTY_FEED, withHistory, withPacket } from "./lib/room-feed";
+export type { FeedPacket, RoomFeed } from "./lib/room-feed";
 export { handQueue } from "./lib/hand-queue";
+export { transcriptText } from "./lib/transcript-text";
+export type { TranscriptTextLabels } from "./lib/transcript-text";
 export type { HandHolder, RaisedHand } from "./lib/hand-queue";
 export { ATTENDANCE_STATUSES } from "./model/types";
 export type {
@@ -33,13 +36,21 @@ export type {
   ClassroomAccess,
   ClassroomCourse,
   ClassroomRole,
+  ClassTranscript,
   CourseSession,
   CourseSessions,
+  CourseTranscripts,
+  TranscribedSession,
+  TranscriptLine,
 } from "./model/types";
 
 /** Where a Teacher takes the attendance of one subject of one group. */
 export const courseAttendancePath = (groupId: string, subjectId: string) =>
   `/courses/${groupId}/${subjectId}/attendance`;
+
+/** Where the Teacher and the Students of a course read what was said in its past classes. */
+export const courseTranscriptsPath = (groupId: string, subjectId: string) =>
+  `/courses/${groupId}/${subjectId}/transcripts`;
 
 /** The subjects the signed-in member teaches or attends in the institution. */
 export function fetchMyCourses(institutionId: string): Promise<ClassroomCourse[]> {
@@ -80,6 +91,18 @@ async function askVideoServer(roomToken: string, path: string, body: object, fai
   if (!response?.ok) {
     throw new ApiError(response?.status ?? 0, failure, `The video-server refused ${path}`);
   }
+}
+
+/** The chat and captions the room had before the viewer arrived, as the video-server kept them. */
+export async function fetchRoomFeed(roomToken: string, signal: AbortSignal): Promise<FeedPacket[]> {
+  const response = await fetch(`${env.videoServerUrl}/feed`, {
+    headers: { Authorization: `Bearer ${roomToken}` },
+    signal,
+  });
+  if (!response.ok) {
+    throw new ApiError(response.status, "FEED_UNAVAILABLE", "The video-server could not replay the class");
+  }
+  return parseFeedPackets(await response.json());
 }
 
 /** Sends a chat message to the class; it shows up when the room delivers it to everyone. */
@@ -132,6 +155,24 @@ const sessionsPath = (groupId: string, subjectId: string) => `/groups/${groupId}
 /** The latest classes of a course, most recent first. Only for the Teacher assigned to it. */
 export function fetchCourseSessions(institutionId: string, groupId: string, subjectId: string): Promise<CourseSessions> {
   return apiClient.request<CourseSessions>(sessionsPath(groupId, subjectId), {
+    headers: forInstitution(institutionId),
+  });
+}
+
+/** The classes of a course that have a transcript, most recent first. For its Teacher and its Students. */
+export function fetchCourseTranscripts(
+  institutionId: string,
+  groupId: string,
+  subjectId: string,
+): Promise<CourseTranscripts> {
+  return apiClient.request<CourseTranscripts>(`/groups/${groupId}/courses/${subjectId}/transcripts`, {
+    headers: forInstitution(institutionId),
+  });
+}
+
+/** What was said in a class, in order. */
+export function fetchClassTranscript(institutionId: string, sessionId: string): Promise<ClassTranscript> {
+  return apiClient.request<ClassTranscript>(`/class-sessions/${sessionId}/transcript`, {
     headers: forInstitution(institutionId),
   });
 }

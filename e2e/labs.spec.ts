@@ -143,6 +143,10 @@ test("a Teacher shares the function grapher in class and the Student follows it,
   );
 
   await teacherLab.getByRole("button", { name: "Dejar de compartir" }).click();
+  await page
+    .getByRole("dialog", { name: "¿Dejar de compartir el laboratorio?" })
+    .getByRole("button", { name: "Dejar de compartir" })
+    .click();
   await expect(studentPage.getByRole("region", { name: "Graficador de funciones" })).toHaveCount(0, { timeout: 15_000 });
 });
 

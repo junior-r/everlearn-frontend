@@ -42,6 +42,7 @@ import {
 } from "../lib/room-state";
 import { roomOptions } from "../lib/room-options";
 import { useRoomFeed } from "../model/use-room-feed";
+import { useClassroomSounds } from "../model/use-classroom-sounds";
 import { useSharedLab } from "../model/use-shared-lab";
 import { ClassControls } from "./ClassControls";
 import { HandQueue } from "./HandQueue";
@@ -49,6 +50,7 @@ import { LabPicker } from "./LabPicker";
 import { LiveCaptions } from "./LiveCaptions";
 import { ParticipantTile, type Moderation } from "./ParticipantTile";
 import { SharedLabPanel } from "./SharedLabPanel";
+import { StopSharingDialog } from "./StopSharingDialog";
 
 interface VirtualClassroomProps {
   access: ClassroomAccess;
@@ -204,7 +206,7 @@ function Classroom({
   const { classroom, errors, labs, roles } = useDictionary();
   const state = useConnectionState();
   const room = useRoomContext();
-  const feed = useRoomFeed();
+  const feed = useRoomFeed(access.token);
   const hands = handQueue(useParticipants());
   const [isChatOpen, setIsChatOpen] = useState(true);
   const [readUpTo, setReadUpTo] = useState(0);
@@ -212,6 +214,7 @@ function Classroom({
   const [isEnding, setIsEnding] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const isTeacher = access.role === "TEACHER";
+  useClassroomSounds({ identity: access.identity, isTeacher });
   const { token } = access;
   const isInRoom = state !== ConnectionState.Connecting && state !== ConnectionState.Disconnected;
   const outcome = closure ?? (hadError && state === ConnectionState.Disconnected ? "failed" : null);
@@ -233,13 +236,19 @@ function Classroom({
     useParticipantAttribute(LABS_ATTRIBUTE, { participant: room.localParticipant }),
   );
   const [isPickingLab, setIsPickingLab] = useState(false);
+  const [isStoppingLab, setIsStoppingLab] = useState(false);
   const current = sharedLab.current;
   const stagedLab = useMemo<StagedLab | null>(
     () =>
       current && {
         name: labs.names[current.labKey],
         panel: (
-          <SharedLabPanel labKey={current.labKey} state={current.state} mode={current.mode} onStop={sharedLab.stop}>
+          <SharedLabPanel
+            labKey={current.labKey}
+            state={current.state}
+            mode={current.mode}
+            onStop={() => setIsStoppingLab(true)}
+          >
             {findLab(current.labKey).render({
               state: current.state,
               onChange: sharedLab.update,
@@ -249,7 +258,7 @@ function Classroom({
           </SharedLabPanel>
         ),
       },
-    [current, labs.names, findLab, institutionId, sharedLab.stop, sharedLab.update],
+    [current, labs.names, findLab, institutionId, sharedLab.update],
   );
   // The video-server refuses these to anyone but the Teacher; the menus simply do not offer them
   const moderation = useMemo<Moderation | null>(
@@ -362,7 +371,11 @@ function Classroom({
               onDeviceError={onDeviceError}
               lab={
                 isTeacher && shareableLabs.length > 0
-                  ? { isSharing: current !== null, onPick: () => setIsPickingLab(true), onStop: sharedLab.stop }
+                  ? {
+                      isSharing: current !== null,
+                      onPick: () => setIsPickingLab(true),
+                      onStop: () => setIsStoppingLab(true),
+                    }
                   : null
               }
             />
@@ -374,6 +387,15 @@ function Classroom({
                 sharedLab.share(labKey);
               }}
               onClose={() => setIsPickingLab(false)}
+            />
+            <StopSharingDialog
+              what="lab"
+              isOpen={isStoppingLab && current !== null}
+              onConfirm={() => {
+                setIsStoppingLab(false);
+                sharedLab.stop();
+              }}
+              onClose={() => setIsStoppingLab(false)}
             />
           </main>
           {isChatOpen && (

@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import { expect, test, type Browser, type Page } from "@playwright/test";
 import { API_URL, VIDEO_SERVER_URL, createCourse, signIn } from "./support";
 
@@ -272,7 +273,14 @@ test("a Teacher who only leaves keeps the class open, and a shared screen takes 
     "Pantalla de Alan Turing (tú)",
   );
   await expect(participants(studentPage).getByRole("listitem")).toHaveCount(2);
+  // Stopping asks first: keeping the share leaves the screen on the stage
   await page.getByRole("button", { name: "Dejar de compartir" }).click();
+  const stopScreen = page.getByRole("dialog", { name: "¿Dejar de compartir la pantalla?" });
+  await stopScreen.getByRole("button", { name: "Seguir compartiendo" }).click();
+  await expect(stopScreen).toBeHidden();
+  await expect(stage.getByRole("listitem", { name: "Pantalla de Alan Turing" })).toBeVisible();
+  await page.getByRole("button", { name: "Dejar de compartir" }).click();
+  await stopScreen.getByRole("button", { name: "Dejar de compartir" }).click();
   // With the screen gone, everyone is back on the grid
   await expect(stage).toHaveCount(0);
   await expect(participants(studentPage).getByRole("listitem")).toHaveCount(2);
@@ -302,6 +310,97 @@ test("a Teacher who only leaves keeps the class open, and a shared screen takes 
   await expect(participants(studentPage).getByRole("listitem")).toHaveCount(1);
   await expect(studentPage.getByRole("main").getByRole("alert")).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Entrar a la clase de Matemática" })).toBeVisible();
+
+  await studentPage.context().close();
+  await institution.dispose();
+});
+
+test("a Student who joins late, or comes back, is shown the chat the class already had", async ({
+  page,
+  browser,
+  playwright,
+}) => {
+  test.setTimeout(120_000);
+  const { institution, teacher, student } = await createCourse(playwright);
+  await signIn(page, teacher.email, teacher.password);
+  await page.getByRole("button", { name: "Iniciar clase de Matemática" }).click();
+  await expect(page.getByRole("group", { name: "Controles de la clase" })).toBeVisible({ timeout: 30_000 });
+  await say(page, "Dicho antes de que llegaras");
+  await expect(messageOf(page, "Dicho antes de que llegaras")).toBeVisible();
+  await say(page, "Esto se retira");
+  await messageOf(page, "Esto se retira").click({ button: "right" });
+  await page.getByRole("menu").getByRole("menuitem", { name: "Eliminar para todos" }).click();
+  await expect(chatLog(page)).toContainText("Mensaje eliminado");
+
+  const studentPage = await openAs(browser, student.email, student.password);
+  await studentPage.getByRole("link", { name: "Entrar a la clase de Matemática" }).click({ timeout: 30_000 });
+  await expect(messageOf(studentPage, "Dicho antes de que llegaras")).toBeVisible({ timeout: 15_000 });
+  await expect(chatLog(studentPage)).toContainText("Mensaje eliminado");
+  await expect(chatLog(studentPage)).not.toContainText("Esto se retira");
+
+  // What is said live lands after the replay, and coming back keeps both in order
+  await say(page, "Ya estás aquí");
+  await expect(messageOf(studentPage, "Ya estás aquí")).toBeVisible();
+  // The Student turns sounds down and off; this browser remembers it
+  await studentPage.getByRole("button", { name: "Volumen de los sonidos" }).click();
+  await studentPage.getByRole("menu", { name: "Volumen de los sonidos" }).getByRole("menuitem", { name: "Bajo" }).click();
+  await studentPage.getByRole("button", { name: "Silenciar los sonidos" }).click();
+  await studentPage.reload();
+  await expect(chatLog(studentPage).getByRole("listitem")).toHaveCount(3, { timeout: 15_000 });
+  await expect(chatLog(studentPage).getByRole("listitem").last()).toContainText("Ya estás aquí");
+  await expect(studentPage.getByRole("button", { name: "Activar los sonidos" })).toBeVisible();
+  await studentPage.getByRole("button", { name: "Volumen de los sonidos" }).click();
+  await expect(
+    studentPage.getByRole("menu", { name: "Volumen de los sonidos" }).getByRole("menuitem", { name: "Bajo" }),
+  ).toHaveAttribute("aria-current", "true");
+
+  await studentPage.context().close();
+  await institution.dispose();
+});
+
+test("after a class, its Teacher and its Students read and download what was said", async ({
+  page,
+  browser,
+  playwright,
+}) => {
+  test.setTimeout(120_000);
+  const { institution, teacher, student } = await createCourse(playwright);
+  await signIn(page, teacher.email, teacher.password);
+  await page.getByRole("button", { name: "Iniciar clase de Matemática" }).click();
+  await expect(page.getByRole("group", { name: "Controles de la clase" })).toBeVisible({ timeout: 30_000 });
+  // The mock speech-to-text captions the Teacher's microphone on a timer
+  await expect(page.getByRole("region", { name: "Subtítulos en vivo" })).toContainText("Transcripción simulada", {
+    timeout: 30_000,
+  });
+  await leaveButton(page).click();
+  await page
+    .getByRole("dialog", { name: "¿Salir o finalizar la clase?" })
+    .getByRole("button", { name: "Finalizar para todos" })
+    .click();
+  await expect(page).toHaveURL("/es");
+
+  const studentPage = await openAs(browser, student.email, student.password);
+  await studentPage.getByRole("link", { name: "Transcripciones de Matemática" }).click();
+  await expect(studentPage.getByRole("heading", { name: "Transcripciones de Matemática" })).toBeVisible();
+  const said = studentPage.getByRole("list", { name: "Lo que se dijo" });
+  // The video-server's outbox delivers each line to the backend a moment after the room saw it
+  await expect(async () => {
+    await studentPage.reload();
+    await expect(said.getByRole("listitem").first()).toContainText("Alan Turing: Transcripción simulada", {
+      timeout: 2_000,
+    });
+  }).toPass({ timeout: 30_000 });
+
+  const downloading = studentPage.waitForEvent("download");
+  await studentPage.getByRole("button", { name: "Descargar .txt" }).click();
+  const download = await downloading;
+  expect(download.suggestedFilename()).toMatch(/^Transcripción Matemática 1ro A \d{4}-\d{2}-\d{2}\.txt$/);
+  const file = await readFile(await download.path(), "utf8");
+  expect(file).toMatch(/^Matemática · 1ro A\n.+\n\n\[\d{2}:\d{2}:\d{2}\] Alan Turing: Transcripción simulada/);
+
+  // The Teacher reads the same transcript from their own list
+  await page.getByRole("link", { name: "Transcripciones de Matemática" }).click();
+  await expect(page.getByRole("list", { name: "Lo que se dijo" })).toContainText("Transcripción simulada");
 
   await studentPage.context().close();
   await institution.dispose();

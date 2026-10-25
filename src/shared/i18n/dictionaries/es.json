@@ -84,7 +84,9 @@
       "attendance": "Asistencia",
       "attendanceFor": "Asistencia de {subject}",
       "labs": "Laboratorios",
-      "labsFor": "Laboratorios de {subject}"
+      "labsFor": "Laboratorios de {subject}",
+      "transcripts": "Transcripciones",
+      "transcriptsFor": "Transcripciones de {subject}"
     },
     "heading": "{subject} · {group}",
     "preparing": "Preparando la clase…",
@@ -118,7 +120,15 @@
       "cameraUnnamed": "Cámara {number}",
       "share": "Compartir",
       "labShare": "Compartir un laboratorio",
-      "labStop": "Dejar de compartir el laboratorio"
+      "labStop": "Dejar de compartir el laboratorio",
+      "soundsOn": "Activar los sonidos",
+      "soundsOff": "Silenciar los sonidos",
+      "soundsPicker": "Volumen de los sonidos",
+      "soundLevels": {
+        "low": "Bajo",
+        "medium": "Medio",
+        "high": "Alto"
+      }
     },
     "deviceError": "No pudimos usar tu cámara o micrófono. Revisa los permisos del navegador.",
     "closed": {
@@ -182,6 +192,30 @@
       "confirm": "Salir",
       "leaveOnly": "Solo salir",
       "end": "Finalizar para todos"
+    },
+    "stopDialog": {
+      "screenTitle": "¿Dejar de compartir la pantalla?",
+      "screenBody": "La clase dejará de ver tu pantalla y de oír su sonido.",
+      "labTitle": "¿Dejar de compartir el laboratorio?",
+      "labBody": "La clase dejará de ver el laboratorio. Lo que hayas cambiado en él se pierde.",
+      "cancel": "Seguir compartiendo",
+      "confirm": "Dejar de compartir"
+    },
+    "transcripts": {
+      "fallbackTitle": "Transcripciones",
+      "title": "Transcripciones de {subject}",
+      "subtitle": "Grupo {group}. Lo que se dijo en cada clase con subtítulos, para repasarlo o descargarlo.",
+      "sessionsTitle": "Clases",
+      "noSessions": "Todavía no hay clases con transcripción en esta materia.",
+      "sessionFor": "Transcripción de la clase del {date}",
+      "linesOne": "1 intervención",
+      "linesMany": "{count} intervenciones",
+      "transcriptTitle": "Clase del {date}",
+      "linesLabel": "Lo que se dijo",
+      "unknownSpeaker": "Sin identificar",
+      "said": ": {text}",
+      "download": "Descargar .txt",
+      "exportName": "Transcripción"
     },
     "tile": {
       "options": "Opciones de {name}",

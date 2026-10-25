@@ -1,6 +1,6 @@
-import { VideoPresets } from "livekit-client";
+import { AudioPresets, VideoPresets } from "livekit-client";
 import { describe, expect, it } from "vitest";
-import { roomOptions, SCREEN_PUBLISH } from "./room-options";
+import { roomOptions, SCREEN_CAPTURE, SCREEN_PUBLISH } from "./room-options";
 
 describe("roomOptions", () => {
   it("sends the Teacher's camera at 720p with two lighter layers", () => {
@@ -26,12 +26,25 @@ describe("roomOptions", () => {
   });
 });
 
+describe("SCREEN_CAPTURE", () => {
+  it("captures the screen's sound as it is, with no voice processing", () => {
+    expect(SCREEN_CAPTURE).toMatchObject({
+      audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
+      systemAudio: "include",
+    });
+  });
+});
+
 describe("SCREEN_PUBLISH", () => {
   it("shares screens in VP9 with a VP8 copy for browsers without it, keeping resolution", () => {
-    expect(SCREEN_PUBLISH).toEqual({
+    expect(SCREEN_PUBLISH).toMatchObject({
       videoCodec: "vp9",
       backupCodec: { codec: "vp8" },
       degradationPreference: "maintain-resolution",
     });
+  });
+
+  it("sends the screen's sound at a music bitrate, without pausing on quiet passages", () => {
+    expect(SCREEN_PUBLISH).toMatchObject({ audioPreset: AudioPresets.musicHighQuality, dtx: false });
   });
 });

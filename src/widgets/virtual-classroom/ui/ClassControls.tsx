@@ -18,6 +18,7 @@ import {
   MonitorArrowUpIcon,
   SignOutIcon,
   SpeakerHighIcon,
+  SpeakerSlashIcon,
   VideoCameraIcon,
   VideoCameraSlashIcon,
 } from "@phosphor-icons/react/dist/ssr";
@@ -27,8 +28,10 @@ import { useState, type MouseEvent, type ReactNode } from "react";
 import { HAND_ATTRIBUTE } from "@/entities/class-session";
 import { format, useDictionary } from "@/shared/i18n";
 import { cn } from "@/shared/lib/cn";
-import { SCREEN_CAPTURE, SCREEN_PUBLISH } from "../lib/room-options";
+import { SOUND_LEVELS, useSoundPreferences } from "@/shared/lib/sound-preferences";
+import { useScreenShare } from "../model/use-screen-share";
 import { Button, buttonClass, ContextMenu, useContextMenu, type MenuAction } from "@/shared/ui";
+import { StopSharingDialog } from "./StopSharingDialog";
 
 /** How a control looks: resting, switched off (a closed microphone), or one of the states worth noticing. */
 type Look = "idle" | "off" | "raised" | "sharing" | "open";
@@ -145,23 +148,68 @@ function DeviceToggle({ source, labels, picker, icons, onDeviceError }: DeviceTo
   );
 }
 
-/** Shares the viewer's screen. Closing the browser's picker is a change of mind, not a device error. */
+/** Shares the viewer's screen, and asks before it stops. */
 function ScreenShareToggle({ labels }: { labels: { on: string; off: string } }) {
-  const { toggle, enabled, pending } = useTrackToggle({
-    source: Track.Source.ScreenShare,
-    captureOptions: SCREEN_CAPTURE,
-    publishOptions: SCREEN_PUBLISH,
-    onDeviceError: () => undefined,
-  });
+  const screen = useScreenShare();
   return (
-    <ControlButton
-      label={enabled ? labels.off : labels.on}
-      icon={MonitorArrowUpIcon}
-      look={enabled ? "sharing" : "idle"}
-      isPressed={enabled}
-      disabled={pending}
-      onClick={() => void toggle()}
-    />
+    <>
+      <ControlButton
+        label={screen.enabled ? labels.off : labels.on}
+        icon={MonitorArrowUpIcon}
+        look={screen.enabled ? "sharing" : "idle"}
+        isPressed={screen.enabled}
+        disabled={screen.pending}
+        onClick={screen.press}
+      />
+      <StopSharingDialog what="screen" isOpen={screen.isConfirmingStop} onConfirm={screen.stop} onClose={screen.keep} />
+    </>
+  );
+}
+
+/** Switches the classroom's sounds on and off, with their volume beside it to choose from. */
+function SoundToggle() {
+  const text = useDictionary().classroom.controls;
+  const sounds = useSoundPreferences();
+  const menu = useContextMenu();
+  const actions: MenuAction[] = SOUND_LEVELS.map((level) => {
+    const isCurrent = level === sounds.level;
+    return {
+      id: level,
+      label: text.soundLevels[level],
+      icon: isCurrent ? CheckIcon : SpeakerHighIcon,
+      isCurrent,
+      onSelect: () => {
+        sounds.setLevel(level);
+        sounds.setEnabled(true);
+      },
+    };
+  });
+  const look = sounds.enabled ? "idle" : "off";
+  return (
+    <div className="flex">
+      <ControlButton
+        label={sounds.enabled ? text.soundsOff : text.soundsOn}
+        icon={sounds.enabled ? SpeakerHighIcon : SpeakerSlashIcon}
+        look={look}
+        isPressed={sounds.enabled}
+        onClick={() => sounds.setEnabled(!sounds.enabled)}
+        className="rounded-r-none"
+      />
+      <button
+        type="button"
+        aria-label={text.soundsPicker}
+        title={text.soundsPicker}
+        aria-haspopup="menu"
+        onClick={menu.openAbove}
+        className={cn(
+          "flex h-12 w-7 items-center justify-center rounded-r-xl border-l border-ink/25 transition duration-150 active:scale-[0.96] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-ink",
+          looks[look],
+        )}
+      >
+        <CaretUpIcon aria-hidden weight="bold" className="size-3.5" />
+      </button>
+      <ContextMenu label={text.soundsPicker} actions={actions} anchor={menu.anchor} onClose={menu.close} />
+    </div>
   );
 }
 
@@ -170,6 +218,7 @@ export interface LabSharing {
   isSharing: boolean;
   /** Opens the list of labs to choose from. */
   onPick(): void;
+  /** Asks to take the lab off show; the classroom confirms first. */
   onStop(): void;
 }
 
@@ -180,22 +229,17 @@ export interface LabSharing {
 function ShareMenu({ labels, lab, offersScreen }: { labels: { on: string; off: string }; lab: LabSharing; offersScreen: boolean }) {
   const { classroom } = useDictionary();
   const text = classroom.controls;
-  const { toggle, enabled } = useTrackToggle({
-    source: Track.Source.ScreenShare,
-    captureOptions: SCREEN_CAPTURE,
-    publishOptions: SCREEN_PUBLISH,
-    onDeviceError: () => undefined,
-  });
+  const screen = useScreenShare();
   const menu = useContextMenu();
   const actions: MenuAction[] = [
     ...(offersScreen
-      ? [{ id: "screen", label: enabled ? labels.off : labels.on, icon: MonitorArrowUpIcon, onSelect: () => void toggle() }]
+      ? [{ id: "screen", label: screen.enabled ? labels.off : labels.on, icon: MonitorArrowUpIcon, onSelect: screen.press }]
       : []),
     lab.isSharing
       ? { id: "lab", label: text.labStop, icon: FlaskIcon, isDanger: true, onSelect: lab.onStop }
       : { id: "lab", label: text.labShare, icon: FlaskIcon, onSelect: lab.onPick },
   ];
-  const isSharing = enabled || lab.isSharing;
+  const isSharing = screen.enabled || lab.isSharing;
   return (
     <>
       <ControlButton
@@ -207,6 +251,7 @@ function ShareMenu({ labels, lab, offersScreen }: { labels: { on: string; off: s
         onClick={menu.openAbove}
       />
       <ContextMenu label={text.share} actions={actions} anchor={menu.anchor} onClose={menu.close} />
+      <StopSharingDialog what="screen" isOpen={screen.isConfirmingStop} onConfirm={screen.stop} onClose={screen.keep} />
     </>
   );
 }
@@ -287,6 +332,7 @@ export function ClassControls({
         disabled={isMovingHand}
         onClick={() => void toggleHand()}
       />
+      <SoundToggle />
       <ControlButton
         label={unread > 0 ? `${chatLabel}, ${unreadText}` : chatLabel}
         icon={ChatCircleDotsIcon}
