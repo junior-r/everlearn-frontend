@@ -23,6 +23,7 @@ export {
 } from "./lib/room-messages";
 export { EMPTY_FEED, withHistory, withPacket } from "./lib/room-feed";
 export type { FeedPacket, RoomFeed } from "./lib/room-feed";
+export { elapsedClock, lastedMinutes } from "./lib/class-time";
 export { handQueue } from "./lib/hand-queue";
 export { transcriptText } from "./lib/transcript-text";
 export type { TranscriptTextLabels } from "./lib/transcript-text";
