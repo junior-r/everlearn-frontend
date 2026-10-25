@@ -21,6 +21,8 @@ export interface ClassroomAccess {
   role: ClassroomRole;
   subjectName: string;
   groupName: string;
+  /** ISO date-time the class started, the same for every participant. */
+  startedAt: string;
 }
 
 export interface ChatMessage {
@@ -54,6 +56,8 @@ export interface CourseSession {
   /** ISO date-time. */
   startsAt: string;
   status: "SCHEDULED" | "LIVE" | "COMPLETED" | "CANCELLED";
+  /** ISO date-time its room closed; null while open, and for a class recorded without video. */
+  endedAt: string | null;
   /** Students who already have a mark for this class. */
   marked: number;
 }

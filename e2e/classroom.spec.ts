@@ -55,6 +55,11 @@ test("a Teacher starts a class, a Student joins, and they share video, chat and 
   await expect(page).toHaveURL(/\/es\/class\/[0-9a-f-]{36}$/);
   await expect(page.getByRole("heading", { name: "Matemática · 1ro A" })).toBeVisible();
   await expect(participants(page).getByRole("listitem", { name: "Alan Turing (tú)" })).toBeVisible();
+  // The class is timed from its start, and the clock runs
+  const timer = page.getByRole("timer", { name: "Tiempo de clase" });
+  await expect(timer).toHaveText(/^\d+:\d{2}$/);
+  const firstReading = await timer.textContent();
+  await expect(timer).not.toHaveText(firstReading ?? "", { timeout: 3_000 });
   await expect(page.getByRole("button", { name: "Silenciar micrófono" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Apagar cámara" })).toBeVisible();
 
@@ -397,6 +402,11 @@ test("after a class, its Teacher and its Students read and download what was sai
   expect(download.suggestedFilename()).toMatch(/^Transcripción Matemática 1ro A \d{4}-\d{2}-\d{2}\.txt$/);
   const file = await readFile(await download.path(), "utf8");
   expect(file).toMatch(/^Matemática · 1ro A\n.+\n\n\[\d{2}:\d{2}:\d{2}\] Alan Turing: Transcripción simulada/);
+
+  // The class it came from is on the Teacher's attendance list with how long it lasted
+  await page.getByRole("link", { name: "Asistencia de Matemática" }).click();
+  await expect(page.getByRole("button", { name: /^Clase del/ }).first()).toContainText(/Duró \d+ minutos?/);
+  await page.goto("/es");
 
   // The Teacher reads the same transcript from their own list
   await page.getByRole("link", { name: "Transcripciones de Matemática" }).click();
