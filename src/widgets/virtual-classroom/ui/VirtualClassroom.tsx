@@ -49,6 +49,7 @@ import { HandQueue } from "./HandQueue";
 import { LabPicker } from "./LabPicker";
 import { LiveCaptions } from "./LiveCaptions";
 import { ParticipantTile, type Moderation } from "./ParticipantTile";
+import { ClassTimer } from "./ClassTimer";
 import { SharedLabPanel } from "./SharedLabPanel";
 import { StopSharingDialog } from "./StopSharingDialog";
 
@@ -323,6 +324,7 @@ function Classroom({
         <h1 className="min-w-0 flex-1 truncate text-lg font-semibold">
           {format(classroom.heading, { subject: access.subjectName, group: access.groupName })}
         </h1>
+        {isInRoom && <ClassTimer startedAt={access.startedAt} />}
         {isInRoom && (
           <HandQueue hands={hands} localIdentity={room.localParticipant.identity} moderation={moderation} />
         )}

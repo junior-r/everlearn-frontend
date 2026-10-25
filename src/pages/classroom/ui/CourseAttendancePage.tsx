@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
-import { fetchCourseSessions } from "@/entities/class-session";
+import { fetchCourseSessions, lastedMinutes } from "@/entities/class-session";
 import { useActiveInstitution } from "@/entities/institution";
 import { AttendanceSheet, RecordHeldClassForm } from "@/features/classroom/take-attendance";
 import { errorMessage, format, useDictionary, useLocale } from "@/shared/i18n";
@@ -35,6 +35,7 @@ function CourseAttendance() {
   const chosen = data?.sessions.find((session) => session.id === chosenId) ?? data?.sessions[0];
   const when = new Intl.DateTimeFormat(locale, { dateStyle: "full", timeStyle: "short" });
   const count = new Intl.NumberFormat(locale);
+  const minutes = new Intl.NumberFormat(locale, { style: "unit", unit: "minute", unitDisplay: "long" });
 
   return (
     <PortalShell
@@ -54,6 +55,7 @@ function CourseAttendance() {
                   {data.sessions.map((session) => {
                     const date = when.format(new Date(session.startsAt));
                     const isOpen = session.status === "SCHEDULED" || session.status === "LIVE";
+                    const lasted = lastedMinutes(session.startsAt, session.endedAt);
                     return (
                       <li key={session.id}>
                         <button
@@ -74,6 +76,7 @@ function CourseAttendance() {
                             {session.marked > 0
                               ? format(text.marked, { count: count.format(session.marked) })
                               : text.unmarked}
+                            {lasted !== null && ` · ${format(text.lasted, { duration: minutes.format(lasted) })}`}
                           </span>
                         </button>
                       </li>
