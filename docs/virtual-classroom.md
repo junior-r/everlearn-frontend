@@ -24,6 +24,7 @@ Teachers and Students need a screen to hold a class: see each other, write in a 
 - **`widgets/virtual-classroom`:** `VirtualClassroom` (connection and layout), `ParticipantTile`, `ClassControls`, `LiveCaptions`, `useRoomFeed` (chat, removals and captions from the room, with the replay), `lib/room-state.ts` (`closureFor`, `gridColumns`, `stageKey`, `unreadCount`).
 - **Toolbar (`ClassControls`):** microphone and camera, each with the list of connected devices to choose from (`useMediaDeviceSelect`; LiveKit switches the published track in place), share screen (left out where the browser cannot; for the Teacher a menu that also shares a lab), raise hand, open or close the chat (with the count of unread messages) and leave. Each button's only text is what pressing it does now.
 - **A shared lab** is state in the room metadata, drawn by every browser and given to late joiners; it takes the stage like a new screen. See `labs.md`.
+- **Recording (`useClassRecording`, `RecordingBadge`):** a Teacher whose access says `canRecord` has a record button in the toolbar (`POST /recording/start` and `/recording/stop` on the video-server with the room token). Whether the class is being recorded comes only from the room (`useIsRecording`), so every participant, Students first, sees the same "Grabando" badge in the header; the button waits for the room to show the change (Egress takes a few seconds to start) and gives up with an error after a minute. Stopping asks first (`Dialog`), like stopping a share.
 - **Leaving always asks first.** A Student confirms. A Teacher chooses between "Solo salir" (the class stays open) and "Finalizar para todos" (`POST /class/end`: the room closes, every Student sees "La clase terminó" and attendance is taken).
 - **Class timer (`ClassTimer`):** the header shows how long the class has been going, counted from the `startedAt` the backend sends with the room token, so every participant sees the same time (`elapsedClock`). The Teacher's attendance list shows how long each finished video class lasted (`lastedMinutes`, from `endedAt`).
 - **Stopping a share asks first too** (`StopSharingDialog`): a screen through `useScreenShare`, a lab from the toolbar or its panel, since the class loses it at once and a lab loses its changes. Starting needs no confirmation, and the browser's own "Stop sharing" bar ends a screen share without asking.
@@ -60,6 +61,13 @@ Teachers and Students need a screen to hold a class: see each other, write in a 
 - **Reason:** the file is built in the browser from what the backend sent (`transcriptText` in `entities/class-session`, saved with `shared/lib/download`), so the date in it follows the reader's locale and no second endpoint has to repeat the access rule. Plain text needs no guard against spreadsheet formulas.
 - **Implementation:** `pages/classroom/CourseTranscriptsPage` with `features/classroom/read-transcript` (`TranscriptView`). Who may read is decided only by the backend (see `backend/docs/classroom.md`). E2E: `e2e/classroom.spec.ts`.
 
+## Recordings of past classes
+
+- **Need:** a recorded class must be watchable by its group afterwards.
+- **Goal:** `/courses/:groupId/:subjectId/recordings`, reached from "Grabaciones" in "Mis clases" by the course's Teacher and the Students of its group: the recorded classes (latest first, with length and size) and a player for the one chosen, with a download button. `?recording=<id>` opens one, which is where the `RECORDING_READY` notice leads.
+- **Reason:** the browser plays the file straight from a short-lived link the backend hands out (`GET /class-recordings/:id/link`), from the bucket or from the backend's media route; the frontend never handles the bytes. A `<video>` cannot send the session, so the link is the permission. Downloading asks for a second link that answers as an attachment.
+- **Implementation:** `pages/classroom/CourseRecordingsPage` with `features/classroom/watch-recording` (`RecordingPlayer`), over `entities/class-session` (`fetchCourseRecordings`, `fetchRecordingLink`, `recordingSize`). E2E: `e2e/recording.spec.ts` (needs `egress` running too).
+
 ## Known gaps
 
 - No picker for the speaker, and the device chosen is not remembered for the next class.
@@ -68,3 +76,4 @@ Teachers and Students need a screen to hold a class: see each other, write in a 
 - The roll has no field for the note the backend accepts with a mark, and the class it shows is not kept in the address.
 - No pre-join screen to check camera and microphone.
 - On small screens the chat sits under the video at a fixed height.
+- A recording's link lasts 6 hours: a player left open longer stops seeking until the page is reloaded.

@@ -44,12 +44,14 @@ import { roomOptions } from "../lib/room-options";
 import { useRoomFeed } from "../model/use-room-feed";
 import { useClassroomSounds } from "../model/use-classroom-sounds";
 import { useSharedLab } from "../model/use-shared-lab";
+import { useClassRecording } from "../model/use-class-recording";
 import { ClassControls } from "./ClassControls";
 import { HandQueue } from "./HandQueue";
 import { LabPicker } from "./LabPicker";
 import { LiveCaptions } from "./LiveCaptions";
 import { ParticipantTile, type Moderation } from "./ParticipantTile";
 import { ClassTimer } from "./ClassTimer";
+import { RecordingBadge } from "./RecordingBadge";
 import { SharedLabPanel } from "./SharedLabPanel";
 import { StopSharingDialog } from "./StopSharingDialog";
 
@@ -236,6 +238,8 @@ function Classroom({
   const shareableLabs = parseShareableLabs(
     useParticipantAttribute(LABS_ATTRIBUTE, { participant: room.localParticipant }),
   );
+  const recording = useClassRecording(token, reportError);
+  const [isStoppingRecording, setIsStoppingRecording] = useState(false);
   const [isPickingLab, setIsPickingLab] = useState(false);
   const [isStoppingLab, setIsStoppingLab] = useState(false);
   const current = sharedLab.current;
@@ -325,6 +329,7 @@ function Classroom({
           {format(classroom.heading, { subject: access.subjectName, group: access.groupName })}
         </h1>
         {isInRoom && <ClassTimer startedAt={access.startedAt} />}
+        {isInRoom && recording.isRecording && <RecordingBadge />}
         {isInRoom && (
           <HandQueue hands={hands} localIdentity={room.localParticipant.identity} moderation={moderation} />
         )}
@@ -380,7 +385,37 @@ function Classroom({
                     }
                   : null
               }
+              recording={
+                access.canRecord
+                  ? {
+                      isRecording: recording.isRecording,
+                      isPending: recording.isPending,
+                      onStart: recording.start,
+                      onStop: () => setIsStoppingRecording(true),
+                    }
+                  : null
+              }
             />
+            <Dialog
+              isOpen={isStoppingRecording && recording.isRecording}
+              title={classroom.recordDialog.title}
+              description={classroom.recordDialog.body}
+              onClose={() => setIsStoppingRecording(false)}
+            >
+              <Button size="sm" variant="secondary" onClick={() => setIsStoppingRecording(false)}>
+                {classroom.recordDialog.cancel}
+              </Button>
+              <Button
+                size="sm"
+                variant="danger"
+                onClick={() => {
+                  setIsStoppingRecording(false);
+                  recording.stop();
+                }}
+              >
+                {classroom.recordDialog.confirm}
+              </Button>
+            </Dialog>
             <LabPicker
               isOpen={isPickingLab}
               labs={shareableLabs}

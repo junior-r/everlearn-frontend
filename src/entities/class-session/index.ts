@@ -8,8 +8,10 @@ import type {
   ClassroomAccess,
   ClassroomCourse,
   ClassTranscript,
+  CourseRecordings,
   CourseSessions,
   CourseTranscripts,
+  RecordingLink,
 } from "./model/types";
 
 export {
@@ -26,6 +28,7 @@ export type { FeedPacket, RoomFeed } from "./lib/room-feed";
 export { elapsedClock, lastedMinutes } from "./lib/class-time";
 export { handQueue } from "./lib/hand-queue";
 export { transcriptText } from "./lib/transcript-text";
+export { recordingSize } from "./lib/recording";
 export type { TranscriptTextLabels } from "./lib/transcript-text";
 export type { HandHolder, RaisedHand } from "./lib/hand-queue";
 export { ATTENDANCE_STATUSES } from "./model/types";
@@ -37,10 +40,13 @@ export type {
   ClassroomAccess,
   ClassroomCourse,
   ClassroomRole,
+  ClassRecording,
   ClassTranscript,
+  CourseRecordings,
   CourseSession,
   CourseSessions,
   CourseTranscripts,
+  RecordingLink,
   TranscribedSession,
   TranscriptLine,
 } from "./model/types";
@@ -52,6 +58,10 @@ export const courseAttendancePath = (groupId: string, subjectId: string) =>
 /** Where the Teacher and the Students of a course read what was said in its past classes. */
 export const courseTranscriptsPath = (groupId: string, subjectId: string) =>
   `/courses/${groupId}/${subjectId}/transcripts`;
+
+/** Where the Teacher and the Students of a course watch its recorded classes. */
+export const courseRecordingsPath = (groupId: string, subjectId: string) =>
+  `/courses/${groupId}/${subjectId}/recordings`;
 
 /** The subjects the signed-in member teaches or attends in the institution. */
 export function fetchMyCourses(institutionId: string): Promise<ClassroomCourse[]> {
@@ -151,6 +161,19 @@ export function stopSharingLab(roomToken: string): Promise<void> {
   return askVideoServer(roomToken, "/lab/stop", {}, "LAB_SHARE_FAILED");
 }
 
+/**
+ * Starts recording the whole class: every camera, screen and voice. The room
+ * announces it to everyone once it runs. Only the Teacher, where the backend allows it.
+ */
+export function startRecording(roomToken: string): Promise<void> {
+  return askVideoServer(roomToken, "/recording/start", {}, "RECORDING_FAILED");
+}
+
+/** Stops recording; the file reaches the group's recordings a few minutes later. */
+export function stopRecording(roomToken: string): Promise<void> {
+  return askVideoServer(roomToken, "/recording/stop", {}, "RECORDING_FAILED");
+}
+
 const sessionsPath = (groupId: string, subjectId: string) => `/groups/${groupId}/courses/${subjectId}/sessions`;
 
 /** The latest classes of a course, most recent first. Only for the Teacher assigned to it. */
@@ -176,6 +199,25 @@ export function fetchClassTranscript(institutionId: string, sessionId: string): 
   return apiClient.request<ClassTranscript>(`/class-sessions/${sessionId}/transcript`, {
     headers: forInstitution(institutionId),
   });
+}
+
+/** The recorded classes of a course, most recent first. For its Teacher and its Students. */
+export function fetchCourseRecordings(
+  institutionId: string,
+  groupId: string,
+  subjectId: string,
+): Promise<CourseRecordings> {
+  return apiClient.request<CourseRecordings>(`/groups/${groupId}/courses/${subjectId}/recordings`, {
+    headers: forInstitution(institutionId),
+  });
+}
+
+/** A short-lived link to play a recording, or to download it. */
+export function fetchRecordingLink(institutionId: string, recordingId: string, download: boolean): Promise<RecordingLink> {
+  return apiClient.request<RecordingLink>(
+    `/class-recordings/${recordingId}/link${download ? "?download=true" : ""}`,
+    { headers: forInstitution(institutionId) },
+  );
 }
 
 /** Records a class given without video, so its attendance can be taken. `startsAt` is an ISO date-time. */

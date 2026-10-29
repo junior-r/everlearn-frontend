@@ -23,6 +23,8 @@ export interface ClassroomAccess {
   groupName: string;
   /** ISO date-time the class started, the same for every participant. */
   startedAt: string;
+  /** Whether the viewer may record the class: its Teacher, where recordings are on. */
+  canRecord: boolean;
 }
 
 export interface ChatMessage {
@@ -102,6 +104,30 @@ export interface ClassTranscript {
   /** ISO date-time. */
   startsAt: string;
   lines: TranscriptLine[];
+}
+
+/** A recorded class, stored and ready to watch. */
+export interface ClassRecording {
+  id: string;
+  sessionId: string;
+  /** ISO date-time the class started. */
+  startsAt: string;
+  /** ISO date-times the recording started and stopped. */
+  startedAt: string;
+  endedAt: string;
+  sizeBytes: number;
+}
+
+export interface CourseRecordings {
+  subjectName: string;
+  groupName: string;
+  recordings: ClassRecording[];
+}
+
+/** Where the browser plays or downloads a recording from, until `expiresAt` (ISO date-time). */
+export interface RecordingLink {
+  url: string;
+  expiresAt: string;
 }
 
 /** One enrolled Student on the attendance sheet of a class. */

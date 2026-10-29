@@ -36,5 +36,9 @@ describe("notificationPath", () => {
   it("opens the lab activity a Student was given", () => {
     expect(notificationPath(notice("LAB_ASSIGNED", { assignmentId: "a 1" }))).toBe("/labs/activities/a%201");
     expect(notificationPath(notice("LAB_ASSIGNED"))).toBe("/labs");
+    expect(
+      notificationPath(notice("RECORDING_READY", { groupId: "g", subjectId: "s", recordingId: "r 1" })),
+    ).toBe("/courses/g/s/recordings?recording=r%201");
+    expect(notificationPath(notice("RECORDING_READY"))).toBe("/");
   });
 });

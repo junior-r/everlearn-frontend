@@ -86,13 +86,19 @@
       "labs": "Labs",
       "labsFor": "{subject} labs",
       "transcripts": "Transcripts",
-      "transcriptsFor": "Transcripts of {subject}"
+      "transcriptsFor": "Transcripts of {subject}",
+      "recordings": "Recordings",
+      "recordingsFor": "Recordings of {subject}"
     },
     "heading": "{subject} · {group}",
     "preparing": "Preparing the class…",
     "connecting": "Connecting to the class…",
     "reconnecting": "Reconnecting…",
     "timer": "Class time",
+    "recording": {
+      "live": "Recording",
+      "liveNotice": "This class is being recorded: the recording will be available to the group."
+    },
     "backHome": "Back to home",
     "leave": "Leave the class",
     "participants": "Participants",
@@ -129,7 +135,10 @@
         "low": "Low",
         "medium": "Medium",
         "high": "High"
-      }
+      },
+      "recordStart": "Record the class",
+      "recordStop": "Stop recording",
+      "recordStarting": "Starting the recording…"
     },
     "deviceError": "We could not use your camera or microphone. Check your browser permissions.",
     "closed": {
@@ -203,6 +212,12 @@
       "cancel": "Keep sharing",
       "confirm": "Stop sharing"
     },
+    "recordDialog": {
+      "title": "Stop recording?",
+      "body": "What was recorded so far is kept and will be available to the group in a few minutes. You can record again afterwards.",
+      "cancel": "Keep recording",
+      "confirm": "Stop"
+    },
     "transcripts": {
       "fallbackTitle": "Transcripts",
       "title": "Transcripts of {subject}",
@@ -218,6 +233,19 @@
       "said": ": {text}",
       "download": "Download .txt",
       "exportName": "Transcript"
+    },
+    "recordings": {
+      "fallbackTitle": "Recordings",
+      "title": "Recordings of {subject}",
+      "subtitle": "Group {group}. Every recorded class, with what was seen and heard: cameras, shared screens and their sound.",
+      "listTitle": "Recorded classes",
+      "empty": "No class of this subject has been recorded yet. A recorded class shows up here a few minutes after its recording stops.",
+      "recordingFor": "Recording of the class on {date}",
+      "duration": "{minutes} min",
+      "durationUnder": "Under 1 min",
+      "playerTitle": "Class on {date}",
+      "playerLabel": "Recording of the class on {date}",
+      "download": "Download video"
     },
     "tile": {
       "options": "Options for {name}",
@@ -588,6 +616,10 @@
       "LAB_ASSIGNED": {
         "title": "New activity: {title}",
         "body": "{subjectName} lab · Group {groupName}"
+      },
+      "RECORDING_READY": {
+        "title": "Recording ready: {subjectName}",
+        "body": "The class of group {groupName} can now be watched"
       }
     },
     "attendance": {
@@ -1078,7 +1110,9 @@
     "LAB_SHARE_FAILED": "The lab could not be shared with the class. Try again.",
     "MEMBER_NOT_FOUND": "We couldn't find that member.",
     "IDENTITY_ALREADY_VERIFIED": "This member's ID was already checked.",
-    "IDENTITY_CHECK_NOT_ALLOWED": "You can't check this member's ID."
+    "IDENTITY_CHECK_NOT_ALLOWED": "You can't check this member's ID.",
+    "RECORDING_NOT_FOUND": "This recording does not exist or is not available to you.",
+    "RECORDING_FAILED": "The recording could not be started or stopped. Try again in a few seconds."
   },
   "labs": {
     "catalog": {
