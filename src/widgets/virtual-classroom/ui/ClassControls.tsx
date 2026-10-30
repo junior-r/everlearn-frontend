@@ -16,6 +16,7 @@ import {
   MicrophoneIcon,
   MicrophoneSlashIcon,
   MonitorArrowUpIcon,
+  RecordIcon,
   SignOutIcon,
   SpeakerHighIcon,
   SpeakerSlashIcon,
@@ -34,7 +35,7 @@ import { Button, buttonClass, ContextMenu, useContextMenu, type MenuAction } fro
 import { StopSharingDialog } from "./StopSharingDialog";
 
 /** How a control looks: resting, switched off (a closed microphone), or one of the states worth noticing. */
-type Look = "idle" | "off" | "raised" | "sharing" | "open";
+type Look = "idle" | "off" | "raised" | "sharing" | "open" | "recording";
 
 const looks: Record<Look, string> = {
   idle: "bg-on-ink/10 text-on-ink hover:bg-on-ink/20",
@@ -42,6 +43,7 @@ const looks: Record<Look, string> = {
   raised: "bg-sun text-ink hover:bg-sun/85",
   sharing: "bg-sky text-ink hover:bg-sky/85",
   open: "bg-on-ink text-ink hover:bg-on-ink/85",
+  recording: "bg-coral text-ink hover:bg-coral/85",
 };
 
 interface ControlButtonProps {
@@ -271,6 +273,17 @@ interface ClassControlsProps {
   onDeviceError(): void;
   /** Only for the Teacher, and only when the institution has labs to share. */
   lab: LabSharing | null;
+  /** Only for the Teacher, where recordings are on. */
+  recording: RecordingToggle | null;
+}
+
+/** What the Teacher can do about recording the class from the toolbar. */
+export interface RecordingToggle {
+  isRecording: boolean;
+  isPending: boolean;
+  onStart(): void;
+  /** Asks to stop; the classroom confirms first. */
+  onStop(): void;
 }
 
 /** The viewer's own controls: microphone and camera (and which ones), screen or lab, hand, chat and leaving the class. */
@@ -282,6 +295,7 @@ export function ClassControls({
   onLeave,
   onDeviceError,
   lab,
+  recording,
 }: ClassControlsProps) {
   const { classroom } = useDictionary();
   const text = classroom.controls;
@@ -292,6 +306,11 @@ export function ClassControls({
   const [offersScreenShare] = useState(canShareScreen);
   const chatLabel = isChatOpen ? text.chatClose : text.chatOpen;
   const unreadText = unread === 1 ? text.unreadOne : format(text.unreadMany, { count: String(unread) });
+  const recordLabel = recording?.isPending
+    ? text.recordStarting
+    : recording?.isRecording
+      ? text.recordStop
+      : text.recordStart;
 
   async function toggleHand() {
     setIsMovingHand(true);
@@ -332,6 +351,16 @@ export function ClassControls({
         disabled={isMovingHand}
         onClick={() => void toggleHand()}
       />
+      {recording && (
+        <ControlButton
+          label={recordLabel}
+          icon={RecordIcon}
+          look={recording.isRecording ? "recording" : "idle"}
+          isPressed={recording.isRecording}
+          disabled={recording.isPending}
+          onClick={recording.isRecording ? recording.onStop : recording.onStart}
+        />
+      )}
       <SoundToggle />
       <ControlButton
         label={unread > 0 ? `${chatLabel}, ${unreadText}` : chatLabel}

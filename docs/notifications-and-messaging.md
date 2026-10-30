@@ -34,6 +34,8 @@ A bell on every signed-in screen, a `/messages` page with live conversations, an
 
 The bell words four more notices: a Student's own grade (`GRADE_POSTED`, opens `/progress`) and, for a Guardian, a ward's new evaluation, grade or absence (`WARD_…`, open `/guardian?ward=<studentId>`, on that ward's tab). The backend sends the facts (`studentName`, `score`, `status`); the wording, including how an absence or a late arrival reads, is in `notifications.types` and `notifications.attendance`.
 
+A stored recording (`RECORDING_READY`) opens `/courses/<groupId>/<subjectId>/recordings?recording=<recordingId>`, which plays that recording.
+
 ## Known gaps
 
 - A notice about a ward opens the Guardian's portal, not that ward's tab.

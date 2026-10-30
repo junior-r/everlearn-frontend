@@ -86,13 +86,19 @@
       "labs": "Laboratorios",
       "labsFor": "Laboratorios de {subject}",
       "transcripts": "Transcripciones",
-      "transcriptsFor": "Transcripciones de {subject}"
+      "transcriptsFor": "Transcripciones de {subject}",
+      "recordings": "Grabaciones",
+      "recordingsFor": "Grabaciones de {subject}"
     },
     "heading": "{subject} · {group}",
     "preparing": "Preparando la clase…",
     "connecting": "Conectando con la clase…",
     "reconnecting": "Reconectando…",
     "timer": "Tiempo de clase",
+    "recording": {
+      "live": "Grabando",
+      "liveNotice": "Esta clase se está grabando: la grabación quedará disponible para el grupo."
+    },
     "backHome": "Volver al inicio",
     "leave": "Salir de la clase",
     "participants": "Participantes",
@@ -129,7 +135,10 @@
         "low": "Bajo",
         "medium": "Medio",
         "high": "Alto"
-      }
+      },
+      "recordStart": "Grabar la clase",
+      "recordStop": "Detener la grabación",
+      "recordStarting": "Iniciando la grabación…"
     },
     "deviceError": "No pudimos usar tu cámara o micrófono. Revisa los permisos del navegador.",
     "closed": {
@@ -203,6 +212,12 @@
       "cancel": "Seguir compartiendo",
       "confirm": "Dejar de compartir"
     },
+    "recordDialog": {
+      "title": "¿Detener la grabación?",
+      "body": "Lo grabado hasta ahora se guarda y quedará disponible para el grupo en unos minutos. Puedes volver a grabar después.",
+      "cancel": "Seguir grabando",
+      "confirm": "Detener"
+    },
     "transcripts": {
       "fallbackTitle": "Transcripciones",
       "title": "Transcripciones de {subject}",
@@ -218,6 +233,19 @@
       "said": ": {text}",
       "download": "Descargar .txt",
       "exportName": "Transcripción"
+    },
+    "recordings": {
+      "fallbackTitle": "Grabaciones",
+      "title": "Grabaciones de {subject}",
+      "subtitle": "Grupo {group}. Cada clase grabada, con lo que se vio y se oyó: cámaras, pantallas compartidas y su sonido.",
+      "listTitle": "Clases grabadas",
+      "empty": "Todavía no hay clases grabadas en esta materia. Una clase grabada aparece aquí unos minutos después de terminar la grabación.",
+      "recordingFor": "Grabación de la clase del {date}",
+      "duration": "{minutes} min",
+      "durationUnder": "Menos de 1 min",
+      "playerTitle": "Clase del {date}",
+      "playerLabel": "Grabación de la clase del {date}",
+      "download": "Descargar video"
     },
     "tile": {
       "options": "Opciones de {name}",
@@ -588,6 +616,10 @@
       "LAB_ASSIGNED": {
         "title": "Nueva actividad: {title}",
         "body": "Laboratorio de {subjectName} · Grupo {groupName}"
+      },
+      "RECORDING_READY": {
+        "title": "Grabación lista: {subjectName}",
+        "body": "La clase del grupo {groupName} ya se puede ver"
       }
     },
     "attendance": {
@@ -1078,7 +1110,9 @@
     "LAB_SHARE_FAILED": "No se pudo compartir el laboratorio con la clase. Inténtalo de nuevo.",
     "MEMBER_NOT_FOUND": "No encontramos a ese miembro.",
     "IDENTITY_ALREADY_VERIFIED": "La identidad de este miembro ya fue verificada.",
-    "IDENTITY_CHECK_NOT_ALLOWED": "No puedes verificar la identidad de este miembro."
+    "IDENTITY_CHECK_NOT_ALLOWED": "No puedes verificar la identidad de este miembro.",
+    "RECORDING_NOT_FOUND": "Esta grabación no existe o no está disponible para ti.",
+    "RECORDING_FAILED": "No se pudo iniciar ni detener la grabación. Inténtalo de nuevo en unos segundos."
   },
   "labs": {
     "catalog": {
